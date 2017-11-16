@@ -2,12 +2,15 @@
 #include <sys/kprintf.h>
 #include <sys/freelist.h>
 
+/*This static struct has the starting point of our free list at all times*/
+static struct freeList* freeListStart;
+
 uint32_t* loader_stack;
 extern char kernmem, physbase;
 
-void initializeFreelist(uint32_t *modulep){
-	uint16_t pageSize = 4*0x1000;
-	uint64_t physfree = 0x217000;
+/*Initialize only once, preferably on boot, sets up the free list*/
+void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
+	uint16_t pageSize = 4*0x1000; //Our page size will be 4kB
 	struct freeList* head = (struct freeList*)physfree;
 	struct freeList *tempNode = head, *prev = NULL;
 	uint64_t base;
@@ -25,10 +28,22 @@ void initializeFreelist(uint32_t *modulep){
 			numPages = smap->length / pageSize;
 			base = smap->base;
 			for (j=0; j<numPages; j++){
+				/*Skipping kernel memory*/
+				if(base >= (uint64_t)physbase &&  base < (uint64_t)physfree){
+					base = (uint64_t)physfree;
+					continue;	
+				}
+				/*Skipping video memory*/
+				if(base >= (uint64_t)0xb8000 && base < (uint64_t)0xb8000+160*25){
+					base = (uint64_t)0xb8000+160*25;
+					continue;
+				}
+				/*Creating Free List of all memory that can be used by OS*/
 				tempNode->phyaddr = base;
 				if (prev) {
 					prev->next = tempNode;
 				}
+				
 				prev = tempNode;
 				tempNode += sizeof(struct freeList);
 				base += pageSize;
@@ -36,7 +51,18 @@ void initializeFreelist(uint32_t *modulep){
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
 		}
 	}
+	freeListStart = head;
+}
 
-	kprintf("I want to print page size = %x\n", pageSize);
+/*Returns the pointer to the current "head" of the free list*/
+struct freeList* getCurrentFreeListHead(){
+	return freeListStart;
+}
+
+/*Returns the phyaddr of the current "head" of the free list and moves the "head*/
+uint64_t getFreeFrame(){
+	uint64_t freeFrame = freeListStart->phyaddr;
+	freeListStart = freeListStart->next;
+	return freeFrame;
 }
 
