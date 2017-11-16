@@ -1,3 +1,7 @@
+Operating System implementation as a course project for CSE 506 under Prof. Mike Ferdman.
+
+1) Freelist - Linked list connecting all free physical memory.
+
 * The provided Makefile:
   1) builds a kernel
   2) copies it into rootfs/boot/kernel/kernel
