@@ -38,6 +38,11 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 					base = (uint64_t)0xb8000+160*25;
 					continue;
 				}
+				/*Skipping all addresses before physfree*/
+				if(base < (uint64_t)physfree){
+					base = (uint64_t)physfree;
+					continue;
+				}
 				/*Creating Free List of all memory that can be used by OS*/
 				tempNode->phyaddr = base;
 				if (prev) {
