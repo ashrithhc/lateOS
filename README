@@ -2,6 +2,7 @@ Operating System implementation as a course project for CSE 506 under Prof. Mike
 
 1) kprintf - Print to physical video memory - Yet to implement scrolling.
 2) Freelist - Linked list connecting all free physical memory.
+3) Paging - PML4E, PDPE, PDE, PTE tables and loading PML4E base to CR3 register.
 
 * The provided Makefile:
   1) builds a kernel
