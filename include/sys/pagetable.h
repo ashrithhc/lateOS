@@ -63,7 +63,6 @@ typedef struct {
 	uint8_t nx:1;
 } __attribute__ ((__packed__)) PTE;
 
+void setPageTables();
+
 PML4E *pml4etable;
-PDPE *pdpetable;
-PDE *pdetable;
-PTE *ptetable;

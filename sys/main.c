@@ -4,6 +4,7 @@
 #include <sys/tarfs.h>
 #include <sys/ahci.h>
 #include <sys/freelist.h>
+#include <sys/pagetable.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -13,8 +14,9 @@ extern char kernmem, physbase;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   initializeFreelist(modulep, physbase, physfree);
-  uint64_t freeAddress = getFreeFrame();
-  kprintf("Free address = %p\n", freeAddress);
+  setPageTables(physfree);
+  kprintf("Hello\n");
+//  kprintf("Kernel memory %p and %p\n", &kernmem, &physbase);
   while(1);
 }
 
