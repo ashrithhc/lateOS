@@ -28,7 +28,7 @@ typedef struct {
 	uint8_t avl:3;
 	uint64_t pageDirectoryBase:40;
 	uint16_t available:11;
-	uint8_t nx:1;
+	uint8_t nx:1 ;
 } __attribute__ ((__packed__)) PDPE;
 
 typedef struct {

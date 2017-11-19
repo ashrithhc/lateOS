@@ -10,7 +10,7 @@ extern char kernmem, physbase;
 
 /*Initialize only once, preferably on boot, sets up the free list*/
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
-	uint16_t pageSize = 4*0x1000; //Our page size will be 4kB
+	uint16_t pageSize = 0x1000; //Our page size will be 4kB
 	struct freeList* head = (struct freeList*)physfree;
 	struct freeList *tempNode = head, *prev = NULL;
 	uint64_t base;
@@ -29,15 +29,15 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 			base = smap->base;
 			for (j=0; j<numPages; j++){
 				/*Skipping kernel memory*/
-//				if(base >= (uint64_t)physbase &&  base < (uint64_t)physfree){
-//					base = (uint64_t)physfree;
-//					continue;	
-//				}
-//				/*Skipping video memory*/
-//				if(base >= (uint64_t)0xb8000 && base < (uint64_t)0xb8000+160*25){
-//					base = (uint64_t)0xb8000+160*25;
-//					continue;
-//				}
+/*				if(base >= (uint64_t)physbase &&  base < (uint64_t)physfree){
+					base = (uint64_t)physfree;
+					continue;	
+				}*/
+				/*Skipping video memory*/
+/*				if(base >= (uint64_t)0xb8000 && base < (uint64_t)0xb8000+160*25){
+					base = (uint64_t)0xb8000+160*25;
+					continue;
+				}*/
 				/*Skipping all addresses before physfree*/
 				if(base < (uint64_t)physfree){
 					base = (uint64_t)physfree;
@@ -53,7 +53,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 				tempNode += sizeof(struct freeList);
 				base += pageSize;
 			}
-			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
+//			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
 		}
 	}
 	freeListStart = head;

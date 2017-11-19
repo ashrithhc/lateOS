@@ -14,9 +14,9 @@ extern char kernmem, physbase;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   initializeFreelist(modulep, physbase, physfree);
-  setPageTables(physfree);
+  setPageTables(physbase,physfree);
   kprintf("Hello\n");
-//  kprintf("Kernel memory %p and %p\n", &kernmem, &physbase);
+//  kprintf("Kernel memory %p and %p\n", getFreeFrame(), getFreeFrame());
   while(1);
 }
 

@@ -1,25 +1,17 @@
 #include <sys/kprintf.h>
+#include <sys/pagetable.h>
 #include "stdarg.h"
 
 static int usedSpace=0;
+extern char kernmem, physbase;
 
 void kprintf(const char *fmt, ...)
 {
 	const char *temp1; register char *temp2;
-/*
-	temp2 = (char *)0xb8000;	
-
-	for(int i=0; i<81; i++){
-		*temp2 = 'a';
-		temp2 += 2;
-	}
-
-	return;*/
-
 	va_list valist;
 	va_start(valist, fmt);
 
-	temp2 = (char *)0xb8000;
+	temp2 = (char *)((&kernmem - &physbase) + 0xb8000);
 
 	for(int move = 0; move < usedSpace; move++){
 		temp2+=2;
