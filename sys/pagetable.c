@@ -39,24 +39,16 @@ void setPageTables(void *physbase,void *physfree){
 	(pdpetable + ((memToMap >> (12+9+9)) & 511))->pageDirectoryBase = ((uint64_t)pdetable>>12);
 	(pdetable + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptetable>>12);
 
-	id_paging(ptetable, (uint64_t)physbase, (uint64_t)(physfree));
+	id_paging(ptetable + ((memToMap >> 12) & 511), (uint64_t)physbase, (uint64_t)(physfree));
 
 	/*Remap video memory*/
-	PDPE *pdpevideo = (PDPE *)getFreeFrame();
-	PDE *pdevideo = (PDE *)getFreeFrame();
-	PTE *ptevideo = (PTE *)getFreeFrame();
-
-	memset(pdpevideo, 7, 512);
-	memset(pdevideo, 7, 512);
-	memset(ptevideo, 7, 512);
-
-	memToMap = (uint64_t)(((uint64_t)&kernmem - (uint64_t)physbase) + 0xb8000);
+	memToMap = (uint64_t)(((uint64_t)&kernmem) + 0xb8000);
 
 //	(pml4etable + ((memToMap >> (12+9+9+9)) & 511))->pageDirectoryPointer = ((uint64_t)pdpevideo>>12);
 //	(pdpevideo+ ((memToMap >> (12+9+9)) & 511))->pageDirectoryBase = ((uint64_t)pdevideo>>12);
-	(pdevideo+ ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptevideo>>12);
+//	(pdetable + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptevideo>>12);
 
-	id_paging(ptevideo, (uint64_t)0xb8000, (uint64_t)0xb8000+160*25);
+	id_paging(ptetable + ((memToMap >> 12) & 511), (uint64_t)0xb8000, (uint64_t)0xb8000+160*25);
 
 	__asm__ __volatile__ ("movq %0, %%cr3": : "a" (pml4etable));
 }
