@@ -5,16 +5,32 @@
 #include <sys/ahci.h>
 #include <sys/freelist.h>
 #include <sys/pagetable.h>
+#include <sys/task.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
 
+void KProcess1(){
+        kprintf("Process 1 number 1\n");
+//      schedule();
+        kprintf("Process 1 number 2\n");
+//      schedule();
+        kprintf("Done with process 1\n");
+}
+
+void KProcess2(){
+        kprintf("Process 2 number 1\n");
+//      schedule();
+        kprintf("Process 2 number 2\n");
+//      schedule();
+        kprintf("Done with process 2\n");
+}
+
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   initializeFreelist(modulep, physbase, physfree);
-  kprintf("Enabling my page tables\n");
   setPageTables(physbase,physfree);
   kprintf("Hello\n");
 //  kprintf("Kernel memory %p and video memory %p\n", &kernmem, &physbase); 
