@@ -9,7 +9,7 @@ struct taskList{
 };
 
 struct taskStruct{
-	char kernelStack[KERNEL_STACK_SIZE];
+//	char kernelStack[KERNEL_STACK_SIZE];
 	uint64_t pid;
 	uint64_t rsp;
 	uint64_t rbp;
@@ -18,3 +18,5 @@ struct taskStruct{
 };
 
 void createKernelProcess(uint64_t);
+
+void schedule();
