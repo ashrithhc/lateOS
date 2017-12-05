@@ -38,7 +38,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 				}*/
 				/*Skipping all addresses before physfree*/
 				if(base < (uint64_t)physfree){
-					base = (uint64_t)physfree + 0x200000;
+					base = (uint64_t)physfree + 0x100000;
 					continue;
 				}
 				/*Creating Free List of all memory that can be used by OS*/

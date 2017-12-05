@@ -20,11 +20,10 @@ void addToTaskList(taskStruct *newTask){
 }
 
 void createKernelProcess(uint64_t processAddress){
-	taskStruct* newTask;
+	taskStruct *newTask;
 
 	newTask = (taskStruct *)getFreeFrame();
-	newTask->pid = generatePid;
-	generatePid += 1;
+	newTask->pid = generatePid++;
 	newTask->rsp = processAddress + KERNEL_STACK_SIZE;
 	newTask->rbp = processAddress;
 	newTask->state = RUNNING;
