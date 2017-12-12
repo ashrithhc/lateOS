@@ -30,9 +30,12 @@ void KProcess2(){
 
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
-  initializeFreelist(modulep, physbase, physfree);
-  setPageTables(physbase,physfree);
-  kprintf("Hello\n");
+	initializeFreelist(modulep, physbase, physfree);
+	setPageTables(physbase,physfree);
+	kprintf("Hello\n");
+	createKernelProcess((uint64_t)&KProcess1);
+	createKernelProcess((uint64_t)&KProcess2);
+
 //  kprintf("Kernel memory %p and video memory %p\n", &kernmem, &physbase); 
   while(1);
 }

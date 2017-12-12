@@ -8,3 +8,5 @@ void initializeFreelist(uint32_t*, void*, void*);
 struct freeList* getCurrentFreeListHead();
 
 uint64_t getFreeFrame();
+
+void printFreeList(int);
