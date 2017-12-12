@@ -24,4 +24,11 @@ struct posix_header_ustar {
   char pad[12];
 };
 
+struct file_t* create_node(char *name,file_t *parent_node,uint64_t type,uint64_t first,uint64_t last,uint64_t inode_no);
+void parse_tarfs(char *dir,int type,uint64_t first,uint64_t last);
+void init_tarfs();
+uint64_t exponent (uint64_t x, int e);
+
+typedef struct posix_header_ustar tarfs_header;
+
 #endif
