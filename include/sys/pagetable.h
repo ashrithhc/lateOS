@@ -79,4 +79,4 @@ void freePageTable(uint64_t);
 
 void *memset(void *, int, size_t);
 
-void *memcpy(void *, void *, int);
+void *memcpy(void *, const void *, int);

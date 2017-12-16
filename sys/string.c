@@ -1,6 +1,7 @@
 #include <sys/string.h>
+#include <sys/defs.h>
 
-const char *strcpy(char *dest, char *src){
+const char *strcpy(char *dest, const char *src){
 	const char *retStr = dest;
 	while (*src) *dest++ = *src++;
 	*dest = '\0';

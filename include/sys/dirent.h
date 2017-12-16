@@ -1,3 +1,5 @@
+#ifndef _H_DIRENT
+#define _H_DIRENT
 #include <sys/defs.h>
 
 #define FILES 1
@@ -41,3 +43,4 @@ struct dir{
 };
 
 file_t *root;
+#endif

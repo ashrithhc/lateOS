@@ -32,4 +32,6 @@ file_t *createNode(char*, file_t*, uint64_t, uint64_t, uint64_t, uint64_t);
 
 void parseTarfs(char*, int, uint64_t, uint64_t);
 
+int power(uint64_t, int);
+
 #endif

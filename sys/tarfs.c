@@ -14,7 +14,7 @@ void parseTarfs(char *path, int type, uint64_t first, uint64_t last){
 	strcpy(dirpath, path);
 	current = root->child[2];
 
-	name = strtok(dirpath, "/");
+	char *name = strtok(dirpath, "/");
 
 	if (name == NULL) return;
 
@@ -67,7 +67,7 @@ void initTarfs(){
 	strcpy(root->name, "/");
 	node = createNode("rootfs", root, DIRECTORY, root->first, root->last, root->inode);
 	root->last += 1;
-	root->>child[2] = node;
+	root->child[2] = node;
 
 	tarfsHeader *tarfsHead = (tarfsHeader *)&_binary_tarfs_start;
 	uint32_t *end = (uint32_t *)tarfsHead;
@@ -81,10 +81,15 @@ void initTarfs(){
 			decimal = (decimal/512) * 512;
 			decimal += 512;
 		}
-		if (strcmp(head->typeflag, "5") == 0) parseTarfs(head->name, DIRECTORY, 0, 2);
-		else parseTarfs(head->name, FILES, (uint64_t)(tarfsHead+1), (uint64_t)((void *)tarfsHead + decimal + sizeof(tarfsHeader)));
+		if (strcmp(tarfsHead->typeflag, "5") == 0) parseTarfs(tarfsHead->name, DIRECTORY, 0, 2);
+		else parseTarfs(tarfsHead->name, FILES, (uint64_t)(tarfsHead+1), (uint64_t)((void *)tarfsHead + decimal + sizeof(tarfsHeader)));
 
 		tarfsHead = (tarfsHeader *)((uint64_t)tarfsHead + decimal + sizeof(tarfsHeader));
 		end = (uint32_t *)tarfsHead;
 	}
+}
+
+int power(uint64_t a, int n){
+	if (n == 0) return 1;
+	return a*power(a, n-1);
 }

@@ -426,7 +426,8 @@ int fork(){
 }
 
 int exec(char *fname, char **argv, char **envp){
-	int i, argc = 0;
+	int i;
+	uint64_t argc = 0;
 	char childPointer[6][64];
 	for (i=0; i<6; i++) childPointer[i][0] = '\0';
 
@@ -489,7 +490,7 @@ int exec(char *fname, char **argv, char **envp){
 
 	set_tss_rsp((void *)task->initKern);
 
-	__asm__ __volatile__ (
+/*	__asm__ __volatile__ (
 		"sti;"
 		"movq %0, %%cr3;"
 		"movq %1, %%rsp;"
@@ -511,6 +512,76 @@ int exec(char *fname, char **argv, char **envp){
 		"movq %5, %%rdi;"
 		"iretq;"
 		: : "r"(task->cr3), "r"(task->kernelStack), "r"(task->rsp), "r"(task->rip), "r"(pointer), "r"(argc));
+*/
+       
+/*        __asm__ __volatile__ ("movq %0, %%cr3"::"r"(task->cr3));
+        __asm__ __volatile__ ("movq %0, %%rsp;"::"r"(task->kernelStack));
+        __asm__ __volatile__ ("mov $0x23, %%ax;
+                mov %%ax, %%ds;
+                mov %%ax, %%es;
+                mov %%ax, %%fs;
+                mov %%ax, %%gs;
+                mov %0, %%rax;"::"r"(task->rsp));
+        __asm__ __volatile__(
+                "pushq $0x23;
+                pushq %%rax;
+                pushfq;
+                popq %%rax;
+                orq $0x200, %%rax;
+                pushq %%rax;
+                pushq $0x1B;
+                pushq %0;
+                movq %1, %%rsi;
+                movq %2, %%rdi;
+                iretq;"
+                : :"r"(task->rip), "r"(pointer), "r"(argc));
+*/
+/*	
+        __asm__ __volatile__ ("movq %0, %%cr3"::"r"(task->cr3));
+        __asm__ __volatile__ ("movq %0, %%rsp;"::"r"(task->kernelStack));
+        __asm__ __volatile__ ("mov $0x23, %%ax;
+                mov %%ax, %%ds;
+                mov %%ax, %%es;
+                mov %%ax, %%fs;
+                mov %%ax, %%gs;
+                mov %0, %%rax;"::"r"(task->rsp));
+        __asm__ __volatile__(
+                "pushq $0x23;"
+                "pushq %%rax;"
+                "pushfq;"
+                "popq %%rax;"
+                "orq $0x200, %%rax;"
+                "pushq %%rax;"
+                "pushq $0x1B;"
+                "pushq %0;"
+                "movq %1, %%rsi;"
+                "movq %2, %%rdi;"
+                "iretq;"
+                : :"r"(task->rip), "r"(pointer), "r"(argc));
+*/
+
+        __asm__ __volatile__ ("movq %0, %%cr3"::"r"(task->cr3));
+        __asm__ __volatile__ ("movq %0, %%rsp;"::"r"(task->kernelStack));
+        __asm__ __volatile__ ("mov $0x23, %%ax;\
+                mov %%ax, %%ds;\
+                mov %%ax, %%es;\
+                mov %%ax, %%fs;\
+                mov %%ax, %%gs;\
+                mov %0, %%rax;"::"r"(task->rsp));
+        __asm__ __volatile__(
+                "pushq $0x23;\
+                pushq %%rax;\
+                pushfq;\
+                popq %%rax;\
+                orq $0x200, %%rax;\
+                pushq %%rax;\
+                pushq $0x1B;\
+                pushq %0;"::"r"(task->rip));
+		
+        __asm__ __volatile__( "movq %0, %%rsi;"::"r"(pointer));
+        __asm__ __volatile__( "movq %0, %%rdi;\
+                iretq;"
+                : :"r"(argc));
 
 	return -1;
 }

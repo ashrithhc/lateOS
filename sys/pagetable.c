@@ -30,7 +30,7 @@ void id_paging(PTE *firstPTE, uint64_t physbase, uint64_t physfree){
 }
 
 void setPageTables(void *physbase,void *physfree){
-	pml4etable = (PML4E *)getFreeFrame();
+	PML4E *pml4etable = (PML4E *)getFreeFrame();
 	
 	/*Remap kernel memory*/
 	PDPE *pdpetable = (PDPE *)getFreeFrame();
@@ -100,7 +100,7 @@ void *userAddressSpace(){
 	PML4E *pml4eNew = (PML4E *)getFreeFrame();
 	PML4E *pml4eCurrent = (PML4E *)currentCR3();
 
-	(pml4eNew + ((memToMap >> (12+9+9+9)) & 511))->pageDirectoryPointer = (pml4eCurrent + ((memToMap >> (12+9+9+9)) & 511))->pageDirectoryPointer;
+	(pml4eNew + (511))->pageDirectoryPointer = (pml4eCurrent + (511))->pageDirectoryPointer;
 
 	return (void *)pml4eNew;
 }
@@ -145,7 +145,7 @@ void freeThisFrame(uint64_t vframe){
 	PDPE *pdpebase = (PDPE *)((pml4ebase + ((vframe >> (12+9+9+9)) & 511))->pageDirectoryPointer<<12);
 	PDE *pdebase = (PDE *)((pdpebase + ((vframe >> (12+9+9)) & 511))->pageDirectoryBase<<12);
 	PTE *ptebase = (PTE *)((pdebase + ((vframe >> (12+9)) & 511))->pageTableBase<<12);
-	uint64_t pframe = (unt64_t)((ptebase + ((vframe >> 12) & 511))->physicalPageBase<<12);
+	uint64_t pframe = (uint64_t)((ptebase + ((vframe >> 12) & 511))->physicalPageBase<<12);
 	memset(pframe, 0, 512);
 	addFrameToFreeList(pframe);
 }
