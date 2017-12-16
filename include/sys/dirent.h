@@ -5,6 +5,7 @@
 #define READWRITE 3
 
 typedef struct file_t file_t;
+typedef struct file_t root;
 struct file_t{
 	uint64_t first;
 	uint64_t last;
@@ -37,3 +38,5 @@ struct dir{
 	int fd;
 	char buff[30];
 };
+
+
