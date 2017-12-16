@@ -21,6 +21,7 @@ void parseTarfs(char *path, int type, uint64_t first, uint64_t last){
 	while (name != NULL){
 		temp  = current;
 
+		int i;
 		for (i=2; i<current->last; i++){
 			if (strcmp(name, current->child[i]->name) == 0){
 				current = (file_t *)current->child[i];
