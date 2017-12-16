@@ -7,7 +7,7 @@
 #include <sys/elf64.h>
 #include <sys/tarfs.h>
 #include <sys/string.h>
-#include <sys/syscall.h>
+//#include <sys/syscall.h>
 
 taskStruct *cleanupTask, *current, *zombieTask, *first, *sleepTask = NULL;
 
@@ -514,7 +514,129 @@ int exec(char *fname, char **argv, char **envp){
 
 	return -1;
 }
+/*
+int sys_open(char *path, uint64_t flag )
+{
+        file_t *node;
+        file_t *node_temp;
+        char *name;
+        char *dirpath;
+        int i=0;
+        int count = 2;
+        struct fd *fd1 = (struct fd*)getFreeFrame();
+        node = root;
 
+        dirpath = (char *)getFreeFrame();
+        strcpy(dirpath,path);
+
+        name = strtok(dirpath,"/");
+        if (name == NULL)
+                return -1;
+
+        if (strcmp(name, "rootfs") == 0) {
+                while ( name !=NULL ) {
+                        node_temp = node;
+                        if (strcmp(name,".") == 0 ) {
+                                node = node->child[0];
+
+                         } else if (strcmp(name,"..") == 0) {
+                                node = node->child[1];
+                         } else {
+
+
+                        for (i=2; i < node->last ; i++) {
+
+                                if (strcmp(name,node->child[i]->name) == 0) {
+                                    node = (file_t *)node->child[i];
+                                    break;
+                                }
+                         }
+                        }
+
+                        if (i >= node_temp->last)
+                            return -1;
+
+                         name = strtok(NULL,"/");
+              }
+              if ((node->type == DIRECTORY && flag == (0)) || (node->type == FILE))
+                {
+                        fd1->node = node;
+                        fd1->permission =flag;
+                        fd1->current = node->first;
+                } else {
+                        return -1;
+                }
+
+              while ((current->fd[++count] != NULL) && count < 100);
+
+              if (count >= 100)
+                        return -1;
+                else {
+                        current->fd[count] = fd1;
+                        return count;
+                }
+
+        }
+        return -1;
+}
+*/
+dir* sys_opendir(char *path)
+{
+
+        file_t *node;
+        file_t *node_temp;
+        char *name;
+        char dirpath[64];
+        int i=0;
+
+        node = root;
+
+        strcpy(dirpath,path);
+
+        name = strtok(dirpath,"/");
+        dir* ret_dir;
+	if ( name ) {
+
+        if ( (strcmp(name,"..") == 0) || (strcmp(name,".") == 0)){ 
+                node = current->curNode;
+        }
+	}
+
+        while ( name !=NULL ) {
+                        node_temp = node;
+
+                        if (strcmp(name,".") == 0 ) {
+                                node = node->child[0];
+
+                         } else if (strcmp(name,"..") == 0) {
+                                node = node->child[1];
+                         } else {
+
+                             for (i=2; i < node->last ; i++) {
+
+                                if (strcmp(name,node->child[i]->name) == 0) {
+                                    node = node->child[i];
+                                    break;
+                                }
+                              }
+
+                             if (i == node_temp->last) {
+                                return (dir *)NULL;
+                             }
+                       }
+
+                         name = strtok(NULL,"/");
+        }
+
+        if (node->type == DIRECTORY) {
+                ret_dir = (dir *)getFreeFrame();
+                ret_dir->current = 2;
+                ret_dir->node = node;
+                return ret_dir;
+        } else {
+                return (dir *)NULL;
+        }
+}
 /*
 static uint64_t generatePid = 0;
 

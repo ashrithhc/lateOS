@@ -5,7 +5,7 @@
 #include <sys/dirent.h>
 #include <sys/string.h>
 
-file_t *root;
+//file_t *root;
 
 void parseTarfs(char *path, int type, uint64_t first, uint64_t last){
 	file_t *temp, *current, *new;
