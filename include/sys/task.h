@@ -48,9 +48,9 @@ struct mmStruct{
 };
 
 struct taskStruct{
-	uint64_t kernelStack;
 	int pid;
 	int ppid;
+	uint64_t kernelStack;
 	uint64_t rsp;
 	uint64_t rip;
 	enum {RUNNING, SLEEPING, ZOMBIE, READY} state;
@@ -89,3 +89,11 @@ void createKernelProcess(uint64_t);
 void schedule();
 
 void initschedule();
+
+int fork();
+
+int exec(char *, char **, char **);
+
+int sys_open(char *, uint64_t *);
+
+dir *sys_opendir(char *);

@@ -39,3 +39,5 @@ struct dir{
 	int fd;
 	char buff[30];
 };
+
+file_t *root;
