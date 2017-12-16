@@ -9,4 +9,6 @@ struct freeList* getCurrentFreeListHead();
 
 uint64_t getFreeFrame();
 
+void addFrameToFreeList(uint64_t pframe);
+
 void printFreeList(int);

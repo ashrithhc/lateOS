@@ -14,17 +14,18 @@ extern char kernmem, physbase;
 
 void KProcess1(){
         kprintf("Process 1 number 1\n");
-//      schedule();
+	schedule();
         kprintf("Process 1 number 2\n");
-//      schedule();
+	schedule();
         kprintf("Done with process 1\n");
+	while(1);
 }
 
 void KProcess2(){
         kprintf("Process 2 number 1\n");
-//      schedule();
+        schedule();
         kprintf("Process 2 number 2\n");
-//      schedule();
+        schedule();
         kprintf("Done with process 2\n");
 }
 
@@ -35,7 +36,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	kprintf("Hello\n");
 	createKernelProcess((uint64_t)&KProcess1);
 	createKernelProcess((uint64_t)&KProcess2);
-
+	initschedule();
 //  kprintf("Kernel memory %p and video memory %p\n", &kernmem, &physbase); 
   while(1);
 }

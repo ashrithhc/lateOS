@@ -65,4 +65,18 @@ typedef struct {
 
 void setPageTables();
 
-PML4E *pml4etable;
+uint64_t currentCR3();
+
+void setCR3(PML4E *);
+
+void *userAddressSpace();
+
+void setChildPagetables(uint64_t);
+
+void freeThisFrame(uint64_t);
+
+void freePageTable(uint64_t);
+
+void *memset(void *, int, size_t);
+
+void *memcpy(void *, void *, int);

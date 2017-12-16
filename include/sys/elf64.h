@@ -8,7 +8,7 @@ typedef uint16_t Elf64_Half;
 typedef uint64_t Elf64_Lword;
 typedef uint64_t Elf64_Off;
 typedef uint32_t Elf64_Sword;
-typedef uint64_t Elf64_Sxword
+typedef uint64_t Elf64_Sxword;
 typedef uint32_t Elf64_Word;
 typedef uint64_t Elf64_Xword;
 
@@ -39,5 +39,11 @@ typedef struct {
   Elf64_Xword   p_memsz;
   Elf64_Xword   p_align;
 } Elf64_Phdr;
+
+void *readELF(char *);
+
+int loadEXE(taskStruct*, void*);
+
+enum vmaType{TEXT, DATA, STACK, HEAP, NONE};
 
 #endif

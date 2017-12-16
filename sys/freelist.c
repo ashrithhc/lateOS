@@ -69,6 +69,10 @@ uint64_t getFreeFrame(){
 	return freeFrame;
 }
 
+void addFrameToFreeList(uint64_t pframe){
+	//Add to the end of freeList
+}
+
 void printFreeList(int num){
 	int i;
 	struct freeList* tempAddr = freeListStart;
