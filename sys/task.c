@@ -7,6 +7,7 @@
 #include <sys/elf64.h>
 #include <sys/tarfs.h>
 #include <sys/string.h>
+#include <sys/syscall.h>
 
 taskStruct *cleanupTask, *current, *zombieTask, *first, *sleepTask = NULL;
 
@@ -386,6 +387,132 @@ void killTask(int taskPid, int flag){
 void exit(int status){
 	cleanupTask = current;
 	cleanUp();
+}
+
+void outb (uint16_t port, uint16_t val){
+	__asm__ volatile ("outb %%al, %%dx"::"d" (port), "a" (val));
+}
+
+int fork(){
+	taskStruct *temp, *parent = NULL;
+	taskStruct *child = (taskStruct *)copyTaskStruct((taskStruct *)current);
+
+	temp = current->next;
+	current->next = child;
+	child->next = temp;
+
+	parent = current;
+
+	void *kstack = (void *)getFreeFrame();
+	child->initKern = child->kernelStack = ((uint64_t)kstack + 0x1000 - 16);
+	memcpy((void *)(child->initKern - 0x1000 + 16), (void *)(parent->initKern - 0x1000 + 16), 0x1000 - 16);
+
+	volatile uint64_t stackPos;
+	__asm__ __volatile__ ("mov %0, %%cr3": : "a"(parent->cr3));
+	__asm__ __volatile__ ("movq $2f, %0;"
+				"2:\t"
+				:"=g" (child->rip));
+	__asm__ __volatile__ ("movq %%rsp, %0;"
+				: "=r" (stackPos));
+
+	if (current == parent){
+		child->kernelStack = child->initKern - (parent->initKern - stackPos);
+		return child->pid;
+	}
+	else {
+		outb(0x20, 0x20);
+		return 0;
+	}
+}
+
+int exec(char *fname, char **argv, char **envp){
+	int i, argc = 0;
+	char childPointer[6][64];
+	for (i=0; i<6; i++) childPointer[i][0] = '\0';
+
+	strcpy(childPointer[argc], fname);
+	argc++;
+
+	int childargc = 0;
+	if (argv != NULL){
+		while(argv[childargc] != NULL){
+			strcpy(childPointer[argc], argv[childargc]);
+			argc++; childargc++;
+		}
+	}
+
+	taskStruct *task = (taskStruct *)getFreeFrame();
+	task->pid = current->pid;
+	task->ppid = current->ppid;
+	strcpy(task->pname, fname);
+
+	memcpy(&(task->fd[0]), &(current->fd[0]), (sizeof(current->fd[0])*100));
+
+	tarfsHeader *file = readELF(fname);
+
+	if (file == NULL){
+		kprintf("From exec : invalid binary\n");
+		return -1;
+	}
+	task->cr3 = (uint64_t)userAddressSpace();
+	PML4E *currentcr3 = (PML4E *)currentCR3();
+	__asm__ __volatile__ ("movq %0, %%cr3": : "a" (task->cr3));
+	void *kstack = (void *)getFreeFrame();
+	task->initKern = task->kernelStack = ((uint64_t)kstack + 0x1000 - 16);
+
+	mmStruct *mm = (mmStruct *)getFreeFrame();
+	task->mm = mm;
+	int error = loadEXE(task, (void *)(file + 1));
+	if (error) return -1;
+
+	void *pointer = (void *)(STACKTOP + 0x1000 - 16 - sizeof(childPointer));
+	memcpy(pointer, (void *)childPointer, sizeof(childPointer));
+
+	for (i = argc; i>0; i--) *(uint64_t *)(pointer - 8*i) = (uint64_t)pointer + (argc-i)*64;
+
+	pointer = pointer - 8*argc;
+	task->rsp = (uint64_t)pointer;
+	__asm__ __volatile__ ("movq %0, %%cr3": : "a" ((uint64_t)currentcr3));
+
+	taskStruct *prev = current->next;
+	while(prev->next != current) prev = prev->next;
+	prev->next = task;
+	task->next = current->next;
+	current = task;
+
+	strcpy(task->curDir, "/rootfs/bin");
+	char temp[30] = "\0";
+	strcpy(temp, task->curDir);
+
+	task->lastChildPID = -1;
+	task->state = RUNNING;
+
+	set_tss_rsp((void *)task->initKern);
+
+	__asm__ __volatile__ (
+		"sti;"
+		"movq %0, %%cr3;"
+		"movq %1, %%rsp;"
+		"mov $0x23, %%ax;"
+		"mov %%ax, %%ds;"
+		"mov %%ax, %%es;"
+		"mov %%ax, %%fs;"
+		"mov %%ax, %%gs;"
+		"mov %2, %%rax;"
+		"pushq $0x23;"
+		"pushq %%rax;"
+		"pushfq;"
+		"popq %%rax;"
+		"orq $0x200, %%rax;"
+		"pushq %%rax;"
+		"pushq $0x1B;"
+		"pushq %3;"
+		"movq %4, %%rsi;"
+		"movq %5, %%rdi;"
+		"iretq;"
+		: : "r"(task->cr3), "r"(task->kernelStack), "r"(task->rsp), "r"(task->rip), "r"(pointer), "r"(argc));
+
+	return -1;
 }
 
 /*

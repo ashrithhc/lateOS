@@ -3,6 +3,7 @@
 #include <sys/freelist.h>
 #include <sys/tarfs.h>
 #include <sys/dirent.h>
+#include <sys/string.h>
 
 file_t *root;
 

@@ -1,4 +1,4 @@
-#include <sys/elf.h>
+#include <sys/elf64.h>
 #include <sys/tarfs.h>
 #include <task.h>
 #include <pagetable.h>

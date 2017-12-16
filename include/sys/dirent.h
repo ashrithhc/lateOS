@@ -1,3 +1,5 @@
+#include <sys/defs.h>
+
 #define FILES 1
 #define DIRECTORY 2
 #define READONLY 1
