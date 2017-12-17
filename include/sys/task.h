@@ -1,3 +1,6 @@
+#ifndef _TARF_H
+#define _TARF_H
+
 #include <sys/dirent.h>
 
 #define KERNEL_STACK_SIZE 512 
@@ -39,7 +42,7 @@ struct vmaStruct{
 
 struct mmStruct{
 	vmaStruct *mmap, *current;
-	uint64_t csStart, csnd;
+	uint64_t csStart, csEnd;
 	uint64_t dsStart, dsEnd;
 	uint64_t brkStart, brk, stackStart;
 	uint64_t argStart, argEnd;
@@ -97,3 +100,5 @@ int exec(char *, char **, char **);
 int sys_open(char *, uint64_t *);
 
 dir *sys_opendir(char *);
+
+#endif

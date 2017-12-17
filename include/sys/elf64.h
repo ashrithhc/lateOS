@@ -3,6 +3,9 @@
 
 #define EI_NIDENT 16
 
+#include <sys/defs.h>
+#include <sys/task.h>
+
 typedef uint64_t Elf64_Addr;
 typedef uint16_t Elf64_Half;
 typedef uint64_t Elf64_Lword;

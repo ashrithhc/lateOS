@@ -737,7 +737,6 @@ void createKernelProcess(uint64_t processAddress){
 
 	addToTaskList(newTask);
 }
-
 void loadRIPwith(uint64_t newRIP){
 	__asm__ volatile ("call %0;": : "m" (newRIP) : );
 }

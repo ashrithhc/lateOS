@@ -34,10 +34,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	initializeFreelist(modulep, physbase, physfree);
 	setPageTables(physbase,physfree);
 	kprintf("Hello\n");
-	createKernelProcess((uint64_t)&KProcess1);
-	createKernelProcess((uint64_t)&KProcess2);
-	initschedule();
-//  kprintf("Kernel memory %p and video memory %p\n", &kernmem, &physbase); 
+	initTarfs();
+	setPID();
+	createInitTask();
+	taskStruct *sbushTask = createUserTask("bin/sbush");
+	if (sbushTask == NULL) kprintf("Process creating failed\n");
+	kprintf("I'm here\n");
+//	initschedule();
   while(1);
 }
 

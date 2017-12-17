@@ -1,14 +1,16 @@
 #include <sys/elf64.h>
 #include <sys/tarfs.h>
-#include <task.h>
-#include <pagetable.h>
-#include <freelist.h>
+#include <sys/task.h>
+#include <sys/pagetable.h>
+#include <sys/freelist.h>
+#include <sys/defs.h>
+#include <sys/string.h>
 
 void idMap(uint64_t virtual, uint64_t physical){
 	PML4E *pml4base = (PML4E *)currentCR3();
-	PDPE *pdpebase = (PDPE *)((pml4base + ((virtual >> (12+9+9+9)) & 511))->pageDirectoryPointer<<12);
-	PDE *pdebase = (PDE *)((pdpebase + ((virtual >> (12+9+9)) & 511))->pageDirectoryBase<<12);
-	PTE *ptebase = (PTE *)((pdebase + ((virtual >> (12+9)) & 511))->pageTableBase<<12);
+	PDPE *pdpebase = (PDPE *)((uint64_t)((pml4base + ((virtual >> (12+9+9+9)) & 511))->pageDirectoryPointer)<<12);
+	PDE *pdebase = (PDE *)((uint64_t)((pdpebase + ((virtual >> (12+9+9)) & 511))->pageDirectoryBase)<<12);
+	PTE *ptebase = (PTE *)((uint64_t)((pdebase + ((virtual >> (12+9)) & 511))->pageTableBase)<<12);
 
 	(ptebase + ((virtual >> 12) & 511))->physicalPageBase = physical;
 }

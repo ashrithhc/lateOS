@@ -4,6 +4,7 @@
 #include <sys/tarfs.h>
 #include <sys/dirent.h>
 #include <sys/string.h>
+#include <sys/defs.h>
 
 //file_t *root;
 
