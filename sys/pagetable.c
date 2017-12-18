@@ -29,6 +29,45 @@ void id_paging(PTE *firstPTE, uint64_t physbase, uint64_t physfree){
         }
 }
 
+void mapFreeToEnd(PML4E *pml4etable, PDPE *pdpetable, uint64_t memToMap, uint64_t start, uint64_t end){
+//	uint64_t start;
+//	uint64_t end = (0x60b4000 + 0x200000) % 0x200000;
+
+	(pml4etable + ((memToMap >> (12+9+9+9)) & 511))->pageDirectoryPointer = ((uint64_t)pdpetable>>12);
+	while (((memToMap >> (12+9+9)) & 511) < 512){
+		PDE *pdetable = (PDE *)getFreeFrame();
+	        (pdpetable + ((memToMap >> (12+9+9)) & 511))->pageDirectoryBase = ((uint64_t)pdetable>>12);
+		while (((memToMap >> (12+9)) & 511) < 512){
+			PTE *ptetable = (PTE *)getFreeFrame();
+		        (pdetable + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptetable>>12);
+			id_paging(ptetable + ((memToMap >> 12) & 511), (uint64_t)start, (uint64_t)start + (4096*512));
+			start += (4096*512);
+			if (start > end) return;
+		}
+	}
+/*
+	int i, j, k;
+	for (i=0; i<512; i++){
+		PDPE *pde = (PDE *)getFreeFrame();
+		for (j=0; j<512; j++){
+			
+		}
+	}
+
+	uint64_t i;
+	PDE *pdetable1 = (PDE *)pdetable;
+	for (i=start; i<end; i++){
+		uint64_t memToMap = (uint64_t)start;
+
+	        PTE *newptetable = (PTE *)getFreeFrame();
+	        memset(newptetable, 7, 512);
+
+	        (pdetable1 + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)newptetable>>12);
+	        id_paging(newptetable + ((memToMap >> 12) & 511), (uint64_t)start, (uint64_t)end);
+	}
+*/
+}
+
 void setPageTables(void *physbase,void *physfree){
 	PML4E *pml4etable = (PML4E *)getFreeFrame();
 	
@@ -50,6 +89,8 @@ void setPageTables(void *physbase,void *physfree){
 
 	id_paging(ptetable + ((memToMap >> 12) & 511), (uint64_t)physbase, (uint64_t)(physfree));
 
+//	mapFreeToEnd(pml4etable, pdpetable, memToMap - (uint64_t)physbase + (uint64_t)physfree, (uint64_t)physfree, 0x60b4000);
+
 	/*ID-map initial memory*/
 	memToMap = (uint64_t)0;
 
@@ -67,30 +108,32 @@ void setPageTables(void *physbase,void *physfree){
 
 	id_paging(ptetable1 + ((memToMap >> 12) & 511), (uint64_t)0, (uint64_t)0x200000);
 
-	memToMap = (uint64_t)0x200000;
+//mapFreeToEnd(pml4etable, pdpetable, memToMap/* - (uint64_t)physbase + (uint64_t)physfree*/, (uint64_t)physbase, 0x60b4000);
+
+//	memToMap = (uint64_t)0x200000;
 
 //        PDPE *pdpetable2 = (PDPE *)getFreeFrame();
 //        PDE *pdetable2 = (PDE *)getFreeFrame();
-        PTE *ptetable2 = (PTE *)getFreeFrame();
+//        PTE *ptetable2 = (PTE *)getFreeFrame();
 
 //        memset(pdpetable2, 7, 512);
 //        memset(pdetable2, 7, 512);
-        memset(ptetable2, 7, 512);
+//        memset(ptetable2, 7, 512);
 
 //        (pml4etable + ((memToMap >> (12+9+9+9)) & 511))->pageDirectoryPointer = ((uint64_t)pdpetable2>>12);
 //        (pdpetable2 + ((memToMap >> (12+9+9)) & 511))->pageDirectoryBase = ((uint64_t)pdetable2>>12);
-        (pdetable1 + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptetable2>>12);
+//        (pdetable1 + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptetable2>>12);
 
-        id_paging(ptetable2 + ((memToMap >> 12) & 511), (uint64_t)0x200000, (uint64_t)0x400000);
+//        id_paging(ptetable2 + ((memToMap >> 12) & 511), (uint64_t)0x200000, (uint64_t)0x400000);
 
-	memToMap = (uint64_t)0x400000;
+/*	memToMap = (uint64_t)0x400000;
 
 	PTE *ptetable3 = (PTE *)getFreeFrame();
 	memset(ptetable3, 7, 512);
 
 	(pdetable1 + ((memToMap >> (12+9)) & 511))->pageTableBase = ((uint64_t)ptetable3>>12);
 	id_paging(ptetable3 + ((memToMap >> 12) & 511), (uint64_t)0x400000, (uint64_t)0x600000);
-
+*/
 	__asm__ __volatile__ ("movq %0, %%cr3": : "a" (pml4etable));
 }
 
