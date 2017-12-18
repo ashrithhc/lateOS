@@ -19,14 +19,16 @@ void idMap(uint64_t virtual, uint64_t physical){
 void *readELF(char *filename){
 	tarfsHeader *start = (tarfsHeader *)&_binary_tarfs_start;
 	if (filename == NULL) return NULL;
-
+	
+	//char* tempbuf = &_binary_tarfs_start;
 	uint64_t *end = (uint64_t *)start;
-	while (*end || *(end+1) || *(end+2)){
+	while(end <= (uint64_t *)(&_binary_tarfs_end)){
+//	while (*end || *(end+1) || *(end+2)){
 		if (strcmp(start->name, filename) != 0){
 			kprintf(start->name);
 			int j, k=0;
 			uint64_t temp = 0;
-			for (j=11; j>=0; j--){
+			for (j=10; j>=0; j--){
 				temp += ((start->size[j] - 48) * power(8, k++));
 			}
 				if (temp%512){
@@ -36,7 +38,7 @@ void *readELF(char *filename){
 				}
 			
 			start = (tarfsHeader *)((uint64_t)start + temp + sizeof(tarfsHeader));
-			end = (uint64_t *)start;
+			end = (uint64_t *)start ;
 		}
 		else return (void *)start;
 	}
