@@ -29,7 +29,7 @@ void id_paging(PTE *firstPTE, uint64_t physbase, uint64_t physfree){
         }
 }
 
-void mapFreeToEnd(PML4E *pml4etable, PDPE *pdpetable, uint64_t memToMap, uint64_t start, uint64_t end){
+void mapFreeFrame(PML4E *pml4etable, PDPE *pdpetable, uint64_t memToMap, uint64_t start, uint64_t end){
 //	uint64_t start;
 //	uint64_t end = (0x60b4000 + 0x200000) % 0x200000;
 
@@ -99,7 +99,7 @@ void setPageTables(void *physbase,void *physfree){
 
 	id_paging(ptetable + ((memToMap >> 12) & 511), (uint64_t)physbase, (uint64_t)(physfree));
 
-//	mapFreeToEnd(pml4etable, pdpetable, memToMap - (uint64_t)physbase + (uint64_t)physfree, (uint64_t)physfree, 0x60b4000);
+//	mapFreeFrame(pml4etable, pdpetable, memToMap - (uint64_t)physbase + (uint64_t)physfree, (uint64_t)physfree, 0x60b4000);
 
 	/*ID-map initial memory*/
 /*	memToMap = (uint64_t)0;
@@ -120,7 +120,7 @@ void setPageTables(void *physbase,void *physfree){
 */
 
 	memToMap = (uint64_t)&kernmem;
-mapFreeToEnd(pml4etable, pdpetable, memToMap/* - (uint64_t)physbase + (uint64_t)physfree*/, (uint64_t)physbase, 0x60b4000);
+mapFreeFrame(pml4etable, pdpetable, memToMap/* - (uint64_t)physbase + (uint64_t)physfree*/, (uint64_t)physbase, 0x60b4000);
 	memToMap = (uint64_t)0xb8000;
 
 	PDPE *pdpetable1 = (PDPE *)getFreeFrameBefore();
