@@ -24,7 +24,8 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 
 	for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
 		if (smap->type == 1 /* memory */ && smap->length != 0) {
-			base = ((smap->base + 0x1000) % 0x1000);
+			//base = ((smap->base + 0x1000) % 0x1000);
+			base = smap->base;
 			while (base < (smap->base + smap->length)){
 				/*Skipping kernel memory*/
 /*				if(base >= (uint64_t)physbase &&  base < (uint64_t)physfree){
@@ -43,12 +44,13 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 				}
 				/*Creating Free List of all memory that can be used by OS*/
 				tempNode->phyaddr = base;
+				tempNode->next = NULL;
 				if (prev) {
 					prev->next = tempNode;
 				}
 				
 				prev = tempNode;
-				tempNode += sizeof(struct freeList);
+				tempNode ++;
 				base += pageSize;
 			}
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
@@ -66,7 +68,24 @@ struct freeList* getCurrentFreeListHead(){
 uint64_t getFreeFrame(){
 	uint64_t freeFrame = freeListStart->phyaddr;
 	freeListStart = freeListStart->next;
-	return freeFrame;
+	return ((uint64_t)&kernmem + freeFrame - (uint64_t)&physbase);
+//	return freeFrame;
+}
+
+void updateFreeListStart() {
+	freeListStart  = (struct freeList *)((char*) freeListStart + (uint64_t) &kernmem - (uint64_t)&physbase);
+	struct freeList * head  = freeListStart;
+	while(head->next){
+		head->next = (struct freeList *)((char*)head->next + (uint64_t)(& kernmem)- (uint64_t)&physbase);
+		head = head->next;
+	}
+}
+
+uint64_t getFreeFrameBefore(){
+	uint64_t freeFrame = freeListStart->phyaddr;
+	freeListStart = freeListStart->next;
+	return ( freeFrame);
+//	return freeFrame;
 }
 
 void addFrameToFreeList(uint64_t pframe){
