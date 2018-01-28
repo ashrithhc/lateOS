@@ -11,7 +11,8 @@ uint64_t getFreeFrame();
 
 uint64_t getFreeFrameBefore();
 
-void addFrameToFreeList(uint64_t pframe);
+void addFrameToFreeList(uint64_t);
 
 void printFreeList(int);
+
 void updateFreeListStart();
