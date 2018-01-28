@@ -1,15 +1,11 @@
-const char *strcpy(char *, const char *);
+#ifndef _STRING_H
+#define _STRING_H
 
-char *strtok(char *, const char *);
-
-int strlen(const char *);
-
-int strcmp(const char *, const char *);
-
-/*const char *strncpy(char *dest, const char *src, int count);
-int strcmp(const char *str1, const char *str2);
-int strncmp(const char *str1, const char *str2, int count);
-int strlen(const char *str);
-void strcat(char *dest, const char *src);
-void strncat(char *dest, const char *src, int count );
-*/
+#include "stdio.h"
+int strcmp(char* s, char* t);
+void strcpy(char* s, char* t);
+int strlen(const char* s);
+char* strcat(char* s,char* t);
+int starts_with(char*, char*);
+char* substring(char*, int);
+#endif

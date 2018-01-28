@@ -1,8 +1,6 @@
 #ifndef _TARFS_H
 #define _TARFS_H
 
-#include <sys/dirent.h>
-
 extern char _binary_tarfs_start;
 extern char _binary_tarfs_end;
 
@@ -25,15 +23,9 @@ struct posix_header_ustar {
   char prefix[155];
   char pad[12];
 };
-
-typedef struct posix_header_ustar tarfsHeader;
-
-void initTarfs();
-
-file_t *createNode(char*, file_t*, uint64_t, uint64_t, uint64_t, uint64_t);
-
-void parseTarfs(char*, int, uint64_t, uint64_t);
-
-int power(uint64_t, int);
-
+void init_tarfs();
+uint64_t get_file_address(char* filename);
+int isfileexists(char* path);
+void setTruePath(char* abs_path);
+int isValidDirectory(char* path);
 #endif

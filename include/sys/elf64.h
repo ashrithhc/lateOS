@@ -3,9 +3,6 @@
 
 #define EI_NIDENT 16
 
-#include <sys/defs.h>
-#include <sys/task.h>
-
 typedef uint64_t Elf64_Addr;
 typedef uint16_t Elf64_Half;
 typedef uint64_t Elf64_Lword;
@@ -15,7 +12,7 @@ typedef uint64_t Elf64_Sxword;
 typedef uint32_t Elf64_Word;
 typedef uint64_t Elf64_Xword;
 
-typedef struct {
+typedef struct Elf64_Ehdr{
   unsigned char e_ident[EI_NIDENT];
   Elf64_Half    e_type;
   Elf64_Half    e_machine;
@@ -32,7 +29,7 @@ typedef struct {
   Elf64_Half    e_shstrndx;
 } Elf64_Ehdr;
 
-typedef struct {
+typedef struct Elf64_Phdr{
   Elf64_Word    p_type;
   Elf64_Word    p_flags;
   Elf64_Off     p_offset;
@@ -42,11 +39,5 @@ typedef struct {
   Elf64_Xword   p_memsz;
   Elf64_Xword   p_align;
 } Elf64_Phdr;
-
-void *readELF(char *);
-
-int loadEXE(taskStruct*, void*);
-
-enum vmaType{TEXT, DATA, STACK, HEAP, NONE};
 
 #endif
