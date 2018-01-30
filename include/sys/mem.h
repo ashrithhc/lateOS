@@ -29,5 +29,5 @@ int getrefcount(uint64_t add);
 void free(uint64_t add);
 void dealloc_pml4(uint64_t pm4);
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree);
-void map(uint64_t vaddr_s, uint64_t phy);
+void mapNewFrame(uint64_t vaddr_s, uint64_t phy);
 #endif
