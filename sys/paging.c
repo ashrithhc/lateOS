@@ -93,7 +93,7 @@ void free(uint64_t add){
             return;
         }
         if(pagelist[i].address == add){
-            pagelist[i].free = 1;
+            //pagelist[i].free = 1;
             pagelist[i].next = head;
             head = &pagelist[i];
         }
