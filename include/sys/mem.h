@@ -16,8 +16,8 @@ typedef struct smap_t {
     uint32_t type;
 }__attribute__((packed)) smap_t;
 
-uint64_t allocate_page();
-uint64_t allocate_page_for_process();
+uint64_t getFreeFrame();
+uint64_t getFreePage();
 void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree);
 void init_ia32e_paging();
 void init_pages_for_process(uint64_t vaddr_s,uint64_t vaddr_e,uint64_t* pml4);

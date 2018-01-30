@@ -100,7 +100,7 @@ void create_process(char* filename){
 	ts->state = RUNNING;
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
 	int no_ph = eh->e_phnum;
-	uint64_t* pml4 = (uint64_t *)allocate_page_for_process();
+	uint64_t* pml4 = (uint64_t *)getFreePage();
 	memset(pml4,0,4096);
 	ts->pml4e =( uint64_t )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 	ts->regs.rip = eh->e_entry;
@@ -192,7 +192,7 @@ void create_process(char* filename){
 void copytask(task_struct* c){
 	c->ppid = r->pid;
 
-	c->pml4e = (uint64_t)((uint64_t)allocate_page_for_process() - (uint64_t)0xffffffff80000000);
+	c->pml4e = (uint64_t)((uint64_t)getFreePage() - (uint64_t)0xffffffff80000000);
     memset((uint64_t*)(c->pml4e+(0xffffffff80000000)),0,4096);
 	strcpy(c->name,r->name);
     strcpy(c->curr_dir,r->curr_dir);
