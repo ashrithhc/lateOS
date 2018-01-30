@@ -63,7 +63,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	}
 
 	kprintf("Kernmem = %x\n", (uint64_t)&kernmem);
-	kprintf("Physbase = %x\n", (uint64_t)&ohysbase);
+	kprintf("Physbase = %x\n", (uint64_t)&physbase);
 	kprintf("Kernbase = %x\n", (uint64_t)&kernmem - (uint64_t)&physbase);
 	setupPageTables((uint64_t)0, lastFreeFrame);
 }
