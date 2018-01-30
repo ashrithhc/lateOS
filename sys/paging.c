@@ -10,6 +10,7 @@ static uint64_t *pml4e, *pdpte,*pde,*pte;
 static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 static uint64_t viraddr;
 static uint64_t k_cr3 =0;
+uint16_t pageSize = 0x1000;
 
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 /*	struct smap_t {
@@ -28,8 +29,8 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 		if (smap->type == 1  && smap->length != 0) {
 			base = smap->base;
 			while(base < (smap->base + smap->length)){
-		        count = ((uint64_t)base)/4096;
-				if(base>physfreeInt && base+4096<(smap->base+smap->length)){
+		        count = ((uint64_t)base)/pageSize;
+				if(base>physfreeInt && base+pageSize<(smap->base+smap->length)){
 					if(head == NULL){
 						pagelist[count].address = base;
 						pagelist[count].next = head;
@@ -56,7 +57,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 		            pagelist[count].free = 0;
 					count++;
 				}
-				base+=4096;
+				base+=pageSize;
 			}	
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
 			max = smap->base+smap->length; 
@@ -66,7 +67,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 }
 
 void free(uint64_t add){
-        int i = ((uint64_t)add)/4096;
+        int i = ((uint64_t)add)/pageSize;
         if(pagelist[i].address == add && (pagelist[i].ref_count >1)){
             pagelist[i].ref_count--;
             return;
@@ -79,10 +80,10 @@ void free(uint64_t add){
 
 }
 int getrefcount(uint64_t add){
-    return pagelist[add/4096].ref_count;
+    return pagelist[add/pageSize].ref_count;
 }
 void increfcount(uint64_t add){
-    pagelist[add/4096].ref_count+=1;
+    pagelist[add/pageSize].ref_count+=1;
 }
 void switchtokern(){
 __asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - 0xffffffff80000000):);
@@ -99,7 +100,7 @@ uint64_t allocate_page(){
 	return temp->address;
 }
 uint64_t kmalloc(int size){
-	int no_pages = (size/4096)+1;
+	int no_pages = (size/pageSize)+1;
 	uint64_t add = allocate_page_for_process();
 	no_pages--;
 	if(no_pages>0){
@@ -241,20 +242,20 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		pml4[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 
-        memset(p3,0,4096);
+        memset(p3,0,pageSize);
 
         int id2 = (vaddr_s >> 30 ) & 0x1FF;
 		uint64_t* p2 = (uint64_t *)allocate_page();
 		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-        memset(p2,0,4096);
+        memset(p2,0,pageSize);
         int id3 = (vaddr_s >> 21 ) & 0x1FF;
 		uint64_t* p1 = (uint64_t *)allocate_page();
 		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-        memset(p1,0,4096);
+        memset(p1,0,pageSize);
         int id4 = (vaddr_s >> 12 ) & 0x1FF;
 		p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
 		return ;
@@ -269,13 +270,13 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 			p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-            memset(p2,0,4096);
+            memset(p2,0,pageSize);
             int id3 = (vaddr_s >> 21 ) & 0x1FF;
 			uint64_t* p1 = (uint64_t *)allocate_page();
 			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 			p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-            memset(p1,0,4096);
+            memset(p1,0,pageSize);
 
             int id4 = (vaddr_s >> 12 ) & 0x1FF;
 			p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
@@ -291,7 +292,7 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-                memset(p1,0,4096);
+                memset(p1,0,pageSize);
                 int id4 = (vaddr_s >> 12 ) & 0x1FF;
 				p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
 
@@ -326,7 +327,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
 	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
 	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
-	for(int j=0;physbase<physfree;j++,viraddr+=4096,physbase+=4096){
+	for(int j=0;physbase<physfree;j++,viraddr+=pageSize,physbase+=pageSize){
 		pml4_idx = (viraddr >> 39 ) & 0x1FF;
 		pdpt_idx = (viraddr >> 30 ) & 0x1FF;
 		pd_idx = (viraddr >> 21 ) & 0x1FF;
@@ -347,22 +348,22 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	k_cr3 = (uint64_t)pml4e;
 	// Temp Fix, we need a better approach
 
-	viraddr+=4096;
+	viraddr+=pageSize;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 	pte[pt_idx] = ( (uint64_t)pml4e & 0xFFFFFFFFFFFFF000) | 3;
 	pml4e = (uint64_t*)viraddr;
 
-	viraddr+=4096;
+	viraddr+=pageSize;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 	pte[pt_idx] = ( (uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
 	pdpte = (uint64_t*)viraddr;
 
-	viraddr+=4096;
+	viraddr+=pageSize;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 	pte[pt_idx] = ( (uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
 	pde= (uint64_t*)viraddr;
 
-	viraddr+=4096;
+	viraddr+=pageSize;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 	pte[pt_idx] = ( (uint64_t)pte & 0xFFFFFFFFFFFFF000) | 3;
 	pte = (uint64_t*)viraddr;
@@ -377,21 +378,21 @@ void copytables(task_struct* p, task_struct* c){
 	for(int i =0;i<511;i++){
 		if(p4[i] & 1){
 			uint64_t* c3 = (uint64_t *)allocate_page_for_process();
-            memset(c3,0,4096);
+            memset(c3,0,pageSize);
 			c4[i] = ((uint64_t)((uint64_t)c3 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 			uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
 			p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 			for(int j=0;j<512;j++){
 				if(p3[j] & 1){
 					uint64_t* c2 = (uint64_t *)allocate_page_for_process();
-                    memset(c2,0,4096);
+                    memset(c2,0,pageSize);
                     c3[j] = ((uint64_t)((uint64_t)c2 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 					uint64_t* p2 = (uint64_t *)(p3[j] & 0xFFFFFFFFFFFFF000);
 					p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 					for(int k=0;k<512;k++){
 						if(p2[k] & 1){
 							uint64_t* c1 = (uint64_t *)allocate_page_for_process();
-                            memset(c1,0,4096);
+                            memset(c1,0,pageSize);
                             c2[k] = ((uint64_t)((uint64_t)c1 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 							uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
 							p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
@@ -427,7 +428,7 @@ void dealloc_pml4(uint64_t pm4){
                             p1 = (uint64_t*)((uint64_t) 0xffffffff80000000 + (uint64_t) p1);
                             for (int l = 0; l < 512; ++l) {
                                 if (p1[l] & 1) {
-                                    //  memset((uint64_t*)((p1[l] & 0xFFFFFFFFFFFFF000)+0xffffffff80000000),0,4096);
+                                    //  memset((uint64_t*)((p1[l] & 0xFFFFFFFFFFFFF000)+0xffffffff80000000),0,pageSize);
                                     free(((uint64_t) p1[l] & 0xFFFFFFFFFFFFF000));
                                 }
                                 p1[l] = 0;
