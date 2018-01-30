@@ -81,10 +81,9 @@ uint64_t getFreeFrame(){
 }
 
 uint64_t getNewPage(){
-	uint64_t ax = (uint64_t )getFreeFrame();	
-	viraddr = kernbase + ax;
-	map(viraddr,ax);
-	return viraddr;
+	uint64_t newframe = (uint64_t)getFreeFrame();	
+	mapNewFrame(kernbase + newframe, newframe);
+	return (kernbase + newframe);
 }
 
 void free(uint64_t add){
@@ -133,8 +132,8 @@ uint64_t* getPTE(uint64_t v){
         return p1;
 }
 
-void map(uint64_t vaddr_s, uint64_t phy){
-	int id1 = (vaddr_s >> 39 ) & 0x1FF;
+void mapNewFrame(uint64_t virtual, uint64_t physical){
+	int id1 = (virtual >> 39 ) & 0x1FF;
 	if(!(pml4e[id1] & 1)){
 		uint64_t* p3 = (uint64_t *)getFreeFrame();
 		
@@ -142,25 +141,25 @@ void map(uint64_t vaddr_s, uint64_t phy){
 
 		p3 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p3);
 
-		int id2 = (vaddr_s >> 30 ) & 0x1FF;
+		int id2 = (virtual >> 30 ) & 0x1FF;
 		uint64_t* p2 = (uint64_t *)getFreeFrame();
 		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p2 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p2);
 
-		int id3 = (vaddr_s >> 21 ) & 0x1FF;
+		int id3 = (virtual >> 21 ) & 0x1FF;
 		uint64_t* p1 = (uint64_t *)getFreeFrame();
 		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p1 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p1);
 
-		int id4 = (vaddr_s >> 12 ) & 0x1FF;
-		p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
+		int id4 = (virtual >> 12 ) & 0x1FF;
+		p1[id4] =  ((uint64_t)physical & 0xFFFFFFFFFFFFF000) | 3;
 		return ;
 	}
 	else{
 		uint64_t* p3 = (uint64_t *)(pml4e[id1] & 0xFFFFFFFFFFFFF000);
-		int id2 =  (vaddr_s >> 30 ) & 0x1FF;
+		int id2 =  (virtual >> 30 ) & 0x1FF;
 		p3 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p3);
 		if( !(p3[id2] & 1)){	
 			uint64_t* p2 =(uint64_t *) getFreeFrame();
@@ -168,19 +167,19 @@ void map(uint64_t vaddr_s, uint64_t phy){
 
 			p2 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p2);
 
-			int id3 = (vaddr_s >> 21 ) & 0x1FF;
+			int id3 = (virtual >> 21 ) & 0x1FF;
 			uint64_t* p1 = (uint64_t *)getFreeFrame();
 			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 			p1 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p1);
 
-			int id4 = (vaddr_s >> 12 ) & 0x1FF;
-			p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
+			int id4 = (virtual >> 12 ) & 0x1FF;
+			p1[id4] =  ((uint64_t)physical & 0xFFFFFFFFFFFFF000) | 3;
 			return;
 		}
 		else{
 			uint64_t* p2 = (uint64_t *)(p3[id2] &0xFFFFFFFFFFFFF000);
-			int id3 =  (vaddr_s >> 21) & 0x1FF;
+			int id3 =  (virtual >> 21) & 0x1FF;
 			p2 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p2);
 
 			if( !(p2[id3] & 1)){
@@ -189,17 +188,17 @@ void map(uint64_t vaddr_s, uint64_t phy){
 
 				p1 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p1);
 
-				int id4 = (vaddr_s >> 12 ) & 0x1FF;
-				p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
+				int id4 = (virtual >> 12 ) & 0x1FF;
+				p1[id4] =  ((uint64_t)physical & 0xFFFFFFFFFFFFF000) | 3;
 				return;
 			}
 			else{	
 				uint64_t* p1 = (uint64_t *)(p2[id3] &0xFFFFFFFFFFFFF000);	
-				int id4 = (vaddr_s >> 12 ) & 0x1FF;
+				int id4 = (virtual >> 12 ) & 0x1FF;
 
 				p1 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p1);
 
-				p1[id4] = ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
+				p1[id4] = ((uint64_t)physical & 0xFFFFFFFFFFFFF000) | 3;
 				return;
 			}
 		}
