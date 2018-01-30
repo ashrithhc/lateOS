@@ -87,13 +87,14 @@ void free(uint64_t add){
         }
 
 }
+/*
 int getrefcount(uint64_t add){
     return pagelist[add/pageSize].ref_count;
 }
 void increfcount(uint64_t add){
     pagelist[add/pageSize].ref_count+=1;
 }
-void switchtokern(){
+*/void switchtokern(){
 __asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - kernbase):);
 }
 
@@ -357,7 +358,7 @@ void copytables(task_struct* p, task_struct* c){
 							p1 = (uint64_t *)((uint64_t)kernbase + (uint64_t)p1);
 							for(int l=0;l<512;l++){
 								if(p1[l]&1){
-                                    increfcount(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000));
+									pagelist[(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000))/pageSize].ref_count+=1;
 									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);
 									c1[l] = p1[l];
 
