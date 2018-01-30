@@ -23,7 +23,6 @@ void setupPageTables();
 void init_pages_for_process(uint64_t vaddr_s,uint64_t vaddr_e,uint64_t* pml4);
 uint64_t kmalloc(int size);
 uint64_t getPhysical(uint64_t vr);
-void printpml4(uint64_t* pml4);
 void copytables(task_struct* a,task_struct* b);
 uint64_t* getPTE(uint64_t v);
 void switchtokern();

@@ -5,7 +5,7 @@
 
 static freelist* head = NULL;
 extern char kernmem;
-static uint64_t count =0;
+static uint64_t index =0;
 static uint64_t *pml4e, *pdpte,*pde,*pte;
 static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 static uint64_t viraddr;
@@ -13,13 +13,8 @@ static uint64_t k_cr3 =0;
 uint16_t pageSize = 0x1000;
 
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
-/*	struct smap_t {
-		uint64_t base, length;
-		uint32_t type;
-	}__attribute__((packed)) *smap;
-*/
 	struct smap_t* smap;
-	uint64_t max = 0, base;
+	uint64_t lastFreeFrame = 0, base;
 	freelist* last = NULL;
 	uint64_t physfreeInt = (uint64_t)physfree + sizeof(pagelist);
 
@@ -29,41 +24,41 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 		if (smap->type == 1  && smap->length != 0) {
 			base = smap->base;
 			while(base < (smap->base + smap->length)){
-		        count = ((uint64_t)base)/pageSize;
+		        index = ((uint64_t)base)/pageSize;
 				if(base>physfreeInt && base+pageSize<(smap->base+smap->length)){
 					if(head == NULL){
-						pagelist[count].address = base;
-						pagelist[count].next = head;
-						pagelist[count].free = 1;
-		                pagelist[count].ref_count = 0;
+						pagelist[index].address = base;
+						pagelist[index].next = head;
+						pagelist[index].free = 1;
+		                pagelist[index].ref_count = 0;
 		                head = &pagelist[count];
 						last = head;	
-						count++;   				
+						index++;   				
 					}
 					else{
-						pagelist[count].address = base;
-						pagelist[count].next = NULL;
-						pagelist[count].free = 1;
-		                pagelist[count].ref_count = 0;
-		                last->next = &pagelist[count];
-						last = &pagelist[count];
-						count++;
+						pagelist[index].address = base;
+						pagelist[index].next = NULL;
+						pagelist[index].free = 1;
+		                pagelist[index].ref_count = 0;
+		                last->next = &pagelist[index];
+						last = &pagelist[index];
+						index++;
 					}	
 				}
 				else{
-					pagelist[count].address = base;
-					pagelist[count].next = NULL;
-		            pagelist[count].ref_count = 1;
-		            pagelist[count].free = 0;
-					count++;
+					pagelist[index].address = base;
+					pagelist[index].next = NULL;
+		            pagelist[index].ref_count = 1;
+		            pagelist[index].free = 0;
+					index++;
 				}
 				base+=pageSize;
 			}	
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-			max = smap->base+smap->length; 
+			lastFreeFrame = smap->base+smap->length; 
 	    }
 	}
-	setupPageTables((uint64_t)0, max);
+	setupPageTables((uint64_t)0, lastFreeFrame);
 }
 
 void free(uint64_t add){
@@ -110,36 +105,7 @@ uint64_t kmalloc(int size){
 	}
 	return add;
 }
-void printpml4(uint64_t* p4){
-        for(int i = 0;i<511;i++){
-            if( (p4[i]&1)){
-                kprintf("PML4 id:%d val:%p \n",i,(p4[i] & 0xFFFFFFFFFFFFF000));
-                uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
-                p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
-                for(int j=0;j<512;j++){
-                    if( (p3[j]&1)){
-                        kprintf("P3 id:%d val:%p \n",j,(p3[j] & 0xFFFFFFFFFFFFF000));
-                        uint64_t* p2 = (uint64_t *)(p3[j] & 0xFFFFFFFFFFFFF000);
-                        p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-                        for(int k=0;k<512;k++){
-                            if( (p2[k]&1)){
-                                kprintf("P2 id:%d val:%p \n",k,(p2[k] & 0xFFFFFFFFFFFFF000));
-                                uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
-                                p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-                                for (int l = 0; l < 512; ++l)
-                                {
-                                    if ((p1[l]&1))
-                                    {
-                                        kprintf("P1 id:%d val:%p \n",l,(p1[l] ));//& 0xFFFFFFFFFFFFF000));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }   
-}
+
 uint64_t* getPTE(uint64_t v){
         uint64_t* p4 = (uint64_t*)(r->pml4e + 0xffffffff80000000);
         int id4 = (v >> 39 ) & 0x1FF;
