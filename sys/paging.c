@@ -4,7 +4,7 @@
 #include <sys/kprintf.h>
 
 static freelist* head = NULL;
-extern char kernmem;
+extern char kernmem, physbase;
 static uint64_t index =0;
 static uint64_t *pml4e, *pdpte,*pde,*pte;
 static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
@@ -59,6 +59,10 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 			lastFreeFrame = smap->base + smap->length; 
 	    }
 	}
+
+	kprintf("Kernmem = %x\n", (uint64_t)&kernmem);
+	kprintf("Physbase = %x\n", (uint64_t)&ohysbase);
+	kprintf("Kernbase = %x\n", (uint64_t)&kernmem - (uint64_t)&physbase);
 	setupPageTables((uint64_t)0, lastFreeFrame);
 }
 
