@@ -25,7 +25,8 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 			base = smap->base;
 			while(base < (smap->base + smap->length)){
 		        index = ((uint64_t)base)/pageSize;
-				if(base>physfreeInt && base+pageSize<(smap->base+smap->length)){
+
+				if((base > physfreeInt) && (base + pageSize < (smap->base + smap->length))){
 					if(head == NULL){
 						pagelist[index].address = base;
 						pagelist[index].next = head;
@@ -52,13 +53,36 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 		            pagelist[index].free = 0;
 					index++;
 				}
-				base+=pageSize;
+				base += pageSize;
 			}	
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-			lastFreeFrame = smap->base+smap->length; 
+			lastFreeFrame = smap->base + smap->length; 
 	    }
 	}
 	setupPageTables((uint64_t)0, lastFreeFrame);
+}
+
+uint64_t allocate_page(){
+	freelist* temp = head;
+	if(temp == NULL){
+		kprintf("Trouble Land - Out of memory\n");
+        while(1);
+	}
+	temp->free=0;
+    temp->ref_count = 1;
+	head = head->next;
+	return temp->address;
+}
+
+uint64_t getNewPage(){
+	uint64_t ax = (uint64_t )allocate_page();	
+	viraddr = 0xffffffff80000000 + ax;
+	map(viraddr,ax);
+	return viraddr;
+}
+
+uint64_t getPhysical(uint64_t vr){
+	return (uint64_t) *((uint64_t *)(*(uint64_t *)( *((uint64_t *)(pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF)));
 }
 
 void free(uint64_t add){
@@ -83,24 +107,14 @@ void increfcount(uint64_t add){
 void switchtokern(){
 __asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - 0xffffffff80000000):);
 }
-uint64_t allocate_page(){
-	freelist* temp = head;
-	if(temp == NULL){
-		kprintf("Trouble Land - Out of memory\n");
-        while(1);
-	}
-	temp->free=0;
-    temp->ref_count = 1;
-	head = head->next;
-	return temp->address;
-}
+
 uint64_t kmalloc(int size){
 	int no_pages = (size/pageSize)+1;
-	uint64_t add = allocate_page_for_process();
+	uint64_t add = getNewPage();
 	no_pages--;
 	if(no_pages>0){
 		for(int i=0;i<no_pages;i++){
-			allocate_page_for_process();
+			getNewPage();
 		}
 	}
 	return add;
@@ -188,16 +202,6 @@ void map(uint64_t vaddr_s, uint64_t phy){
 			}
 		}
 	}
-}
-
-uint64_t allocate_page_for_process(){
-	uint64_t ax = (uint64_t )allocate_page();	
-	viraddr = 0xffffffff80000000 + ax;
-	map(viraddr,ax);
-	return viraddr;
-}
-uint64_t getPhysical(uint64_t vr){
-	return (uint64_t) *((uint64_t *)(*(uint64_t *)( *((uint64_t *)(pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF)));
 }
 
 void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
@@ -343,21 +347,21 @@ void copytables(task_struct* p, task_struct* c){
 	c4[511] = p4[511];
 	for(int i =0;i<511;i++){
 		if(p4[i] & 1){
-			uint64_t* c3 = (uint64_t *)allocate_page_for_process();
+			uint64_t* c3 = (uint64_t *)getNewPage();
             memset(c3,0,pageSize);
 			c4[i] = ((uint64_t)((uint64_t)c3 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 			uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
 			p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 			for(int j=0;j<512;j++){
 				if(p3[j] & 1){
-					uint64_t* c2 = (uint64_t *)allocate_page_for_process();
+					uint64_t* c2 = (uint64_t *)getNewPage();
                     memset(c2,0,pageSize);
                     c3[j] = ((uint64_t)((uint64_t)c2 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 					uint64_t* p2 = (uint64_t *)(p3[j] & 0xFFFFFFFFFFFFF000);
 					p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 					for(int k=0;k<512;k++){
 						if(p2[k] & 1){
-							uint64_t* c1 = (uint64_t *)allocate_page_for_process();
+							uint64_t* c1 = (uint64_t *)getNewPage();
                             memset(c1,0,pageSize);
                             c2[k] = ((uint64_t)((uint64_t)c1 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 							uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
