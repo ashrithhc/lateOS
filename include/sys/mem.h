@@ -24,7 +24,7 @@ uint64_t kmalloc(int size);
 void copytables(task_struct* a,task_struct* b);
 uint64_t* getPTE(uint64_t v);
 void switchtokern();
-int getrefcount(uint64_t add);
+//int getrefcount(uint64_t add);
 void free(uint64_t add);
 void dealloc_pml4(uint64_t pm4);
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree);
