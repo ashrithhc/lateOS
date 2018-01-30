@@ -100,12 +100,14 @@ void free(uint64_t add){
         }
 
 }
-
 int getrefcount(uint64_t add){
     return pagelist[add/pageSize].ref_count;
 }
 void increfcount(uint64_t add){
     pagelist[add/pageSize].ref_count+=1;
+}
+void switchtokern(){
+__asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - kernbase):);
 }
 
 uint64_t kmalloc(int size){
