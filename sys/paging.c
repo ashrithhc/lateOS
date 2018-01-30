@@ -18,7 +18,6 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	struct smap_t* smap;
 	uint64_t lastFreeFrame = 0, base;
 	freelist* last = NULL;
-	uint64_t physfreeInt = (uint64_t)physfree + sizeof(pagelist);
 
 	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
@@ -28,7 +27,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 			while(base < (smap->base + smap->length)){
 		        index = ((uint64_t)base)/pageSize;
 
-				if((base > physfreeInt) && (base + pageSize < (smap->base + smap->length))){
+				if((base > ((uint64_t)physfree + 0x1000)) && (base + pageSize < (smap->base + smap->length))){
 					if(head == NULL){
 						(&pagelist[index])->address = base;
 						(&pagelist[index])->next = head;
@@ -46,12 +45,6 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 						index++;
 					}	
 				}
-/*				else{
-					(&pagelist[index])->address = base;
-					(&pagelist[index])->next = NULL;
-		            (&pagelist[index])->ref_count = 1;
-					index++;
-				}*/
 				base += pageSize;
 			}	
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
