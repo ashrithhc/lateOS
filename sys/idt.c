@@ -216,7 +216,7 @@ void isr14(){
         if(i == 2){
             uint64_t p_n = getFreeFrame();
             memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
-            __asm__ volatile("movq %0, %%cr3;" : : "r"(0));
+            __asm__ volatile("movq %0, %%cr3;" : : "r"((uint64_t)0));
             init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
             free(add);
         } else if(i == 1){
@@ -232,7 +232,7 @@ void isr14(){
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
 		//uint64_t n_s = r->vm->vm_start - 4096;
 		uint64_t p_n = getFreeFrame();
-		__asm__ volatile("movq %0, %%cr3;" : : "r"(0));
+		__asm__ volatile("movq %0, %%cr3;" : : "r"((uint64_t)0));
 		init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
 	//	r->vm->vm_start = n_s;
 		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
