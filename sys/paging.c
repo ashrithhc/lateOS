@@ -63,7 +63,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 			max = smap->base+smap->length; 
 	    }
 	}
-	init_ia32e_paging((uint64_t)0, max);
+	setupPageTables((uint64_t)0, max);
 }
 
 void free(uint64_t add){
@@ -311,7 +311,7 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 	}
 }
 
-void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
+void setupPageTables(uint64_t physbase, uint64_t physfree){
 
 	viraddr = (uint64_t)0xffffffff80000000;//(uint64_t)&kernmem;
 
