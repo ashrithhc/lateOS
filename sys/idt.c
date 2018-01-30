@@ -184,7 +184,7 @@ void isr13(){
 }
 void isr14(){
 
-/*	uint64_t bb;
+	uint64_t bb;
     int flag = 0;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
     vma* vm = r->vm;
@@ -242,7 +242,7 @@ void isr14(){
         kprintf("Segmentation Fault: Address:%p \n",bb);
         exit();
         while(1);
-    }*/
+    }
 
 }
 void isr15(){
