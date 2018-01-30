@@ -87,10 +87,6 @@ uint64_t getNewPage(){
 	return viraddr;
 }
 
-uint64_t getPhysical(uint64_t vr){
-	return (uint64_t) *((uint64_t *)(*(uint64_t *)( *((uint64_t *)(pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF)));
-}
-
 void free(uint64_t add){
         int i = ((uint64_t)add)/pageSize;
         if(pagelist[i].address == add && (pagelist[i].ref_count >1)){

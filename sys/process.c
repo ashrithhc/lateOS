@@ -1,11 +1,11 @@
-#include<sys/defs.h>
-#include<sys/process.h>
-#include<sys/mem.h>
-#include<sys/kprintf.h>
-#include<sys/gdt.h>
-#include<sys/string.h>
-#include<sys/tarfs.h>
-#include<sys/elf64.h>
+#include <sys/defs.h>
+#include <sys/process.h>
+#include <sys/mem.h>
+#include <sys/kprintf.h>
+#include <sys/gdt.h>
+#include <sys/string.h>
+#include <sys/tarfs.h>
+#include <sys/elf64.h>
 #include <sys/terminal.h>
 
 static task_struct* p;
