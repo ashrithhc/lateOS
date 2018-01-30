@@ -31,7 +31,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 						pagelist[index].next = head;
 						pagelist[index].free = 1;
 		                pagelist[index].ref_count = 0;
-		                head = &pagelist[count];
+		                head = &pagelist[index];
 						last = head;	
 						index++;   				
 					}
