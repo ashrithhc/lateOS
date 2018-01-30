@@ -18,55 +18,51 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	}__attribute__((packed)) *smap;
 */
 	struct smap_t* smap;
-	uint64_t max = 0;
+	uint64_t max = 0, base;
+	freelist* last = NULL;
+	physfree = physfree + sizeof(pagelist);
 
 	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
 	for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
 		if (smap->type == 1  && smap->length != 0) {
-	      	mem_map(smap,(uint64_t)physbase,(uint64_t)physfree);
+			base = smap->base;
+			while(base < (smap->base + smap->length)){
+		        count = ((uint64_t)base)/4096;
+				if(base>physfree && base+4096<(smap->base+smap->length)){
+					if(head == NULL){
+						pagelist[count].address = base;
+						pagelist[count].next = head;
+						pagelist[count].free = 1;
+		                pagelist[count].ref_count = 0;
+		                head = &pagelist[count];
+						last = head;	
+						count++;   				
+					}
+					else{
+						pagelist[count].address = base;
+						pagelist[count].next = NULL;
+						pagelist[count].free = 1;
+		                pagelist[count].ref_count = 0;
+		                last->next = &pagelist[count];
+						last = &pagelist[count];
+						count++;
+					}	
+				}
+				else{
+					pagelist[count].address = base;
+					pagelist[count].next = NULL;
+		            pagelist[count].ref_count = 1;
+		            pagelist[count].free = 0;
+					count++;
+				}
+				base+=4096;
+			}	
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
 			max = smap->base+smap->length; 
 	    }
 	}
 	init_ia32e_paging((uint64_t)0, max);
-}
-
-void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
-	uint64_t base = sm->base;
-	freelist* last = NULL;
-	physfree = physfree + sizeof(pagelist);
-	while(base < (sm->base + sm->length)){
-        count = ((uint64_t)base)/4096;
-		if(base>physfree && base+4096<(sm->base+sm->length)){
-			if(head == NULL){
-				pagelist[count].address = base;
-				pagelist[count].next = head;
-				pagelist[count].free = 1;
-                pagelist[count].ref_count = 0;
-                head = &pagelist[count];
-				last = head;	
-				count++;   				
-			}
-			else{
-				pagelist[count].address = base;
-				pagelist[count].next = NULL;
-				pagelist[count].free = 1;
-                pagelist[count].ref_count = 0;
-                last->next = &pagelist[count];
-				last = &pagelist[count];
-				count++;
-			}	
-		}
-		else{
-			pagelist[count].address = base;
-			pagelist[count].next = NULL;
-            pagelist[count].ref_count = 1;
-            pagelist[count].free = 0;
-			count++;
-		}
-		base+=4096;
-	}	
 }
 
 void free(uint64_t add){
