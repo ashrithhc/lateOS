@@ -30,29 +30,29 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 
 				if((base > physfreeInt) && (base + pageSize < (smap->base + smap->length))){
 					if(head == NULL){
-						&pagelist[index]->address = base;
-						&pagelist[index]->next = head;
-						&pagelist[index]->free = 1;
-		                &pagelist[index]->ref_count = 0;
+						(&pagelist[index])->address = base;
+						(&pagelist[index])->next = head;
+						(&pagelist[index])->free = 1;
+		                (&pagelist[index])->ref_count = 0;
 		                head = &pagelist[index];
 						last = head;	
 						index++;   				
 					}
 					else{
-						&pagelist[index]->address = base;
-						&pagelist[index]->next = NULL;
-						&pagelist[index]->free = 1;
-		                &pagelist[index]->ref_count = 0;
+						(&pagelist[index])->address = base;
+						(&pagelist[index])->next = NULL;
+						(&pagelist[index])->free = 1;
+		                (&pagelist[index])->ref_count = 0;
 		                last->next = &pagelist[index];
 						last = &pagelist[index];
 						index++;
 					}	
 				}
 				else{
-					&pagelist[index]->address = base;
-					&pagelist[index]->next = NULL;
-		            &pagelist[index]->ref_count = 1;
-		            &pagelist[index]->free = 0;
+					(&pagelist[index])->address = base;
+					(&pagelist[index])->next = NULL;
+		            (&pagelist[index])->ref_count = 1;
+		            (&pagelist[index])->free = 0;
 					index++;
 				}
 				base += pageSize;
