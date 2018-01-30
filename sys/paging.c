@@ -62,7 +62,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	setupPageTables((uint64_t)0, lastFreeFrame);
 }
 
-uint64_t allocate_page(){
+uint64_t getFreeFrame(){
 	freelist* temp = head;
 	if(temp == NULL){
 		kprintf("Trouble Land - Out of memory\n");
@@ -75,7 +75,7 @@ uint64_t allocate_page(){
 }
 
 uint64_t getNewPage(){
-	uint64_t ax = (uint64_t )allocate_page();	
+	uint64_t ax = (uint64_t )getFreeFrame();	
 	viraddr = 0xffffffff80000000 + ax;
 	map(viraddr,ax);
 	return viraddr;
@@ -134,20 +134,20 @@ uint64_t* getPTE(uint64_t v){
 void map(uint64_t vaddr_s, uint64_t phy){
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
 	if(!(pml4e[id1] & 1)){
-		uint64_t* p3 = (uint64_t *)allocate_page();
+		uint64_t* p3 = (uint64_t *)getFreeFrame();
 		
 		pml4e[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 
 		int id2 = (vaddr_s >> 30 ) & 0x1FF;
-		uint64_t* p2 = (uint64_t *)allocate_page();
+		uint64_t* p2 = (uint64_t *)getFreeFrame();
 		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
 		int id3 = (vaddr_s >> 21 ) & 0x1FF;
-		uint64_t* p1 = (uint64_t *)allocate_page();
+		uint64_t* p1 = (uint64_t *)getFreeFrame();
 		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
@@ -161,13 +161,13 @@ void map(uint64_t vaddr_s, uint64_t phy){
 		int id2 =  (vaddr_s >> 30 ) & 0x1FF;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 		if( !(p3[id2] & 1)){	
-			uint64_t* p2 =(uint64_t *) allocate_page();
+			uint64_t* p2 =(uint64_t *) getFreeFrame();
 			p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 3;
 
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
 			int id3 = (vaddr_s >> 21 ) & 0x1FF;
-			uint64_t* p1 = (uint64_t *)allocate_page();
+			uint64_t* p1 = (uint64_t *)getFreeFrame();
 			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 			p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
@@ -182,7 +182,7 @@ void map(uint64_t vaddr_s, uint64_t phy){
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
 			if( !(p2[id3] & 1)){
-				uint64_t* p1 = (uint64_t *)allocate_page();
+				uint64_t* p1 = (uint64_t *)getFreeFrame();
 				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
@@ -208,20 +208,20 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 	pml4[511] = (pml4e[511] & 0xFFFFFFFFFFFFF000) | 7;
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
 	if(!(pml4[id1] & 1)){
-		uint64_t* p3 = (uint64_t *)allocate_page();
+		uint64_t* p3 = (uint64_t *)getFreeFrame();
 		pml4[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 
         memset(p3,0,pageSize);
 
         int id2 = (vaddr_s >> 30 ) & 0x1FF;
-		uint64_t* p2 = (uint64_t *)allocate_page();
+		uint64_t* p2 = (uint64_t *)getFreeFrame();
 		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
         memset(p2,0,pageSize);
         int id3 = (vaddr_s >> 21 ) & 0x1FF;
-		uint64_t* p1 = (uint64_t *)allocate_page();
+		uint64_t* p1 = (uint64_t *)getFreeFrame();
 		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
@@ -236,13 +236,13 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		int id2 =  (vaddr_s >> 30 ) & 0x1FF;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 		if( !(p3[id2] & 1)){
-			uint64_t* p2 =(uint64_t *) allocate_page();
+			uint64_t* p2 =(uint64_t *) getFreeFrame();
 			p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
             memset(p2,0,pageSize);
             int id3 = (vaddr_s >> 21 ) & 0x1FF;
-			uint64_t* p1 = (uint64_t *)allocate_page();
+			uint64_t* p1 = (uint64_t *)getFreeFrame();
 			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 			p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
@@ -257,7 +257,7 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 			int id3 =  (vaddr_s >> 21) & 0x1FF;
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 			if( !(p2[id3] & 1)){
-				uint64_t* p1 = (uint64_t *)allocate_page();
+				uint64_t* p1 = (uint64_t *)getFreeFrame();
 
 				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
@@ -290,10 +290,10 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	pd_idx = (viraddr >> 21 ) & 0x1FF;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 
-	pml4e = (uint64_t *)allocate_page();
-	pdpte = (uint64_t *)allocate_page();
-	pde = (uint64_t *)allocate_page();
-	pte = (uint64_t *)allocate_page();
+	pml4e = (uint64_t *)getFreeFrame();
+	pdpte = (uint64_t *)getFreeFrame();
+	pde = (uint64_t *)getFreeFrame();
+	pte = (uint64_t *)getFreeFrame();
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
 	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
 	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
@@ -307,7 +307,7 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 3;
 		}
 		else{
-			pte = ((uint64_t*)allocate_page());
+			pte = ((uint64_t*)getFreeFrame());
 			pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
 			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 3;		
 		}

@@ -126,7 +126,7 @@ void create_process(char* filename){
 				ts->vm = vm;
 			}
 			for(;k<( vm->vm_end);k+=4096){
-				uint64_t yy = allocate_page();
+				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
 			}
 			uint64_t pcr3;
@@ -148,7 +148,7 @@ void create_process(char* filename){
     ts->vm = vm2;
 
 
-    uint64_t s_add = allocate_page();
+    uint64_t s_add = getFreeFrame();
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
@@ -335,7 +335,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 				ts->vm = vm;
 			}
 			for(;k<( vm->vm_end);k+=4096){
-				uint64_t yy = allocate_page();
+				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
 			}
 
@@ -356,7 +356,7 @@ int execvpe(char* path, char *argv[],char* env[]){
     ts->vm = vm2;
 
 
-    uint64_t s_add = allocate_page();
+    uint64_t s_add = getFreeFrame();
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
@@ -537,7 +537,7 @@ void* malloc(int no_of_bytes){
 
     uint64_t ret = vm->vm_end;
     for(int i =0;i<((no_of_bytes/4096))+1;i++){
-        uint64_t s_add = allocate_page();
+        uint64_t s_add = getFreeFrame();
         init_pages_for_process(vm->vm_end,s_add,(uint64_t *)(r->pml4e+0xffffffff80000000));
         vm->vm_end = vm->vm_end + 4096;
     }
