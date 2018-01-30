@@ -14,9 +14,9 @@ static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 static uint64_t viraddr;
 static uint64_t k_cr3 =0;
 
-void initialiseFreelist(uint32_t *modulep, void *physbase, void *physfree){
-//void initialiseFreelist(smap_t* sm, uint64_t physbase, uint64_t physfree){
-	uint64_t base;
+//void initialiseFreelist(uint32_t *modulep, void *physbase, void *physfree){
+void initialiseFreelist(smap_t* sm, uint64_t physbase, uint64_t physfree){
+/*	uint64_t base;
 	struct smap_t {
 		uint64_t base, length;
 		uint32_t type;
@@ -24,46 +24,41 @@ void initialiseFreelist(uint32_t *modulep, void *physbase, void *physfree){
 
 	freelist* last = NULL;
 	physfree = physfree + sizeof(pagelist);
-
-	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
-
-	for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
-		if (smap->type == 1 /* memory */ && smap->length != 0) {
-			base = smap->base;
-			while(base < base + smap->length){
-		        count = ((uint64_t)base)/pageSize;
-				if(base>physfree && base+pageSize<(sbase+slim)){
-					if(head == NULL){
-						pagelist[count].address = base;
-						pagelist[count].next = head;
-						pagelist[count].free = 1;
-		                pagelist[count].ref_count = 0;
-		                head = &pagelist[count];
-						last = head;	
-						count++;   				
-					}
-					else{
-						pagelist[count].address = base;
-						pagelist[count].next = NULL;
-						pagelist[count].free = 1;
-		                pagelist[count].ref_count = 0;
-		                last->next = &pagelist[count];
-						last = &pagelist[count];
-						count++;
-					}	
-				}
-				else{
-					pagelist[count].address = base;
-					pagelist[count].next = NULL;
-		            pagelist[count].ref_count = 1;
-		            pagelist[count].free = 0;
-					count++;
-				}
-
-				base += pageSize;
+*/
+	uint64_t sbase = sm->base;
+	uint64_t slim = sm->length;
+	freelist* last = NULL;
+	physfree = physfree + sizeof(pagelist);
+	for(uint64_t ptr=sbase;ptr<(sbase+slim);ptr+=4096){
+        count = ((uint64_t)ptr)/4096;
+		if(ptr>physfree && ptr+4096<(sbase+slim)){
+			if(head == NULL){
+				pagelist[count].address = ptr;
+				pagelist[count].next = head;
+				pagelist[count].free = 1;
+                pagelist[count].ref_count = 0;
+                head = &pagelist[count];
+				last = head;	
+				count++;   				
 			}
+			else{
+				pagelist[count].address = ptr;
+				pagelist[count].next = NULL;
+				pagelist[count].free = 1;
+                pagelist[count].ref_count = 0;
+                last->next = &pagelist[count];
+				last = &pagelist[count];
+				count++;
+			}	
 		}
-	}	
+		else{
+			pagelist[count].address = ptr;
+			pagelist[count].next = NULL;
+            pagelist[count].ref_count = 1;
+            pagelist[count].free = 0;
+			count++;
+		}
+	}
 }
 
 void free(uint64_t add){
