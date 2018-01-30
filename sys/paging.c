@@ -1,28 +1,46 @@
-#include<sys/defs.h>
-#include<sys/process.h>
-#include<sys/mem.h>
-#include<sys/kprintf.h>
+#include <sys/defs.h>
+#include <sys/process.h>
+#include <sys/mem.h>
+#include <sys/kprintf.h>
 
 static freelist* head = NULL;
-//TODO: Freelist as an array with fixed size will not work in NCS:106.
-// Need to implement a better dynamically allocated list
-// 
 extern char kernmem;
 static uint64_t count =0;
 static uint64_t *pml4e, *pdpte,*pde,*pte;
 static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 static uint64_t viraddr;
 static uint64_t k_cr3 =0;
+
+void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
+/*	struct smap_t {
+		uint64_t base, length;
+		uint32_t type;
+	}__attribute__((packed)) *smap;
+*/
+	struct smap_t* smap;
+	uint64_t max;
+
+	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
+
+	for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
+		if (smap->type == 1  && smap->length != 0) {
+	      	mem_map(smap,(uint64_t)physbase,(uint64_t)physfree);
+			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
+			max = smap->base+smap->length; 
+	    }
+	}
+	init_ia32e_paging((uint64_t)0, max);
+}
+
 void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
-	uint64_t sbase = sm->base;
-	uint64_t slim = sm->length;
+	uint64_t base = sm->base;
 	freelist* last = NULL;
 	physfree = physfree + sizeof(pagelist);
-	for(uint64_t ptr=sbase;ptr<(sbase+slim);ptr+=4096){
-        count = ((uint64_t)ptr)/4096;
-		if(ptr>physfree && ptr+4096<(sbase+slim)){
+	while(base < (sm->base + sm->length)){
+        count = ((uint64_t)base)/4096;
+		if(base>physfree && base+4096<(sm->base+sm->length)){
 			if(head == NULL){
-				pagelist[count].address = ptr;
+				pagelist[count].address = base;
 				pagelist[count].next = head;
 				pagelist[count].free = 1;
                 pagelist[count].ref_count = 0;
@@ -31,7 +49,7 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 				count++;   				
 			}
 			else{
-				pagelist[count].address = ptr;
+				pagelist[count].address = base;
 				pagelist[count].next = NULL;
 				pagelist[count].free = 1;
                 pagelist[count].ref_count = 0;
@@ -41,14 +59,16 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 			}	
 		}
 		else{
-			pagelist[count].address = ptr;
+			pagelist[count].address = base;
 			pagelist[count].next = NULL;
             pagelist[count].ref_count = 1;
             pagelist[count].free = 0;
 			count++;
 		}
+		base+=4096;
 	}	
 }
+
 void free(uint64_t add){
         int i = ((uint64_t)add)/4096;
         if(pagelist[i].address == add && (pagelist[i].ref_count >1)){
