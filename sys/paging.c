@@ -32,7 +32,6 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 					if(head == NULL){
 						(&pagelist[index])->address = base;
 						(&pagelist[index])->next = head;
-						//(&pagelist[index])->free = 1;
 		                (&pagelist[index])->ref_count = 0;
 		                head = &pagelist[index];
 						last = head;	
@@ -41,20 +40,18 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 					else{
 						(&pagelist[index])->address = base;
 						(&pagelist[index])->next = NULL;
-						//(&pagelist[index])->free = 1;
 		                (&pagelist[index])->ref_count = 0;
 		                last->next = &pagelist[index];
 						last = &pagelist[index];
 						index++;
 					}	
 				}
-				else{
+/*				else{
 					(&pagelist[index])->address = base;
 					(&pagelist[index])->next = NULL;
 		            (&pagelist[index])->ref_count = 1;
-		            //(&pagelist[index])->free = 0;
 					index++;
-				}
+				}*/
 				base += pageSize;
 			}	
 			kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
@@ -74,7 +71,6 @@ uint64_t getFreeFrame(){
 		kprintf("Trouble Land - Out of memory\n");
         while(1);
 	}
-	//temp->free=0;
     temp->ref_count = 1;
 	head = head->next;
 	return temp->address;
@@ -93,7 +89,6 @@ void free(uint64_t add){
             return;
         }
         if(pagelist[i].address == add){
-            //pagelist[i].free = 1;
             pagelist[i].next = head;
             head = &pagelist[i];
         }

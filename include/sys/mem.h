@@ -4,7 +4,6 @@
 
 typedef struct freelist{
 	uint64_t address;
-//	int free;
     int ref_count;
 	struct freelist* next; 
 }freelist;
