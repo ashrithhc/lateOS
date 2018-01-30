@@ -20,7 +20,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	struct smap_t* smap;
 	uint64_t max = 0, base;
 	freelist* last = NULL;
-	physfree = physfree + sizeof(pagelist);
+	uint64_t physfreeInt = (uint64_t)physfree + sizeof(pagelist);
 
 	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
@@ -29,7 +29,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 			base = smap->base;
 			while(base < (smap->base + smap->length)){
 		        count = ((uint64_t)base)/4096;
-				if(base>physfree && base+4096<(smap->base+smap->length)){
+				if(base>physfreeInt && base+4096<(smap->base+smap->length)){
 					if(head == NULL){
 						pagelist[count].address = base;
 						pagelist[count].next = head;
