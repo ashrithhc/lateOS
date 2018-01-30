@@ -212,7 +212,7 @@ void isr14(){
         uint64_t k1;
         __asm__ volatile("movq %%cr3,%0;":"=g"(k1)::);
         uint64_t  add = (k[(bb>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
-        int i = getrefcount(add);
+        int i = 2;//getrefcount(add);
         if(i == 2){
             uint64_t p_n = getFreeFrame();
             memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
