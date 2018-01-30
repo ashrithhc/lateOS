@@ -214,9 +214,9 @@ void isr14(){
         uint64_t  add = (k[(bb>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
         int i = getrefcount(add);
         if(i == 2){
-            uint64_t p_n = getPhysicalFrame();
+            uint64_t p_n = allocate_page();
             memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
-            __asm__ volatile("movq %0,%%cr3;"::"r"(0));
+            switchtokern();
             init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
             free(add);
         } else if(i == 1){
@@ -231,8 +231,8 @@ void isr14(){
         uint64_t k;
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
 		//uint64_t n_s = r->vm->vm_start - 4096;
-		uint64_t p_n = getPhysicalFrame();
-		__asm__ volatile("movq %0,%%cr3;"::"r"(0));
+		uint64_t p_n = allocate_page();
+		switchtokern();
 		init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
 	//	r->vm->vm_start = n_s;
 		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);

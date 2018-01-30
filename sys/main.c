@@ -16,17 +16,15 @@ extern char kernmem, physbase;
 uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
-  /*
   struct smap_t* smap;
   while(modulep[0] != 0x9001) modulep += modulep[1]+2;
   for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
     if (smap->type == 1  && smap->length != 0) {
-      	initialiseFreelist(smap,(uint64_t)physbase,(uint64_t)physfree);
+      	mem_map(smap,(uint64_t)physbase,(uint64_t)physfree);
 	kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
 	max = smap->base+smap->length; 
     }
-  }*/
-    initialiseFreelist(modulep, physbase, physfree);
+  }
 
     init_ia32e_paging((uint64_t)0, max);
 	init_tarfs();
