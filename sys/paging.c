@@ -18,7 +18,7 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	}__attribute__((packed)) *smap;
 */
 	struct smap_t* smap;
-	uint64_t max;
+	uint64_t max = 0;
 
 	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
