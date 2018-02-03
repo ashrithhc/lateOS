@@ -34,7 +34,6 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 		                (&pagelist[index])->ref_count = 0;
 		                head = &pagelist[index];
 						last = head;	
-						index++;   				
 					}
 					else{
 						(&pagelist[index])->address = base;
@@ -42,8 +41,8 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 		                (&pagelist[index])->ref_count = 0;
 		                last->next = &pagelist[index];
 						last = &pagelist[index];
-						index++;
 					}	
+				index++;
 				}
 				base += pageSize;
 			}	
@@ -60,10 +59,6 @@ void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 
 uint64_t getFreeFrame(){
 	freelist* temp = head;
-	if(temp == NULL){
-		kprintf("Trouble Land - Out of memory\n");
-        while(1);
-	}
     temp->ref_count = 1;
 	head = head->next;
 	return temp->address;
@@ -76,26 +71,19 @@ uint64_t getNewPage(){
 }
 
 void free(uint64_t add){
-        int i = ((uint64_t)add)/pageSize;
-        if(pagelist[i].address == add && (pagelist[i].ref_count >1)){
-            pagelist[i].ref_count--;
+        /*int index = ((uint64_t)add)/pageSize;
+        if((&pagelist[index])->address == add && ((&pagelist[index])->ref_count >1)){
+            (&pagelist[index])->ref_count--;
             return;
         }
-        if(pagelist[i].address == add){
-            pagelist[i].next = head;
+        if((&pagelist[index])->address == add){
+            (&pagelist[index])->next = head;
             head = &pagelist[i];
-        }
+        }*/
+}
 
-}
-/*
-int getrefcount(uint64_t add){
-    return pagelist[add/pageSize].ref_count;
-}
-void increfcount(uint64_t add){
-    pagelist[add/pageSize].ref_count+=1;
-}
-*/void switchtokern(){
-__asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - kernbase):);
+void switchtokern(){
+__asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));
 }
 
 uint64_t kmalloc(int size){
