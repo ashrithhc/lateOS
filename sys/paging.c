@@ -164,65 +164,72 @@ void mapNewFrame(uint64_t virtual, uint64_t physical){
 	else mapFreeFrameExist( virtual, physical);
 }
 
-void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
-	*(pml4 + 511) = (*(pml4e + 511) & validatebits) | 7;
-	if(!(*(pml4 + ((vaddr_s >> (12+9+9+9) ) & 511)) & 1)){
-		uint64_t* pdpte = (uint64_t *)getFreeFrame();
-		*(pml4 + ((vaddr_s >> (12+9+9+9) ) & 511)) = ((uint64_t)pdpte & validatebits) | 7;
-		pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
-        memset(pdpte,0,pageSize);
+void setNewPagePDPTE(uint64_t virtual, uint64_t physical, uint64_t* pml4){
+	uint64_t* pdpte = (uint64_t *)getFreeFrame();
+	*(pml4 + ((virtual >> (12+9+9+9) ) & 511)) = ((uint64_t)pdpte & validatebits) | 7;
+	pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
+    memset(pdpte,0,pageSize);
 
-		uint64_t* pdpe = (uint64_t *)getFreeFrame();
-		*(pdpte + ((vaddr_s >> (12+9+9) ) & 511)) = ((uint64_t)pdpe & validatebits) | 7;
-		pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
-        memset(pdpe,0,pageSize);
+	uint64_t* pdpe = (uint64_t *)getFreeFrame();
+	*(pdpte + ((virtual >> (12+9+9) ) & 511)) = ((uint64_t)pdpe & validatebits) | 7;
+	pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
+    memset(pdpe,0,pageSize);
 
+	uint64_t* pte = (uint64_t *)getFreeFrame();
+	*(pdpe + ((virtual >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
+	pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
+    memset(pte,0,pageSize);
+
+	*(pte + ((virtual >> 12 ) & 511)) =  ((uint64_t)physical & validatebits) | 7;
+}
+
+void setNewPagePDPE(uint64_t virtual, uint64_t physical, uint64_t* pml4){
+	uint64_t* pdpe =(uint64_t *) getFreeFrame();
+	*(pdpte + ((virtual >> (12+9+9) ) & 511)) = ((uint64_t)pdpe & validatebits) | 7;
+
+	pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
+    memset(pdpe,0,pageSize);
+	uint64_t* pte = (uint64_t *)getFreeFrame();
+	*(pdpe + ((virtual >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
+
+	pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
+    memset(pte,0,pageSize);
+
+	*(pte + ((virtual >> 12 ) & 511)) =  ((uint64_t)physical & validatebits) | 7;
+}
+
+void setExistingPagePDPE(uint64_t virtual, uint64_t physical, uint64_t* pml4){
+	uint64_t* pdpe = (uint64_t *)(*(pdpte + ((virtual >> (12+9+9) ) & 511)) &validatebits);
+	pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
+	if( !(*(pdpe + ((virtual >> (12+9) ) & 511)) & 1)){
 		uint64_t* pte = (uint64_t *)getFreeFrame();
-		*(pdpe + ((vaddr_s >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
+
+		*(pdpe + ((virtual >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
+
 		pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
         memset(pte,0,pageSize);
-
-		*(pte + ((vaddr_s >> 12 ) & 511)) =  ((uint64_t)phy & validatebits) | 7;
+		*(pte + ((virtual >> 12 ) & 511)) =  ((uint64_t)physical & validatebits) | 7;
 	}
-
 	else{
-		uint64_t* pdpte = (uint64_t *)(*(pml4 + ((vaddr_s >> (12+9+9+9) ) & 511)) & validatebits);
-		pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
-		if( !(*(pdpte + ((vaddr_s >> (12+9+9) ) & 511)) & 1)){
-			uint64_t* pdpe =(uint64_t *) getFreeFrame();
-			*(pdpte + ((vaddr_s >> (12+9+9) ) & 511)) = ((uint64_t)pdpe & validatebits) | 7;
+		uint64_t* pte = (uint64_t *)(*(pdpe + ((virtual >> (12+9) ) & 511)) &validatebits);
 
-			pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
-            memset(pdpe,0,pageSize);
-			uint64_t* pte = (uint64_t *)getFreeFrame();
-			*(pdpe + ((vaddr_s >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
+		pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
 
-			pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
-            memset(pte,0,pageSize);
-
-			*(pte + ((vaddr_s >> 12 ) & 511)) =  ((uint64_t)phy & validatebits) | 7;
-		}
-		else{
-			uint64_t* pdpe = (uint64_t *)(*(pdpte + ((vaddr_s >> (12+9+9) ) & 511)) &validatebits);
-			pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
-			if( !(*(pdpe + ((vaddr_s >> (12+9) ) & 511)) & 1)){
-				uint64_t* pte = (uint64_t *)getFreeFrame();
-
-				*(pdpe + ((vaddr_s >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
-
-				pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
-                memset(pte,0,pageSize);
-				*(pte + ((vaddr_s >> 12 ) & 511)) =  ((uint64_t)phy & validatebits) | 7;
-			}
-			else{
-				uint64_t* pte = (uint64_t *)(*(pdpe + ((vaddr_s >> (12+9) ) & 511)) &validatebits);
-
-				pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
-
-				*(pte + ((vaddr_s >> 12 ) & 511)) = ((uint64_t)phy & validatebits) | 7;
-			}
-		}
+		*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)physical & validatebits) | 7;
 	}
+}
+
+void setExistingPagePDPTE(uint64_t virtual, uint64_t physical, uint64_t* pml4){
+	uint64_t* pdpte = (uint64_t *)(*(pml4 + ((virtual >> (12+9+9+9) ) & 511)) & validatebits);
+	pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
+	if( !(*(pdpte + ((virtual >> (12+9+9) ) & 511)) & 1)) setNewPagePDPE(virtual, physical, pml4);
+	else setExistingPagePDPE(virtual, physical, pml4);
+}
+
+void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4){
+	*(pml4 + 511) = (*(pml4e + 511) & validatebits) | 7;
+	if(!(*(pml4 + ((virtual >> (12+9+9+9) ) & 511)) & 1)) setNewPagePDPTE(virtual, physical, pml4);
+	else setExistingPagePDPTE(virtual, physical, pml4);
 }
 
 void setupPageTables(uint64_t physbase, uint64_t physfree){
