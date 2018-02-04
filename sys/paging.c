@@ -10,7 +10,7 @@ static freelist* head = NULL;
 extern char kernmem, physbase;
 static uint64_t index =0;
 static uint64_t *pml4e, *pdpte, *pde, *pte;
-static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
+static uint64_t pt_idx;
 static uint64_t k_cr3 =0;
 uint16_t pageSize = 0x1000;
 
