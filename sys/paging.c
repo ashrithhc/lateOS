@@ -108,7 +108,7 @@ uint64_t* getPTE(uint64_t address){
 }
 
 void mapNewFrame(uint64_t virtual, uint64_t physical){
-	if(!(pml4e[((virtual >> (12+9+9+9) ) & 511)] & 1)){
+	if(!(*(pml4e + ((virtual >> (12+9+9+9) ) & 511)) & 1)){
 		uint64_t* p3 = (uint64_t *)getFreeFrame();
 		
 		pml4e[((virtual >> (12+9+9+9) ) & 511)] = ((uint64_t)p3 & validatebits) | 3;
