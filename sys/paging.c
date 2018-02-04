@@ -44,7 +44,7 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 
 	k_cr3 = (uint64_t) pml4e;
 
-	pml4e = mapCurrentPageTable(virtual, 1, &pml4e);
+	pml4e = mapCurrentPageTable(virtual, 1, pml4e);
 
 	/*virtual += pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pml4e & validatebits) | 3;
