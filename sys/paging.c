@@ -155,94 +155,76 @@ void mapFreeFrameExistNo(uint64_t virtual, uint64_t physical){
 void mapFreeFrameExist(uint64_t virtual, uint64_t physical){
 	uint64_t* pdpte = (uint64_t *)(*(pml4e + ((virtual >> (12+9+9+9) ) & 511)) & validatebits);
 	pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
-	if( !(pdpte[((virtual >> (12+9+9) ) & 511)] & 1)){	
-		mapFreeFrameExistYes(virtual, physical);
-	}
-	else{
-		mapFreeFrameExistNo(virtual, physical);
-	}
+	if( !(pdpte[((virtual >> (12+9+9) ) & 511)] & 1)) mapFreeFrameExistYes(virtual, physical);
+	else mapFreeFrameExistNo(virtual, physical);
 }
 
 void mapNewFrame(uint64_t virtual, uint64_t physical){
-	if(!(*(pml4e + ((virtual >> (12+9+9+9) ) & 511)) & 1)){
-		mapNewFrameNew( virtual, physical);
-	}
-	else{
-		mapNewFrameExist( virtual, physical);
-	}
+	if(!(*(pml4e + ((virtual >> (12+9+9+9) ) & 511)) & 1)) mapNewFrameNew( virtual, physical);
+	else mapNewFrameExist( virtual, physical);
 }
 
 void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
-	pml4[511] = (pml4e[511] & validatebits) | 7;
-	int id1 = (vaddr_s >> (12+9+9+9) ) & 511;
-	if(!(pml4[id1] & 1)){
+	*(pml4 + 511) = (*(pml4e + 511) & validatebits) | 7;
+	if(!(pml4[((vaddr_s >> (12+9+9+9) ) & 511)] & 1)){
 		uint64_t* pdpte = (uint64_t *)getFreeFrame();
-		pml4[id1] = ((uint64_t)pdpte & validatebits) | 7;
+		pml4[((vaddr_s >> (12+9+9+9) ) & 511)] = ((uint64_t)pdpte & validatebits) | 7;
 		pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
 
         memset(pdpte,0,pageSize);
 
-        int id2 = (vaddr_s >> (12+9+9) ) & 511;
 		uint64_t* pdpe = (uint64_t *)getFreeFrame();
-		pdpte[id2] = ((uint64_t)pdpe & validatebits) | 7;
+		pdpte[((vaddr_s >> (12+9+9) ) & 511)] = ((uint64_t)pdpe & validatebits) | 7;
 
 		pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
         memset(pdpe,0,pageSize);
-        int id3 = (vaddr_s >> 21 ) & 511;
 		uint64_t* pte = (uint64_t *)getFreeFrame();
-		pdpe[id3] = ((uint64_t)pte & validatebits) | 7;
+		pdpe[((vaddr_s >> 21 ) & 511)] = ((uint64_t)pte & validatebits) | 7;
 
 		pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
         memset(pte,0,pageSize);
-        int id4 = (vaddr_s >> 12 ) & 511;
-		pte[id4] =  ((uint64_t)phy & validatebits) | 7;
+		pte[((vaddr_s >> 12 ) & 511)] =  ((uint64_t)phy & validatebits) | 7;
 		return ;
 	}
 
 	else{
-		uint64_t* pdpte = (uint64_t *)(pml4[id1] & validatebits);
-		int id2 =  (vaddr_s >> (12+9+9) ) & 511;
+		uint64_t* pdpte = (uint64_t *)(pml4[((vaddr_s >> (12+9+9+9) ) & 511)] & validatebits);
 		pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
-		if( !(pdpte[id2] & 1)){
+		if( !(pdpte[((vaddr_s >> (12+9+9) ) & 511)] & 1)){
 			uint64_t* pdpe =(uint64_t *) getFreeFrame();
-			pdpte[id2] = ((uint64_t)pdpe & validatebits) | 7;
+			pdpte[((vaddr_s >> (12+9+9) ) & 511)] = ((uint64_t)pdpe & validatebits) | 7;
 
 			pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
             memset(pdpe,0,pageSize);
-            int id3 = (vaddr_s >> 21 ) & 511;
 			uint64_t* pte = (uint64_t *)getFreeFrame();
-			pdpe[id3] = ((uint64_t)pte & validatebits) | 7;
+			pdpe[((vaddr_s >> 21 ) & 511)] = ((uint64_t)pte & validatebits) | 7;
 
 			pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
             memset(pte,0,pageSize);
 
-            int id4 = (vaddr_s >> 12 ) & 511;
-			pte[id4] =  ((uint64_t)phy & validatebits) | 7;
+			pte[((vaddr_s >> 12 ) & 511)] =  ((uint64_t)phy & validatebits) | 7;
 			return;
 		}
 		else{
-			uint64_t* pdpe = (uint64_t *)(pdpte[id2] &validatebits);
-			int id3 =  (vaddr_s >> 21) & 511;
+			uint64_t* pdpe = (uint64_t *)(pdpte[((vaddr_s >> (12+9+9) ) & 511)] &validatebits);
 			pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
-			if( !(pdpe[id3] & 1)){
+			if( !(pdpe[((vaddr_s >> 21 ) & 511)] & 1)){
 				uint64_t* pte = (uint64_t *)getFreeFrame();
 
-				pdpe[id3] = ((uint64_t)pte & validatebits) | 7;
+				pdpe[((vaddr_s >> 21 ) & 511)] = ((uint64_t)pte & validatebits) | 7;
 
 				pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
                 memset(pte,0,pageSize);
-                int id4 = (vaddr_s >> 12 ) & 511;
-				pte[id4] =  ((uint64_t)phy & validatebits) | 7;
+				pte[((vaddr_s >> 12 ) & 511)] =  ((uint64_t)phy & validatebits) | 7;
 
 				return;
 			}
 			else{
-				uint64_t* pte = (uint64_t *)(pdpe[id3] &validatebits);
-				int id4 = (vaddr_s >> 12 ) & 511;
+				uint64_t* pte = (uint64_t *)(pdpe[((vaddr_s >> 21 ) & 511)] &validatebits);
 
 				pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
 
-				pte[id4] = ((uint64_t)phy & validatebits) | 7;
+				pte[((vaddr_s >> 12 ) & 511)] = ((uint64_t)phy & validatebits) | 7;
 				return;
 			}
 		}
