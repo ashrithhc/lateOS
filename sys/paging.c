@@ -9,11 +9,66 @@
 static freelist* head = NULL;
 extern char kernmem, physbase;
 static uint64_t index =0;
-static uint64_t *pml4e, *pdpte,*pde,*pte;
+static uint64_t *pml4e, *pdpte, *pde, *pte;
 static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 static uint64_t viraddr;
 static uint64_t k_cr3 =0;
 uint16_t pageSize = 0x1000;
+
+void setupPageTables(uint64_t physbase, uint64_t physfree){
+
+	viraddr = (uint64_t)kernbase;
+
+	pt_idx = (kernbase >> 12) & 511;
+
+	pml4e = (uint64_t*) getFreeFrame();
+	pdpte = (uint64_t*) getFreeFrame();
+	*(pml4e + ((kernbase >> (12+9+9+9)) & 511)) = ((uint64_t)pdpte & validatebits) | 3;
+	pde = (uint64_t*) getFreeFrame();
+	*(pdpte + ((kernbase >> (12+9+9)) & 511)) = ((uint64_t)pde & validatebits) | 3;
+	pte = (uint64_t*) getFreeFrame();
+	*(pde + ((kernbase >> (12+9)) & 511)) = ((uint64_t)pte & validatebits) | 3;
+
+	for(int j=0; physbase<physfree; j++,viraddr+=pageSize,physbase+=pageSize){
+		pml4_idx = (viraddr >> (12+9+9+9) ) & 511;
+		pdpt_idx = (viraddr >> (12+9+9) ) & 511;
+		pd_idx = (viraddr >> (12+9) ) & 511;
+		pt_idx = (viraddr >> 12 ) & 511;   
+
+		if(pt_idx!=0){
+			pte[pt_idx] = (physbase & validatebits) | 3;
+		}
+		else{
+			pte = ((uint64_t*)getFreeFrame());
+			pde[pd_idx] = ((uint64_t)pte & (validatebits)) | 3;
+			pte[pt_idx] = (physbase & validatebits) | 3;		
+		}
+	}
+
+	k_cr3 = (uint64_t)pml4e;
+
+	viraddr+=pageSize;
+	pt_idx = (viraddr >> 12 ) & 511;
+	pte[pt_idx] = ( (uint64_t)pml4e & validatebits) | 3;
+	pml4e = (uint64_t*)viraddr;
+
+	viraddr+=pageSize;
+	pt_idx = (viraddr >> 12 ) & 511;
+	pte[pt_idx] = ( (uint64_t)pdpte & validatebits) | 3;
+	pdpte = (uint64_t*)viraddr;
+
+	viraddr+=pageSize;
+	pt_idx = (viraddr >> 12 ) & 511;
+	pte[pt_idx] = ( (uint64_t)pde & validatebits) | 3;
+	pde= (uint64_t*)viraddr;
+
+	viraddr+=pageSize;
+	pt_idx = (viraddr >> 12 ) & 511;
+	pte[pt_idx] = ( (uint64_t)pte & validatebits) | 3;
+	pte = (uint64_t*)viraddr;
+
+	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
+}
 
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
 	struct smap_t* smap;
@@ -194,7 +249,6 @@ void setNewPagePDPE(uint64_t virtual, uint64_t physical, uint64_t* pml4, uint64_
 
 	pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
     memset(pte,0,pageSize);
-
 	*(pte + ((virtual >> 12 ) & 511)) =  ((uint64_t)physical & validatebits) | 7;
 }
 
@@ -203,7 +257,6 @@ void setExistingPagePDPE(uint64_t virtual, uint64_t physical, uint64_t* pml4, ui
 	pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
 	if( !(*(pdpe + ((virtual >> (12+9) ) & 511)) & 1)){
 		uint64_t* pte = (uint64_t *)getFreeFrame();
-
 		*(pdpe + ((virtual >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 7;
 
 		pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
@@ -212,9 +265,7 @@ void setExistingPagePDPE(uint64_t virtual, uint64_t physical, uint64_t* pml4, ui
 	}
 	else{
 		uint64_t* pte = (uint64_t *)(*(pdpe + ((virtual >> (12+9) ) & 511)) &validatebits);
-
 		pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
-
 		*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)physical & validatebits) | 7;
 	}
 }
@@ -232,66 +283,6 @@ void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4)
 	else setExistingPagePDPTE(virtual, physical, pml4);
 }
 
-void setupPageTables(uint64_t physbase, uint64_t physfree){
-
-	viraddr = (uint64_t)kernbase;//(uint64_t)&kernmem;
-
-	pml4_idx = (viraddr >> (12+9+9+9) ) & 511;
-	pdpt_idx = (viraddr >> (12+9+9) ) & 511;
-	pd_idx = (viraddr >> (12+9) ) & 511;
-	pt_idx = (viraddr >> 12 ) & 511;
-
-	pml4e = (uint64_t *)getFreeFrame();
-	pdpte = (uint64_t *)getFreeFrame();
-	pde = (uint64_t *)getFreeFrame();
-	pte = (uint64_t *)getFreeFrame();
-	pml4e[pml4_idx] = ((uint64_t)pdpte & validatebits) | 3;
-	pdpte[pdpt_idx] = ((uint64_t)pde & validatebits) | 3;
-	pde[pd_idx] = ((uint64_t)pte & (validatebits)) | 3;
-	for(int j=0;physbase<physfree;j++,viraddr+=pageSize,physbase+=pageSize){
-		pml4_idx = (viraddr >> (12+9+9+9) ) & 511;
-		pdpt_idx = (viraddr >> (12+9+9) ) & 511;
-		pd_idx = (viraddr >> (12+9) ) & 511;
-		pt_idx = (viraddr >> 12 ) & 511;   
-
-		if(pt_idx!=0){
-			pte[pt_idx] = (physbase & validatebits) | 3;
-		}
-		else{
-			pte = ((uint64_t*)getFreeFrame());
-			pde[pd_idx] = ((uint64_t)pte & (validatebits)) | 3;
-			pte[pt_idx] = (physbase & validatebits) | 3;		
-		}
-
-
-		//		map(viraddr,physbase);
-	}
-	k_cr3 = (uint64_t)pml4e;
-	// Temp Fix, we need a better approach
-
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
-	pte[pt_idx] = ( (uint64_t)pml4e & validatebits) | 3;
-	pml4e = (uint64_t*)viraddr;
-
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
-	pte[pt_idx] = ( (uint64_t)pdpte & validatebits) | 3;
-	pdpte = (uint64_t*)viraddr;
-
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
-	pte[pt_idx] = ( (uint64_t)pde & validatebits) | 3;
-	pde= (uint64_t*)viraddr;
-
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
-	pte[pt_idx] = ( (uint64_t)pte & validatebits) | 3;
-	pte = (uint64_t*)viraddr;
-
-	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
-//	k_cr3 = (uint64_t)pml4e;
-}
 void copytables(task_struct* p, task_struct* c){
 	uint64_t* p4 = (uint64_t *)(p->pml4e + kernbase);
 	uint64_t* c4 =(uint64_t *) (c->pml4e + kernbase);
