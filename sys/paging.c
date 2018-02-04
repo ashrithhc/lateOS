@@ -168,7 +168,7 @@ void mapNewFrame(uint64_t virtual, uint64_t physical){
 		mapNewFrameNew( virtual, physical);
 	}
 	else{
-		mapNewFrameExist( virtual, physical);
+		mapFreeFrameExist( virtual, physical);
 	}
 }
 
