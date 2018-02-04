@@ -26,7 +26,7 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	*(pde + ((kernbase >> (12+9)) & 511)) = ((uint64_t)pte & validatebits) | 3;
 
 	uint64_t virtual = (uint64_t)kernbase;
-	while (physbase < physfree){
+	while (physbase < (physfree + 5*pageSize)){
 		if(((virtual >> 12) & 511) != 0){
 			*(pte + ((virtual >> 12 ) & 511)) = (physbase & validatebits) | 3;
 		}
@@ -35,13 +35,13 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 			*(pde + ((virtual >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 3;
 			*(pte + ((virtual >> 12 ) & 511)) = (physbase & validatebits) | 3;		
 		}
-		virtual+=pageSize;
-		physbase+=pageSize;
+		virtual += pageSize;
+		physbase += pageSize;
 	}
 
 	k_cr3 = (uint64_t)pml4e;
 
-	virtual+=pageSize;
+	/*virtual+=pageSize;
 	pt_idx = (virtual >> 12 ) & 511;
 	pte[pt_idx] = ( (uint64_t)pml4e & validatebits) | 3;
 	pml4e = (uint64_t*)virtual;
@@ -59,7 +59,7 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	virtual+=pageSize;
 	pt_idx = (virtual >> 12 ) & 511;
 	pte[pt_idx] = ( (uint64_t)pte & validatebits) | 3;
-	pte = (uint64_t*)virtual;
+	pte = (uint64_t*)virtual;*/
 
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 }
