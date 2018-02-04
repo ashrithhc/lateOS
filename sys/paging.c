@@ -282,35 +282,35 @@ void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4)
 }
 
 void copytables(task_struct* p, task_struct* c){
-	uint64_t* p4 = (uint64_t *)(p->pml4e + kernbase);
-	uint64_t* c4 =(uint64_t *) (c->pml4e + kernbase);
-	c4[511] = p4[511];
-	for(int i =0;i<511;i++){
-		if(p4[i] & 1){
-			uint64_t* c3 = (uint64_t *)getNewPage();
-            memset(c3,0,pageSize);
-			c4[i] = ((uint64_t)((uint64_t)c3 -((uint64_t)kernbase)) & validatebits) | 7;
-			uint64_t* pdpte = (uint64_t *)(p4[i] & validatebits);
+	uint64_t* pml4eParent = (uint64_t *)(p->pml4e + kernbase);
+	uint64_t* pml4eChild =(uint64_t *) (c->pml4e + kernbase);
+	pml4eChild[511] = pml4eParent[511];
+	for(int i=0; i<511; i++){
+		if(pml4eParent[i] & 1){
+			uint64_t* pdpteChild = (uint64_t *)getNewPage();
+            memset(pdpteChild,0,pageSize);
+			pml4eChild[i] = ((uint64_t)((uint64_t)pdpteChild -((uint64_t)kernbase)) & validatebits) | 7;
+			uint64_t* pdpte = (uint64_t *)(pml4eParent[i] & validatebits);
 			pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
 			for(int j=0;j<512;j++){
 				if(pdpte[j] & 1){
-					uint64_t* c2 = (uint64_t *)getNewPage();
-                    memset(c2,0,pageSize);
-                    c3[j] = ((uint64_t)((uint64_t)c2 -((uint64_t)kernbase)) & validatebits) | 7;
+					uint64_t* pdpeChild = (uint64_t *)getNewPage();
+                    memset(pdpeChild,0,pageSize);
+                    pdpteChild[j] = ((uint64_t)((uint64_t)pdpeChild -((uint64_t)kernbase)) & validatebits) | 7;
 					uint64_t* pdpe = (uint64_t *)(pdpte[j] & validatebits);
 					pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
 					for(int k=0;k<512;k++){
 						if(pdpe[k] & 1){
-							uint64_t* c1 = (uint64_t *)getNewPage();
-                            memset(c1,0,pageSize);
-                            c2[k] = ((uint64_t)((uint64_t)c1 -((uint64_t)kernbase)) & validatebits) | 7;
+							uint64_t* pteChild = (uint64_t *)getNewPage();
+                            memset(pteChild,0,pageSize);
+                            pdpeChild[k] = ((uint64_t)((uint64_t)pteChild -((uint64_t)kernbase)) & validatebits) | 7;
 							uint64_t* pte = (uint64_t *)(pdpe[k] & validatebits);
 							pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
 							for(int l=0;l<512;l++){
 								if(pte[l]&1){
 									pagelist[(((uint64_t)pte[l] & validatebits))/pageSize].ref_count+=1;
 									pte[l] = (pte[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);
-									c1[l] = pte[l];
+									pteChild[l] = pte[l];
 
 								}
 							}
@@ -323,10 +323,10 @@ void copytables(task_struct* p, task_struct* c){
 }
 
 void dealloc_pml4(uint64_t pm4){
-    uint64_t* p4 = (uint64_t *)(pm4 + kernbase);
+    uint64_t* pml4eParent = (uint64_t *)(pm4 + kernbase);
     for(int i=0;i<511;i++){
-        if(p4[i]&1){
-            uint64_t* pdpte = (uint64_t *)(p4[i] & validatebits);
+        if(pml4eParent[i]&1){
+            uint64_t* pdpte = (uint64_t *)(pml4eParent[i] & validatebits);
             pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
             for (int j = 0; j < 512; ++j) {
                 if(pdpte[j] & 1){
