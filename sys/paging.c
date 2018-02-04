@@ -49,22 +49,6 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	pde = mapCurrentPageTable(virtual, 3, pde);
 	pte = mapCurrentPageTable(virtual, 4, pte);
 
-	/*virtual += pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pml4e & validatebits) | 3;
-	pml4e = (uint64_t*)virtual;
-
-	virtual += pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pdpte & validatebits) | 3;
-	pdpte = (uint64_t*)virtual;
-
-	virtual += pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pde & validatebits) | 3;
-	pde = (uint64_t*)virtual;
-
-	virtual+=pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pte & validatebits) | 3;
-	pte = (uint64_t*)virtual;*/
-
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 }
 
@@ -281,10 +265,11 @@ void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4)
 	else setExistingPagePDPTE(virtual, physical, pml4);
 }
 
-void copytables(task_struct* p, task_struct* c){
-	uint64_t* p4 = (uint64_t *)(p->pml4e + kernbase);
-	uint64_t* c4 =(uint64_t *) (c->pml4e + kernbase);
-	c4[511] = p4[511];
+void copytables(task_struct* parent, task_struct* child){
+	uint64_t* p4 = (uint64_t *)(parent->pml4e + kernbase);
+	uint64_t* c4 =(uint64_t *) (child->pml4e + kernbase);
+	// c4[511] = p4[511];
+	*((child->pml4e + kernbase) + 511) = *((parent->pml4e + kernbase) + 511);
 	for(int i =0;i<511;i++){
 		if(p4[i] & 1){
 			uint64_t* c3 = (uint64_t *)getNewPage();
