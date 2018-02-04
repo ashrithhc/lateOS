@@ -45,10 +45,13 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	k_cr3 = (uint64_t) pml4e;
 
 	pml4e = mapCurrentPageTable(virtual, 1, pml4e);
+	pml4e = mapCurrentPageTable(virtual, 2, pdpte);
+	pml4e = mapCurrentPageTable(virtual, 3, pde);
+	pml4e = mapCurrentPageTable(virtual, 4, pte);
 
 	/*virtual += pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pml4e & validatebits) | 3;
-	pml4e = (uint64_t*)virtual;*/
+	pml4e = (uint64_t*)virtual;
 
 	virtual += pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pdpte & validatebits) | 3;
@@ -60,7 +63,7 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 
 	virtual+=pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pte & validatebits) | 3;
-	pte = (uint64_t*)virtual;
+	pte = (uint64_t*)virtual;*/
 
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 }
