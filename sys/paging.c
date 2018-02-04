@@ -101,9 +101,9 @@ uint64_t kmalloc(int size){
 
 uint64_t* getPTE(uint64_t address){
         uint64_t* pml4e = (uint64_t*)(r->pml4e + kernbase);
-    	uint64_t* pdpte = (uint64_t*)(((pml4e + ((address >> (12+9+9+9)) & 511)) & validatebits) + kernbase);
-    	uint64_t* pdpe = (uint64_t*)(((pdpte + ((address >> (12+9+9)) & 511)) & validatebits) + kernbase);
-        uint64_t* pte = (uint64_t*)(((pdpe + ((address >> (12+9)) & 511)) & validatebits) + kernbase);
+    	uint64_t* pdpte = (uint64_t*)((*(pml4e + ((address >> (12+9+9+9)) & 511)) & validatebits) + kernbase);
+    	uint64_t* pdpe = (uint64_t*)((*(pdpte + ((address >> (12+9+9)) & 511)) & validatebits) + kernbase);
+        uint64_t* pte = (uint64_t*)((*(pdpe + ((address >> (12+9)) & 511)) & validatebits) + kernbase);
         return pte;
 }
 
