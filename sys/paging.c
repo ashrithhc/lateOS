@@ -98,14 +98,11 @@ uint64_t kmalloc(int size){
 	return add;
 }
 
-uint64_t* getPTE(uint64_t v){
+uint64_t* getPTE(uint64_t address){
         uint64_t* p4 = (uint64_t*)(r->pml4e + kernbase);
-        int id4 = (v >> 39 ) & 0x1FF;
-    	uint64_t* p3 = (uint64_t*)((p4[id4]&0xFFFFFFFFFFFFF000) + kernbase);
-    	int id3 = (v >> 30 ) & 0x1FF;
-    	uint64_t* p2 = (uint64_t*)((p3[id3]&0xFFFFFFFFFFFFF000) + kernbase);
-    	int id2 = (v >> 21 ) & 0x1FF;
-        uint64_t* p1 = (uint64_t*)((p2[id2]&0xFFFFFFFFFFFFF000) + kernbase);
+    	uint64_t* p3 = (uint64_t*)((p4[((address >> 39 ) & 0x1FF)]&0xFFFFFFFFFFFFF000) + kernbase);
+    	uint64_t* p2 = (uint64_t*)((p3[((address >> 30 ) & 0x1FF)]&0xFFFFFFFFFFFFF000) + kernbase);
+        uint64_t* p1 = (uint64_t*)((p2[((address >> 21 ) & 0x1FF)]&0xFFFFFFFFFFFFF000) + kernbase);
         return p1;
 }
 
