@@ -161,7 +161,7 @@ void mapFreeFrameExist(uint64_t virtual, uint64_t physical){
 
 void mapNewFrame(uint64_t virtual, uint64_t physical){
 	if(!(*(pml4e + ((virtual >> (12+9+9+9) ) & 511)) & 1)) mapNewFrameNew( virtual, physical);
-	else mapNewFrameExist( virtual, physical);
+	else mapFreeFrameExist( virtual, physical);
 }
 
 void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
