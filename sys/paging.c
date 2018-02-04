@@ -11,14 +11,10 @@ extern char kernmem, physbase;
 static uint64_t index =0;
 static uint64_t *pml4e, *pdpte, *pde, *pte;
 static uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
-static uint64_t viraddr;
 static uint64_t k_cr3 =0;
 uint16_t pageSize = 0x1000;
 
 void setupPageTables(uint64_t physbase, uint64_t physfree){
-
-	viraddr = (uint64_t)kernbase;
-
 	pt_idx = (kernbase >> 12) & 511;
 
 	pml4e = (uint64_t*) getFreeFrame();
@@ -29,43 +25,41 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	pte = (uint64_t*) getFreeFrame();
 	*(pde + ((kernbase >> (12+9)) & 511)) = ((uint64_t)pte & validatebits) | 3;
 
-	for(int j=0; physbase<physfree; j++,viraddr+=pageSize,physbase+=pageSize){
-		pml4_idx = (viraddr >> (12+9+9+9) ) & 511;
-		pdpt_idx = (viraddr >> (12+9+9) ) & 511;
-		pd_idx = (viraddr >> (12+9) ) & 511;
-		pt_idx = (viraddr >> 12 ) & 511;   
-
-		if(pt_idx!=0){
-			pte[pt_idx] = (physbase & validatebits) | 3;
+	uint64_t virtual = (uint64_t)kernbase;
+	while (physbase < physfree){
+		if(((virtual >> 12) & 511) != 0){
+			*(pte + ((virtual >> 12 ) & 511)) = (physbase & validatebits) | 3;
 		}
 		else{
 			pte = ((uint64_t*)getFreeFrame());
-			pde[pd_idx] = ((uint64_t)pte & (validatebits)) | 3;
-			pte[pt_idx] = (physbase & validatebits) | 3;		
+			*(pde + ((virtual >> (12+9) ) & 511)) = ((uint64_t)pte & validatebits) | 3;
+			*(pte + ((virtual >> 12 ) & 511)) = (physbase & validatebits) | 3;		
 		}
+		virtual+=pageSize;
+		physbase+=pageSize;
 	}
 
 	k_cr3 = (uint64_t)pml4e;
 
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
+	virtual+=pageSize;
+	pt_idx = (virtual >> 12 ) & 511;
 	pte[pt_idx] = ( (uint64_t)pml4e & validatebits) | 3;
-	pml4e = (uint64_t*)viraddr;
+	pml4e = (uint64_t*)virtual;
 
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
+	virtual+=pageSize;
+	pt_idx = (virtual >> 12 ) & 511;
 	pte[pt_idx] = ( (uint64_t)pdpte & validatebits) | 3;
-	pdpte = (uint64_t*)viraddr;
+	pdpte = (uint64_t*)virtual;
 
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
+	virtual+=pageSize;
+	pt_idx = (virtual >> 12 ) & 511;
 	pte[pt_idx] = ( (uint64_t)pde & validatebits) | 3;
-	pde= (uint64_t*)viraddr;
+	pde= (uint64_t*)virtual;
 
-	viraddr+=pageSize;
-	pt_idx = (viraddr >> 12 ) & 511;
+	virtual+=pageSize;
+	pt_idx = (virtual >> 12 ) & 511;
 	pte[pt_idx] = ( (uint64_t)pte & validatebits) | 3;
-	pte = (uint64_t*)viraddr;
+	pte = (uint64_t*)virtual;
 
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 }
