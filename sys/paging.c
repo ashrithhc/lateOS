@@ -4,6 +4,7 @@
 #include <sys/kprintf.h>
 
 # define kernbase 0xffffffff80000000
+# define validatebits 0xFFFFFFFFFFFFF000
 
 static freelist* head = NULL;
 extern char kernmem, physbase;
@@ -100,9 +101,9 @@ uint64_t kmalloc(int size){
 
 uint64_t* getPTE(uint64_t address){
         uint64_t* p4 = (uint64_t*)(r->pml4e + kernbase);
-    	uint64_t* p3 = (uint64_t*)((p4[((address >> 39 ) & 0x1FF)]&0xFFFFFFFFFFFFF000) + kernbase);
-    	uint64_t* p2 = (uint64_t*)((p3[((address >> 30 ) & 0x1FF)]&0xFFFFFFFFFFFFF000) + kernbase);
-        uint64_t* p1 = (uint64_t*)((p2[((address >> 21 ) & 0x1FF)]&0xFFFFFFFFFFFFF000) + kernbase);
+    	uint64_t* p3 = (uint64_t*)(((p4 + ((address >> 39 ) & 0x1FF)) & validatebits) + kernbase);
+    	uint64_t* p2 = (uint64_t*)(((p3 + ((address >> 30 ) & 0x1FF)) & validatebits) + kernbase);
+        uint64_t* p1 = (uint64_t*)(((p2 + ((address >> 21 ) & 0x1FF)) & validatebits) + kernbase);
         return p1;
 }
 
