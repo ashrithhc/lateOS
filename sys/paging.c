@@ -281,10 +281,11 @@ void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4)
 	else setExistingPagePDPTE(virtual, physical, pml4);
 }
 
-void copytables(task_struct* p, task_struct* c){
-	uint64_t* p4 = (uint64_t *)(p->pml4e + kernbase);
-	uint64_t* c4 =(uint64_t *) (c->pml4e + kernbase);
+void copytables(task_struct* parent, task_struct* child){
+	uint64_t* p4 = (uint64_t *)(parent->pml4e + kernbase);
+	uint64_t* c4 =(uint64_t *) (child->pml4e + kernbase);
 	c4[511] = p4[511];
+	*(parent->pml4e + kernbase + 511) = *(child->pml4e + kernbase + 511);
 	for(int i =0;i<511;i++){
 		if(p4[i] & 1){
 			uint64_t* c3 = (uint64_t *)getNewPage();
