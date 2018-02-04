@@ -10,13 +10,16 @@ static freelist* head = NULL;
 extern char kernmem, physbase;
 static uint64_t index =0;
 static uint64_t *pml4e, *pdpte, *pde, *pte;
-static uint64_t pt_idx;
 static uint64_t k_cr3 =0;
 uint16_t pageSize = 0x1000;
 
-void setupPageTables(uint64_t physbase, uint64_t physfree){
-	pt_idx = (kernbase >> 12) & 511;
+void mapCurrentPageTable(uint64_t virtual, int num, uint64_t* physical){
+	virtual += num * pageSize;
+	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)(*physical) & validatebits) | 3;
+	*physical = (uint64_t*)virtual;
+}
 
+void setupPageTables(uint64_t physbase, uint64_t physfree){
 	pml4e = (uint64_t*) getFreeFrame();
 	pdpte = (uint64_t*) getFreeFrame();
 	*(pml4e + ((kernbase >> (12+9+9+9)) & 511)) = ((uint64_t)pdpte & validatebits) | 3;
@@ -41,9 +44,11 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 
 	k_cr3 = (uint64_t) pml4e;
 
-	virtual += pageSize;
+	mapCurrentPageTable(virtual, 1, &pml4e);
+
+	/*virtual += pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pml4e & validatebits) | 3;
-	pml4e = (uint64_t*)virtual;
+	pml4e = (uint64_t*)virtual;*/
 
 	virtual += pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pdpte & validatebits) | 3;
