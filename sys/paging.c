@@ -352,9 +352,9 @@ void dealloc_pml4(uint64_t pm4){
                 }
                 pdpte[j]=0;
             }
-            free(p4[i] & validatebits);
+            free(pml4eParent[i] & validatebits);
         }
-        p4[i]=0;
+        pml4eParent[i]=0;
     }
   //  free(pm4);
 }
