@@ -115,15 +115,13 @@ void mapNewFrame(uint64_t virtual, uint64_t physical){
 
 		pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
 
-		int id2 = (virtual >> (12+9+9) ) & 511;
 		uint64_t* pdpe = (uint64_t *)getFreeFrame();
-		pdpte[id2] = ((uint64_t)pdpe & validatebits) | 3;
+		pdpte[((virtual >> (12+9+9) ) & 511)] = ((uint64_t)pdpe & validatebits) | 3;
 
 		pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
 
-		int id3 = (virtual >> 21 ) & 511;
 		uint64_t* pte = (uint64_t *)getFreeFrame();
-		pdpe[id3] = ((uint64_t)pte & validatebits) | 3;
+		pdpe[((virtual >> 21 ) & 511)] = ((uint64_t)pte & validatebits) | 3;
 
 		pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
 
@@ -133,17 +131,17 @@ void mapNewFrame(uint64_t virtual, uint64_t physical){
 	}
 	else{
 		uint64_t* pdpte = (uint64_t *)(*(pml4e + ((virtual >> (12+9+9+9) ) & 511)) & validatebits);
-		int id2 =  (virtual >> (12+9+9) ) & 511;
+		int ((virtual >> (12+9+9) ) & 511) =  (virtual >> (12+9+9) ) & 511;
 		pdpte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpte);
-		if( !(pdpte[id2] & 1)){	
+		if( !(pdpte[((virtual >> (12+9+9) ) & 511)] & 1)){	
 			uint64_t* pdpe =(uint64_t *) getFreeFrame();
-			pdpte[id2] = ((uint64_t)pdpe & validatebits) | 3;
+			pdpte[((virtual >> (12+9+9) ) & 511)] = ((uint64_t)pdpe & validatebits) | 3;
 
 			pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
 
-			int id3 = (virtual >> 21 ) & 511;
+			int ((virtual >> 21 ) & 511) = (virtual >> 21 ) & 511;
 			uint64_t* pte = (uint64_t *)getFreeFrame();
-			pdpe[id3] = ((uint64_t)pte & validatebits) | 3;
+			pdpe[((virtual >> 21 ) & 511)] = ((uint64_t)pte & validatebits) | 3;
 
 			pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
 
@@ -152,13 +150,13 @@ void mapNewFrame(uint64_t virtual, uint64_t physical){
 			return;
 		}
 		else{
-			uint64_t* pdpe = (uint64_t *)(pdpte[id2] &validatebits);
-			int id3 =  (virtual >> 21) & 511;
+			uint64_t* pdpe = (uint64_t *)(pdpte[((virtual >> (12+9+9) ) & 511)] &validatebits);
+			int ((virtual >> 21 ) & 511) =  (virtual >> 21) & 511;
 			pdpe = (uint64_t *)((uint64_t)kernbase + (uint64_t)pdpe);
 
-			if( !(pdpe[id3] & 1)){
+			if( !(pdpe[((virtual >> 21 ) & 511)] & 1)){
 				uint64_t* pte = (uint64_t *)getFreeFrame();
-				pdpe[id3] = ((uint64_t)pte & validatebits) | 3;
+				pdpe[((virtual >> 21 ) & 511)] = ((uint64_t)pte & validatebits) | 3;
 
 				pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
 
@@ -167,7 +165,7 @@ void mapNewFrame(uint64_t virtual, uint64_t physical){
 				return;
 			}
 			else{	
-				uint64_t* pte = (uint64_t *)(pdpe[id3] &validatebits);	
+				uint64_t* pte = (uint64_t *)(pdpe[((virtual >> 21 ) & 511)] &validatebits);	
 				int id4 = (virtual >> 12 ) & 511;
 
 				pte = (uint64_t *)((uint64_t)kernbase + (uint64_t)pte);
