@@ -25,12 +25,11 @@ void *memcpy(void *dest, const void *src, int n){
     return dest;
 }
 
-/*void in(){
+void in(){
     while(1){
         wait();
     }
 }
-
 void idle(){
 
     while(1) {
@@ -41,7 +40,6 @@ void idle(){
     }
 
 }
-*/
 void init_p(){
     int pid = newPID();
     q[pid].pid = pid;
@@ -65,12 +63,12 @@ void init_p(){
 
 void ps()
 {
-	kprintf("ID    Name\n");
+	kprintf("ID  |  Name\n");
 	for(int i=0; i<MAX; i++)
 	{
         if(q[i].state == RUNNING || q[i].state == SLEEPING || q[i].state == WAIT || q[i].state == SUSPENDED) {
-            kprintf("%d  ", q[i].pid);
-            kprintf("%s  ", q[i].name);
+            kprintf("%d  |", q[i].pid);
+            kprintf("  %s", q[i].name);
             kprintf("\n");
         }
 	}
