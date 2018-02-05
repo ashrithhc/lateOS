@@ -38,28 +38,43 @@ void idle(){
         __asm__ volatile("cli");
         yield();
     }
-
 }
-void init_p(){
+
+void setupTask(char *name, uint64_t function){
     int pid = newPID();
     (taskQueue + pid)->pid = pid;
-    strcpy(taskQueue[pid].name,"init");
-    taskQueue[pid].state = RUNNING;
-    taskQueue[pid].regs.rip = (uint64_t)&in;
-    taskQueue[pid].regs.rsp = (uint64_t)(&(taskQueue[pid].kstack[511]));
+    strcpy((taskQueue + pid)->name, name);
+    (taskQueue + pid)->state = RUNNING;
+    (taskQueue + pid)->regs.rip = function;
+    (taskQueue + pid)->regs.rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
     uint64_t pcr3;
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    taskQueue[pid].pml4e = pcr3;
+    (taskQueue + pid)->pml4e = pcr3;
+}
+
+void init_p(){
+    setupTask("init", (uint64_t)&in);
+    setupTask("idle", (uint64_t)&idle);
+
+/*    int pid = newPID();
+    (taskQueue + pid)->pid = pid;
+    strcpy((taskQueue + pid)->name,"init");
+    (taskQueue + pid)->state = RUNNING;
+    (taskQueue + pid)->regs.rip = (uint64_t)&in;
+    (taskQueue + pid)->regs.rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
+    uint64_t pcr3;
+    __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+    (taskQueue + pid)->pml4e = pcr3;
 
     pid = newPID();
-    taskQueue[pid].pid = pid;
-    strcpy(taskQueue[pid].name,"idle");
-    taskQueue[pid].state = RUNNING;
-    taskQueue[pid].regs.rip = (uint64_t)&idle;
-    taskQueue[pid].regs.rsp = (uint64_t)(&(taskQueue[pid].kstack[511]));
+    (taskQueue + pid)->pid = pid;
+    strcpy((taskQueue + pid)->name,"idle");
+    (taskQueue + pid)->state = RUNNING;
+    (taskQueue + pid)->regs.rip = (uint64_t)&idle;
+    (taskQueue + pid)->regs.rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    taskQueue[pid].pml4e = pcr3;
-}
+    (taskQueue + pid)->pml4e = pcr3;
+*/}
 
 void ps()
 {
@@ -446,14 +461,14 @@ int wait(){
     }
 }
 int kill(int pid){
-    taskQueue[pid].state = ZOMBIE;
+    (taskQueue + pid)->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
         if(taskQueue[i].ppid == pid){
             taskQueue[i].ppid = 0;
         }
     }
-    if(taskQueue[taskQueue[pid].ppid].state == WAIT){
-        taskQueue[taskQueue[pid].ppid].state = RUNNING;
+    if(taskQueue[(taskQueue + pid)->ppid].state == WAIT){
+        taskQueue[(taskQueue + pid)->ppid].state = RUNNING;
     }
     return 1;
 }
