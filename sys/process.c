@@ -8,6 +8,9 @@
 #include <sys/elf64.h>
 #include <sys/terminal.h>
 
+# define kernbase 0xffffffff80000000
+# define validatebits 0xFFFFFFFFFFFFF000
+
 static task_struct* p;
 static task_struct* new;
 
@@ -31,7 +34,6 @@ void in(){
     }
 }
 void idle(){
-
     while(1) {
         __asm__ volatile("sti");
         __asm__ volatile("hlt");
@@ -55,26 +57,7 @@ void setupTask(char *name, uint64_t function){
 void init_p(){
     setupTask("init", (uint64_t)&in);
     setupTask("idle", (uint64_t)&idle);
-
-/*    int pid = newPID();
-    (taskQueue + pid)->pid = pid;
-    strcpy((taskQueue + pid)->name,"init");
-    (taskQueue + pid)->state = RUNNING;
-    (taskQueue + pid)->regs.rip = (uint64_t)&in;
-    (taskQueue + pid)->regs.rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
-    uint64_t pcr3;
-    __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    (taskQueue + pid)->pml4e = pcr3;
-
-    pid = newPID();
-    (taskQueue + pid)->pid = pid;
-    strcpy((taskQueue + pid)->name,"idle");
-    (taskQueue + pid)->state = RUNNING;
-    (taskQueue + pid)->regs.rip = (uint64_t)&idle;
-    (taskQueue + pid)->regs.rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
-    __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    (taskQueue + pid)->pml4e = pcr3;
-*/}
+}
 
 void ps()
 {
@@ -99,7 +82,7 @@ void create_process(char* filename){
     char a[50];
     strcpy(a,filename);
 	int pid = newPID();
-	task_struct* ts = (task_struct *) &taskQueue[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
+	task_struct* ts = (task_struct *) &taskQueue[pid];
 	strcpy(ts->name,filename);
     strcpy(ts->curr_dir,"/");
     ts->ppid = 0;

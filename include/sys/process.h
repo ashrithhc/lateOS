@@ -44,18 +44,13 @@ typedef struct task_struct {
 	} state;
 	uint64_t pid;
 	uint64_t ppid;
-
 	uint64_t *rsp;
-
 	uint64_t pml4e;
-
 	int child_count;
-
 	struct vm_area_struct *vm;
 	char curr_dir[50];
 	struct file_t fd[25];
 	int fd_c;
-	
 	struct Register regs;
 }task_struct;
 
