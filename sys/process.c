@@ -42,7 +42,7 @@ void idle(){
 }
 void init_p(){
     int pid = newPID();
-    taskQueue[pid].pid = pid;
+    (taskQueue + pid)->pid = pid;
     strcpy(taskQueue[pid].name,"init");
     taskQueue[pid].state = RUNNING;
     taskQueue[pid].regs.rip = (uint64_t)&in;
