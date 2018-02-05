@@ -311,7 +311,6 @@ void copytables(task_struct* p, task_struct* c){
 									pagelist[(((uint64_t)pte[l] & validatebits))/pageSize].ref_count+=1;
 									pte[l] = (pte[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);
 									pteChild[l] = pte[l];
-
 								}
 							}
 						}	

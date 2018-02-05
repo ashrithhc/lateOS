@@ -10,8 +10,9 @@
 
 static task_struct* p;
 static task_struct* new;
+
 int newPID(){
-	for(int i =0;i<MAX;i++){
+	for(int i=0; i<MAX; i++){
 		if(q[i].state == READY){
 			return i;
 		}
@@ -19,18 +20,15 @@ int newPID(){
 	return -1;
 }
 
-void *memcpy(void *dst,void *src, uint64_t count)
-{
-	char *dest= dst;
-	char *source= src;
-	while(count--)
-	{
-		*dest=*source;
-		dest++;
-		source++;
-	}
-	return 0;
+void *memcpy(void *dest, const void *src, int n){
+    unsigned char *retDest = (unsigned char *)dest;
+    const unsigned char *retSrc = (unsigned char *)src;
+
+    if (retSrc < retDest) for(retDest+=n, retSrc+=n; n--;) *(--retDest) = *(--retSrc);
+    else while(n--) *retDest++ = *retSrc++;
+    return dest;
 }
+
 void in(){
     while(1){
         wait();
