@@ -72,15 +72,13 @@ void ps()
 	}
 }
 
-int initTaskVariables(task_struct *task, char *filename){
-    int pid = newPID();
+void initTaskVariables(task_struct *task, char *filename, int pid){
     strcpy(task->name, filename);
     strcpy(task->curr_dir, "/");
     task->ppid = 0;
     task->pid = pid;
     task->vm = NULL;
     task->state = RUNNING;
-    return pid;
 }
 
 void create_process(char* filename){
@@ -92,8 +90,9 @@ void create_process(char* filename){
 	}
     char a[50];
     strcpy(a,filename);
+	int pid = newPID();
 	task_struct* ts = (task_struct *) &taskQueue[pid];
-    int pid = initTaskVariables(ts, filename);
+    initTaskVariables(ts, filename, pid);
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
 	int no_ph = eh->e_phnum;
 	uint64_t* pml4 = (uint64_t *)getNewPage();
