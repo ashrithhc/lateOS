@@ -159,8 +159,8 @@ static inline uint8_t inb(uint64_t port)
 }
 void wake_process(){
     for(int i=0;i<MAX;++i){
-        if(q[i].state == SLEEPING){
-            q[i].state = RUNNING;
+        if(taskQueue[i].state == SLEEPING){
+            taskQueue[i].state = RUNNING;
             //      yield();
             return;
         }

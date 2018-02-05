@@ -12,7 +12,7 @@ static task_struct* p;
 static task_struct* new;
 
 int newPID(){
-	for(int i=0; i<MAX; i++) if(q[i].state == READY) return i;
+	for(int i=0; i<MAX; i++) if(taskQueue[i].state == READY) return i;
 	return -1;
 }
 
@@ -42,33 +42,33 @@ void idle(){
 }
 void init_p(){
     int pid = newPID();
-    q[pid].pid = pid;
-    strcpy(q[pid].name,"init");
-    q[pid].state = RUNNING;
-    q[pid].regs.rip = (uint64_t)&in;
-    q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
+    taskQueue[pid].pid = pid;
+    strcpy(taskQueue[pid].name,"init");
+    taskQueue[pid].state = RUNNING;
+    taskQueue[pid].regs.rip = (uint64_t)&in;
+    taskQueue[pid].regs.rsp = (uint64_t)(&(taskQueue[pid].kstack[511]));
     uint64_t pcr3;
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    q[pid].pml4e = pcr3;
+    taskQueue[pid].pml4e = pcr3;
 
     pid = newPID();
-    q[pid].pid = pid;
-    strcpy(q[pid].name,"idle");
-    q[pid].state = RUNNING;
-    q[pid].regs.rip = (uint64_t)&idle;
-    q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
+    taskQueue[pid].pid = pid;
+    strcpy(taskQueue[pid].name,"idle");
+    taskQueue[pid].state = RUNNING;
+    taskQueue[pid].regs.rip = (uint64_t)&idle;
+    taskQueue[pid].regs.rsp = (uint64_t)(&(taskQueue[pid].kstack[511]));
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    q[pid].pml4e = pcr3;
+    taskQueue[pid].pml4e = pcr3;
 }
 
 void ps()
 {
-	kprintf("ID  |  Name\n");
+	kprintf("pid  |  process\n");
 	for(int i=0; i<MAX; i++)
 	{
-        if(q[i].state == RUNNING || q[i].state == SLEEPING || q[i].state == WAIT || q[i].state == SUSPENDED) {
-            kprintf("%d  |", q[i].pid);
-            kprintf("  %s", q[i].name);
+        if(taskQueue[i].state == RUNNING || taskQueue[i].state == SLEEPING || taskQueue[i].state == WAIT || taskQueue[i].state == SUSPENDED) {
+            kprintf("%d  |", taskQueue[i].pid);
+            kprintf("  %s", taskQueue[i].name);
             kprintf("\n");
         }
 	}
@@ -84,7 +84,7 @@ void create_process(char* filename){
     char a[50];
     strcpy(a,filename);
 	int pid = newPID();
-	task_struct* ts = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
+	task_struct* ts = (task_struct *) &taskQueue[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
 	strcpy(ts->name,filename);
     strcpy(ts->curr_dir,"/");
     ts->ppid = 0;
@@ -212,7 +212,7 @@ void copytask(task_struct* c){
 int fork(){
 
     int pid = newPID();
-	new = (task_struct *) &q[pid];
+	new = (task_struct *) &taskQueue[pid];
 	new->pid = pid;
 	p = r;
 	copytask(new);	
@@ -406,70 +406,70 @@ int execvpe(char* path, char *argv[],char* env[]){
 void exit(){
     r->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
-        if(q[i].ppid == r->pid){
-            q[i].ppid = 0;
+        if(taskQueue[i].ppid == r->pid){
+            taskQueue[i].ppid = 0;
         }
     }
-    if(q[r->ppid].state ==  WAIT){
-        q[r->ppid].state =  RUNNING;
+    if(taskQueue[r->ppid].state ==  WAIT){
+        taskQueue[r->ppid].state =  RUNNING;
     }
     yield();
 }
 void removeProcess(int i){
-    vma* vm = q[i].vm;
+    vma* vm = taskQueue[i].vm;
     while(vm){
         uint64_t k = (uint64_t)vm;
         vm = vm->next;
         free(k-0xffffffff80000000);
     }
-    dealloc_pml4(q[i].pml4e);
-    free(q[i].pml4e);
+    dealloc_pml4(taskQueue[i].pml4e);
+    free(taskQueue[i].pml4e);
 }
 int wait(){
     while(1) {
         for (int i = 0; i < MAX; ++i) {
-            if ((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)) {
+            if ((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)) {
                 removeProcess(i);
-                q[i].state = READY;
+                taskQueue[i].state = READY;
                 return i;
             }
         }
         r->state = WAIT;
         yield();
         for (int i = 0; i < MAX; ++i) {
-            if ((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)) {
+            if ((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)) {
                 removeProcess(i);
-                q[i].state = READY;
+                taskQueue[i].state = READY;
                 return i;
             }
         }
     }
 }
 int kill(int pid){
-    q[pid].state = ZOMBIE;
+    taskQueue[pid].state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
-        if(q[i].ppid == pid){
-            q[i].ppid = 0;
+        if(taskQueue[i].ppid == pid){
+            taskQueue[i].ppid = 0;
         }
     }
-    if(q[q[pid].ppid].state == WAIT){
-        q[q[pid].ppid].state = RUNNING;
+    if(taskQueue[taskQueue[pid].ppid].state == WAIT){
+        taskQueue[taskQueue[pid].ppid].state = RUNNING;
     }
     return 1;
 }
 int waitpid(int pid){
     int i = pid;
-    if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
+    if((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)){
         removeProcess(i);
-        q[i].state = READY;
+        taskQueue[i].state = READY;
         return i;
     }
     r->state = WAIT;
     while(1){
         yield();
-        if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
+        if((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)){
             removeProcess(i);
-            q[i].state = READY;
+            taskQueue[i].state = READY;
             return i;
         }
     }

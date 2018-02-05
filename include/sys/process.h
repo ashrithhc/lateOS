@@ -73,7 +73,7 @@ void create_process(char* filename);
 void addToQ(task_struct* q);
 int get_fd(struct task_struct*);
 task_struct* r;
-struct task_struct q[MAX];
+struct task_struct taskQueue[MAX];
 void init_proc();
 void exit();
 void init_p();
