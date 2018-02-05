@@ -5,9 +5,9 @@
 int np = 0;
 void init_proc(){
 	for(int i=0;i<MAX;i++){
-		q[i].state = READY;
-		q[i].fd_c = 0;
-		q[i].time = 0;
+		taskQueue[i].state = READY;
+		taskQueue[i].fd_c = 0;
+		taskQueue[i].time = 0;
 	}
 }
 void yield(){
@@ -17,12 +17,12 @@ void yield(){
 			Code to check for the next running process to schedule from the process array in a circular manner
 		*/
 		while(i!= last->pid){         
-			if(q[i].state == RUNNING){
+			if(taskQueue[i].state == RUNNING){
 				break;
 			}
 			i = (i+1)%MAX;
 		}
-        r = (task_struct *)&q[i];
+        r = (task_struct *)&taskQueue[i];
 //		kprintf("switch enter");
 		set_tss_rsp((uint64_t*)&(r->kstack[511]));
 //		__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
