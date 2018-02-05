@@ -12,11 +12,7 @@ static task_struct* p;
 static task_struct* new;
 
 int newPID(){
-	for(int i=0; i<MAX; i++){
-		if(q[i].state == READY){
-			return i;
-		}
-	}
+	for(int i=0; i<MAX; i++) if(q[i].state == READY) return i;
 	return -1;
 }
 
@@ -29,11 +25,12 @@ void *memcpy(void *dest, const void *src, int n){
     return dest;
 }
 
-void in(){
+/*void in(){
     while(1){
         wait();
     }
 }
+
 void idle(){
 
     while(1) {
@@ -44,6 +41,7 @@ void idle(){
     }
 
 }
+*/
 void init_p(){
     int pid = newPID();
     q[pid].pid = pid;
