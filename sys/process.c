@@ -82,8 +82,8 @@ void initTaskVariables(task_struct *task, char *filename, int pid){
 }
 
 void create_process(char* filename){
-	uint64_t f_a = get_file_address(filename) +512;
-	if(f_a < 512){
+	uint64_t fileAddress = get_file_address(filename) +512;
+	if(fileAddress < 512){
 		kprintf("No such file\n");
 		return;
 	}
@@ -94,7 +94,7 @@ void create_process(char* filename){
 	task_struct* ts = (task_struct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
 
-	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
+	Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
 	int no_ph = eh->e_phnum;
 	uint64_t* pml4 = (uint64_t *)getNewPage();
 	memset(pml4,0,4096);
@@ -102,7 +102,7 @@ void create_process(char* filename){
 	ts->regs.rip = eh->e_entry;
 	for(int i=no_ph;i>0;i--){
 		//               ep = ep + (i-1);
-		Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
+		Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
 		ep = ep + (i-1);
 		if(ep->p_type == 1){               
 
@@ -247,7 +247,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
     char file[50];
     int argc = 0, envl = 0;
-    uint64_t f_a = 0 ;
+    uint64_t fileAddress = 0 ;
     char args[10][80];
     char envs[40][80];
     if(path[0] == '.' && path[1] == '/'){
@@ -271,12 +271,12 @@ int execvpe(char* path, char *argv[],char* env[]){
             if(strlen(ex) == 0){
                 strcpy(ex,"bin/sbush");
             }
-            f_a = get_file_address(ex) + 512;
+            fileAddress = get_file_address(ex) + 512;
             strcpy(args[argc++], argv[0]);
             strcpy(args[argc++], path+2);
         }
         else {
-            f_a = get_file_address("bin/sbush") + 512;
+            fileAddress = get_file_address("bin/sbush") + 512;
             strcpy(args[argc++], argv[0]);
             strcpy(args[argc++], path+2);
         }
@@ -287,8 +287,8 @@ int execvpe(char* path, char *argv[],char* env[]){
         strcpy(ts->name, file);
 
 
-        f_a = get_file_address(file) + 512;
-        if (f_a < 512) {
+        fileAddress = get_file_address(file) + 512;
+        if (fileAddress < 512) {
             return -1;
         }
 
@@ -301,17 +301,17 @@ int execvpe(char* path, char *argv[],char* env[]){
         strcpy(envs[envl], env[envl]);
         argc++;
     }
-    if (f_a < 512) {
+    if (fileAddress < 512) {
         return -1;
     }
-	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a);
+	Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
 	int no_ph = eh->e_phnum;
 	ts->regs.rip = eh->e_entry;
 	uint64_t* pml4 = (uint64_t *)(ts->pml4e + 0xffffffff80000000);
     dealloc_pml4((ts->pml4e));
 
 	for(int i=no_ph;i>0;i--){
-		Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
+		Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
 		ep = ep + (i-1);
 		if(ep->p_type == 1){               
 
