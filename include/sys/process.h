@@ -17,8 +17,6 @@ int pid[MAX];
 typedef struct vmaStruct {
 	uint64_t beginAddress;
 	uint64_t lastAddress;
-	uint64_t checks;
-	uint64_t locAddr;
 	uint64_t offset;
     struct vmaStruct *next;
 } vma;
