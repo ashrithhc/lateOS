@@ -82,17 +82,18 @@ void initTaskVariables(task_struct *task, char *filename, int pid){
 }
 
 void create_process(char* filename){
-	//Load elf headers using the filename
 	uint64_t f_a = get_file_address(filename) +512;
 	if(f_a < 512){
 		kprintf("No such file\n");
 		return;
 	}
+
     char a[50];
     strcpy(a,filename);
 	int pid = newPID();
 	task_struct* ts = (task_struct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
+
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
 	int no_ph = eh->e_phnum;
 	uint64_t* pml4 = (uint64_t *)getNewPage();
@@ -120,13 +121,13 @@ void create_process(char* filename){
 				vm->next = ts->vm;
 				ts->vm = vm;
 			}
-			for(;k<( vm->vm_end);k+=4096){
+			while(k<(vm->vm_end)){
 				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
+                k+=4096;
 			}
 			uint64_t pcr3;
 			__asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
-			//                      *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 			uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
