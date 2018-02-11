@@ -107,9 +107,9 @@ void create_process(char* filename){
 		if(ep->p_type == 1){               
 
 			vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-			vm->vm_start = ep->p_vaddr;
-			vm->vm_end = ep->p_vaddr+ep->p_memsz;
-            uint64_t k = vm->vm_start;
+			vm->beginAddress = ep->p_vaddr;
+			vm->lastAddress = ep->p_vaddr+ep->p_memsz;
+            uint64_t k = vm->beginAddress;
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)0x1000)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
             }
@@ -121,7 +121,7 @@ void create_process(char* filename){
 				vm->next = ts->vm;
 				ts->vm = vm;
 			}
-			while(k<(vm->vm_end)){
+			while(k<(vm->lastAddress)){
 				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
                 k+=4096;
@@ -131,15 +131,15 @@ void create_process(char* filename){
 			uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
-			memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-			memset((void*)(vm->vm_start + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
+			memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
+			memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
 		}
 	}
 
     vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
-    vm2->vm_start = 0x4B0FFFFF0000;
-    vm2->vm_end = 0x4B0FFFFF0000;
+    vm2->beginAddress = 0x4B0FFFFF0000;
+    vm2->lastAddress = 0x4B0FFFFF0000;
     vm2->next = ts->vm;
     ts->vm = vm2;
 
@@ -149,8 +149,8 @@ void create_process(char* filename){
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 	vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-	vm->vm_start = 0x100FFFFF0000;
-	vm->vm_end = (uint64_t)0x100FFEFF0000;
+	vm->beginAddress = 0x100FFFFF0000;
+	vm->lastAddress = (uint64_t)0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
 
@@ -316,9 +316,9 @@ int execvpe(char* path, char *argv[],char* env[]){
 		if(ep->p_type == 1){               
 
 			vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-			vm->vm_start = ep->p_vaddr;
-			vm->vm_end = ep->p_vaddr+ep->p_memsz;
-            uint64_t k = vm->vm_start;
+			vm->beginAddress = ep->p_vaddr;
+			vm->lastAddress = ep->p_vaddr+ep->p_memsz;
+            uint64_t k = vm->beginAddress;
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)0x1000)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
             }
@@ -330,7 +330,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 				vm->next = ts->vm;
 				ts->vm = vm;
 			}
-			for(;k<( vm->vm_end);k+=4096){
+			for(;k<( vm->lastAddress);k+=4096){
 				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
 			}
@@ -339,15 +339,15 @@ int execvpe(char* path, char *argv[],char* env[]){
 			__asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
 			uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
-			memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-			memset((void*)(vm->vm_start + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
+			memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
+			memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
 		}
 	}
 
     vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
-    vm2->vm_start = 0x4B0FFFFF0000;
-    vm2->vm_end = 0x4B0FFFFF0000;
+    vm2->beginAddress = 0x4B0FFFFF0000;
+    vm2->lastAddress = 0x4B0FFFFF0000;
     vm2->next = ts->vm;
     ts->vm = vm2;
 
@@ -357,8 +357,8 @@ int execvpe(char* path, char *argv[],char* env[]){
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 	vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-	vm->vm_start = 0x100FFFFF0000;
-	vm->vm_end = 0x100FFEFF0000;
+	vm->beginAddress = 0x100FFFFF0000;
+	vm->lastAddress = 0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
 
@@ -531,11 +531,11 @@ void getcwd(char *buf, int size){
 void* malloc(int no_of_bytes){
     vma* vm = r->vm->next;
 
-    uint64_t ret = vm->vm_end;
+    uint64_t ret = vm->lastAddress;
     for(int i =0;i<((no_of_bytes/4096))+1;i++){
         uint64_t s_add = getFreeFrame();
-        init_pages_for_process(vm->vm_end,s_add,(uint64_t *)(r->pml4e+0xffffffff80000000));
-        vm->vm_end = vm->vm_end + 4096;
+        init_pages_for_process(vm->lastAddress,s_add,(uint64_t *)(r->pml4e+0xffffffff80000000));
+        vm->lastAddress = vm->lastAddress + 4096;
     }
     return (uint64_t*)ret;
 }

@@ -15,14 +15,13 @@ VMA & Task struct References:
 
 int pid[MAX];
 typedef struct vmaStruct {
-	uint64_t vm_start;
-	uint64_t vm_end;
-	uint64_t vm_flags;
-	
-	uint64_t vm_file;
+	uint64_t beginAddress;
+	uint64_t lastAddress;
+	uint64_t checks;
+	uint64_t locAddr;
 	uint64_t offset;
     struct vmaStruct *next;
-}vma;
+} vma;
 
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
