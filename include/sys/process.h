@@ -14,14 +14,14 @@ VMA & Task struct References:
 #include<sys/file.h>
 
 int pid[MAX];
-typedef struct vm_area_struct {
+typedef struct vmaStruct {
 	uint64_t vm_start;
 	uint64_t vm_end;
 	uint64_t vm_flags;
 	
 	uint64_t vm_file;
 	uint64_t offset;
-    struct vm_area_struct *next;
+    struct vmaStruct *next;
 }vma;
 
 typedef struct Register{
@@ -47,7 +47,7 @@ typedef struct task_struct {
 	uint64_t *rsp;
 	uint64_t pml4e;
 	int child_count;
-	struct vm_area_struct *vm;
+	struct vmaStruct *vm;
 	char curr_dir[50];
 	struct file_t fd[25];
 	int fd_c;

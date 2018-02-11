@@ -106,7 +106,7 @@ void create_process(char* filename){
 		ep = ep + (i-1);
 		if(ep->p_type == 1){               
 
-			vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
+			vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
 			vm->vm_start = ep->p_vaddr;
 			vm->vm_end = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->vm_start;
@@ -137,7 +137,7 @@ void create_process(char* filename){
 		}
 	}
 
-    vma* vm2 = (vma *)kmalloc(sizeof(struct vm_area_struct));
+    vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
     vm2->vm_start = 0x4B0FFFFF0000;
     vm2->vm_end = 0x4B0FFFFF0000;
     vm2->next = ts->vm;
@@ -148,7 +148,7 @@ void create_process(char* filename){
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-	vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
+	vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
 	vm->vm_start = 0x100FFFFF0000;
 	vm->vm_end = (uint64_t)0x100FFEFF0000;
 	vm->next = ts->vm;
@@ -198,8 +198,8 @@ void copytask(task_struct* c){
 	vma* p = NULL;
 	c->vm = NULL;
 	while(a!=NULL){	
-		vma* new = (vma *)kmalloc(sizeof(struct vm_area_struct));
-		memcpy(new,a,sizeof(struct vm_area_struct));
+		vma* new = (vma *)kmalloc(sizeof(struct vmaStruct));
+		memcpy(new,a,sizeof(struct vmaStruct));
 		if(p == NULL){
 			p = new;
 			c->vm = p;	
@@ -315,7 +315,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 		ep = ep + (i-1);
 		if(ep->p_type == 1){               
 
-			vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
+			vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
 			vm->vm_start = ep->p_vaddr;
 			vm->vm_end = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->vm_start;
@@ -345,7 +345,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 		}
 	}
 
-    vma* vm2 = (vma *)kmalloc(sizeof(struct vm_area_struct));
+    vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
     vm2->vm_start = 0x4B0FFFFF0000;
     vm2->vm_end = 0x4B0FFFFF0000;
     vm2->next = ts->vm;
@@ -356,7 +356,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-	vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
+	vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
 	vm->vm_start = 0x100FFFFF0000;
 	vm->vm_end = 0x100FFEFF0000;
 	vm->next = ts->vm;
