@@ -1,6 +1,9 @@
 #ifndef _PROCESS_H
 #define _PROCESS_H
 
+#include <sys/defs.h>
+#include <sys/file.h>
+
 #define MAX 1100
 #define STACK_S = 0x100FFFFF0000;
 
@@ -10,8 +13,6 @@ VMA & Task struct References:
 	 http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vma.html
 	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
 **/
-#include<sys/defs.h>
-#include<sys/file.h>
 
 int pid[MAX];
 typedef struct vmaStruct {
