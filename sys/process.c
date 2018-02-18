@@ -88,8 +88,8 @@ void create_process(char* filename){
 		return;
 	}
 
-    char a[50];
-    strcpy(a,filename);
+    char tempFilename[50];
+    strcpy(tempFilename,filename);
 	int pid = newPID();
 	task_struct* ts = (task_struct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
@@ -160,9 +160,9 @@ void create_process(char* filename){
     uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
     __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 
-    int len = strlen(a)+1;
+    int len = strlen(tempFilename)+1;
     ts->rsp = ts->rsp - len;
-    memcpy(ts->rsp,a,len);
+    memcpy(ts->rsp,tempFilename,len);
 
     ts->rsp -= 1;
     *(ts->rsp) = 0;
