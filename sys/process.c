@@ -82,7 +82,7 @@ void initTaskVariables(task_struct *task, char *filename, int pid){
     task->state = RUNNING;
 }
 
-void yappaFunction(uint64_t fileAddress, task_struct* ts){
+uint64_t* yappaFunction(uint64_t fileAddress, task_struct* ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     uint64_t* pml4 = (uint64_t *)getNewPage();
     memset(pml4,0,pageSize);
@@ -113,7 +113,7 @@ void yappaFunction(uint64_t fileAddress, task_struct* ts){
                 init_pages_for_process(k,yy, pml4);
                 k+=pageSize;
             }
-            uint64_t pcr3;
+            uint64_t y;
             __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
             uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
 
@@ -139,7 +139,7 @@ void create_process(char* filename){
 	task_struct* ts = (task_struct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
 
-    yappaFunction(fileAddress, ts);
+    uint64_t* pml4 = yappaFunction(fileAddress, ts);
 
     vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
     vm2->beginAddress = 0x4B0FFFFF0000;
