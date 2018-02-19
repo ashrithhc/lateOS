@@ -83,7 +83,24 @@ void initTaskVariables(task_struct *task, char *filename, int pid){
 }
 
 uint64_t* yappaFunction(uint64_t fileAddress, task_struct* ts){
-    Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
+
+}
+
+void create_process(char* filename){
+	uint64_t fileAddress = get_file_address(filename) +512;
+	if(fileAddress < 512){
+		kprintf("No such file\n");
+		return;
+	}
+
+    char tempFilename[50];
+    strcpy(tempFilename,filename);
+	int pid = newPID();
+	task_struct* ts = (task_struct *) &taskQueue[pid];
+    initTaskVariables(ts, filename, pid);
+
+    // uint64_t* pml4 = yappaFunction(fileAddress, ts);
+        Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     uint64_t* pml4 = (uint64_t *)getNewPage();
     memset(pml4,0,pageSize);
     ts->pml4e =( uint64_t )((uint64_t)pml4 - (uint64_t)kernbase);
@@ -124,22 +141,6 @@ uint64_t* yappaFunction(uint64_t fileAddress, task_struct* ts){
         }
     }
 
-}
-
-void create_process(char* filename){
-	uint64_t fileAddress = get_file_address(filename) +512;
-	if(fileAddress < 512){
-		kprintf("No such file\n");
-		return;
-	}
-
-    char tempFilename[50];
-    strcpy(tempFilename,filename);
-	int pid = newPID();
-	task_struct* ts = (task_struct *) &taskQueue[pid];
-    initTaskVariables(ts, filename, pid);
-
-    uint64_t* pml4 = yappaFunction(fileAddress, ts);
 
     vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
     vm2->beginAddress = 0x4B0FFFFF0000;
