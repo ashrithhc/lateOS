@@ -10,6 +10,7 @@
 
 # define kernbase 0xffffffff80000000
 # define validatebits 0xFFFFFFFFFFFFF000
+# define pageSize 0x1000
 
 static task_struct* p;
 static task_struct* new;
@@ -95,13 +96,11 @@ void create_process(char* filename){
     initTaskVariables(ts, filename, pid);
 
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
-	int no_ph = eh->e_phnum;
 	uint64_t* pml4 = (uint64_t *)getNewPage();
-	memset(pml4,0,4096);
+	memset(pml4,0,pageSize);
 	ts->pml4e =( uint64_t )((uint64_t)pml4 - (uint64_t)kernbase);
 	ts->regs.rip = eh->e_entry;
-	for(int i=no_ph;i>0;i--){
-		//               ep = ep + (i-1);
+	for(int i=eh->e_phnum;i>0;i--){
 		Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
 		ep = ep + (i-1);
 		if(ep->p_type == 1){               
@@ -110,7 +109,7 @@ void create_process(char* filename){
 			vm->beginAddress = ep->p_vaddr;
 			vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
-            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)0x1000)) != 0){
+            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
             }
 			if(ts->vm == NULL){
@@ -124,7 +123,7 @@ void create_process(char* filename){
 			while(k<(vm->lastAddress)){
 				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
-                k+=4096;
+                k+=pageSize;
 			}
 			uint64_t pcr3;
 			__asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
@@ -189,7 +188,7 @@ void copytask(task_struct* c){
 	c->ppid = r->pid;
 
 	c->pml4e = (uint64_t)((uint64_t)getNewPage() - (uint64_t)kernbase);
-    memset((uint64_t*)(c->pml4e+(kernbase)),0,4096);
+    memset((uint64_t*)(c->pml4e+(kernbase)),0,pageSize);
 	strcpy(c->name,r->name);
     strcpy(c->curr_dir,r->curr_dir);
 
@@ -305,12 +304,11 @@ int execvpe(char* path, char *argv[],char* env[]){
         return -1;
     }
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
-	int no_ph = eh->e_phnum;
 	ts->regs.rip = eh->e_entry;
 	uint64_t* pml4 = (uint64_t *)(ts->pml4e + kernbase);
     dealloc_pml4((ts->pml4e));
 
-	for(int i=no_ph;i>0;i--){
+	for(int i=eh->e_phnum;i>0;i--){
 		Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
 		ep = ep + (i-1);
 		if(ep->p_type == 1){               
@@ -319,7 +317,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 			vm->beginAddress = ep->p_vaddr;
 			vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
-            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)0x1000)) != 0){
+            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
             }
 			if(ts->vm == NULL){
@@ -330,7 +328,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 				vm->next = ts->vm;
 				ts->vm = vm;
 			}
-			for(;k<( vm->lastAddress);k+=4096){
+			for(;k<( vm->lastAddress);k+=pageSize){
 				uint64_t yy = getFreeFrame();
 				init_pages_for_process(k,yy, pml4);
 			}
@@ -532,10 +530,10 @@ void* malloc(int no_of_bytes){
     vma* vm = r->vm->next;
 
     uint64_t ret = vm->lastAddress;
-    for(int i =0;i<((no_of_bytes/4096))+1;i++){
+    for(int i =0;i<((no_of_bytes/pageSize))+1;i++){
         uint64_t s_add = getFreeFrame();
         init_pages_for_process(vm->lastAddress,s_add,(uint64_t *)(r->pml4e+kernbase));
-        vm->lastAddress = vm->lastAddress + 4096;
+        vm->lastAddress = vm->lastAddress + pageSize;
     }
     return (uint64_t*)ret;
 }
