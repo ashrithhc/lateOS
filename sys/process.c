@@ -48,8 +48,8 @@ void setupTask(char *name, uint64_t function){
     (taskQueue + pid)->pid = pid;
     strcpy((taskQueue + pid)->name, name);
     (taskQueue + pid)->state = RUNNING;
-    (taskQueue + pid)->regs.rip = function;
-    (taskQueue + pid)->regs.rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
+    (&(taskQueue + pid)->regs)->rip = function;
+    (&(taskQueue + pid)->regs)->rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
     uint64_t pcr3;
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
     (taskQueue + pid)->pml4e = pcr3;
