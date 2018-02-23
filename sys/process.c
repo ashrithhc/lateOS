@@ -134,6 +134,10 @@ void setMyVMA(task_struct *ts, uint64_t from, uint64_t toend){
     ts->vm = taskVMA;
 }
 
+void loadPML4(uint64_t toLoad){
+    __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
+}
+
 void create_process(char* filename){
 	uint64_t fileAddress = get_file_address(filename) +512;
 	if(fileAddress < 512){
@@ -154,9 +158,9 @@ void create_process(char* filename){
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
     setMyVMA(ts, 0x100FFFFF0000, 0x100FFEFF0000);
 	set_tss_rsp(&(ts->kstack[511]));
-
-    uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
-    __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+    loadPML4((uint64_t)pml4);
+    /*uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
+    __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));*/
 
     int len = strlen(tempFilename)+1;
     ts->rsp = ts->rsp - len;
