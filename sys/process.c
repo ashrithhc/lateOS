@@ -138,6 +138,26 @@ void loadPML4(uint64_t toLoad){
     __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
 }
 
+void setTaskRSP(char *name, task_Struct *ts){
+    int len = strlen(name)+1;
+    ts->rsp = ts->rsp - len;
+    memcpy(ts->rsp,name,len);
+
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+
+    (ts->rsp)-=1;
+    *(ts->rsp) = (uint64_t)((ts->rsp)+1);
+
+    (ts->rsp)-=1;
+    *(ts->rsp) = 0x1;
+
+    r = ts;
+}
+
 void create_process(char* filename){
 	uint64_t fileAddress = get_file_address(filename) +512;
 	if(fileAddress < 512){
@@ -159,10 +179,9 @@ void create_process(char* filename){
     setMyVMA(ts, 0x100FFFFF0000, 0x100FFEFF0000);
 	set_tss_rsp(&(ts->kstack[511]));
     loadPML4((uint64_t)pml4);
-    /*uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
-    __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));*/
 
-    int len = strlen(tempFilename)+1;
+    setTaskRSP(tempFilename, ts);
+/*    int len = strlen(tempFilename)+1;
     ts->rsp = ts->rsp - len;
     memcpy(ts->rsp,tempFilename,len);
 
@@ -178,7 +197,7 @@ void create_process(char* filename){
     (ts->rsp)-=1;
     *(ts->rsp) = 0x1;
 
-	r = ts;
+	r = ts;*/
 
 
 	__asm__ volatile("pushq $0x23;pushq %0;pushf;pushq $0x2B;"::"r"(ts->rsp):"%rax","%rsp");
