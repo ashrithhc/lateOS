@@ -65,9 +65,9 @@ void ps()
 	kprintf("pid  |  process\n");
 	for(int i=0; i<MAX; i++)
 	{
-        if(taskQueue[i].state == RUNNING || taskQueue[i].state == SLEEPING || taskQueue[i].state == WAIT || taskQueue[i].state == SUSPENDED) {
-            kprintf("%d  |", taskQueue[i].pid);
-            kprintf("  %s", taskQueue[i].name);
+        if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEPING || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == SUSPENDED) {
+            kprintf("%d  |", (&taskQueue[i])->pid);
+            kprintf("  %s", (&taskQueue[i])->name);
             kprintf("\n");
         }
 	}
@@ -149,26 +149,10 @@ void create_process(char* filename){
 
     uint64_t* pml4 = yappaFunction(fileAddress, ts);
     setMyVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
-
-    /*vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
-    vm2->beginAddress = 0x4B0FFFFF0000;
-    vm2->lastAddress = 0x4B0FFFFF0000;
-    vm2->next = ts->vm;
-    ts->vm = vm2;*/
-
-
-    // uint64_t s_add = getFreeFrame();
 	init_pages_for_process(0x100FFFFF0000,(uint64_t)getFreeFrame(),pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
     setMyVMA(ts, 0x100FFFFF0000, 0x100FFEFF0000);
-	/*vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-	vm->beginAddress = 0x100FFFFF0000;
-	vm->lastAddress = (uint64_t)0x100FFEFF0000;
-	vm->next = ts->vm;
-	ts->vm = vm;*/
-
-
 	set_tss_rsp(&(ts->kstack[511]));
 
     uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
