@@ -181,29 +181,30 @@ void create_process(char* filename){
     loadPML4((uint64_t)pml4);
 
     setTaskRSP(tempFilename, ts);
-/*    int len = strlen(tempFilename)+1;
-    ts->rsp = ts->rsp - len;
-    memcpy(ts->rsp,tempFilename,len);
-
-    ts->rsp -= 1;
-    *(ts->rsp) = 0;
-
-    ts->rsp -= 1;
-    *(ts->rsp) = 0;
-
-    (ts->rsp)-=1;
-    *(ts->rsp) = (uint64_t)((ts->rsp)+1);
-
-    (ts->rsp)-=1;
-    *(ts->rsp) = 0x1;
-
-	r = ts;*/
-
 
 	__asm__ volatile("pushq $0x23;pushq %0;pushf;pushq $0x2B;"::"r"(ts->rsp):"%rax","%rsp");
 	__asm__ ("pushq %0"::"r"(ts->regs.rip):"memory");
 
 	__asm__("iretq");
+}
+
+void copyVMA(task_struct *curTask, task_struct *copyTask){
+    vma* a = curTask->vm;
+    vma* p = NULL;
+    copyTask->vm = NULL;
+    while(a!=NULL){ 
+        vma* new = (vma *)kmalloc(sizeof(struct vmaStruct));
+        memcpy(new,a,sizeof(struct vmaStruct));
+        if(p == NULL){
+            p = new;
+            copyTask->vm = p;  
+        }
+        else{
+            p->next = new;
+            p = new;
+        }
+        a = a->next;
+    }
 }
 
 void copytask(task_struct* c){
@@ -215,22 +216,7 @@ void copytask(task_struct* c){
     strcpy(c->curr_dir,r->curr_dir);
 
     copytables(r,c);
-	vma* a = r->vm;
-	vma* p = NULL;
-	c->vm = NULL;
-	while(a!=NULL){	
-		vma* new = (vma *)kmalloc(sizeof(struct vmaStruct));
-		memcpy(new,a,sizeof(struct vmaStruct));
-		if(p == NULL){
-			p = new;
-			c->vm = p;	
-		}
-		else{
-			p->next = new;
-			p = new;
-		}
-		a = a->next;
-	}
+	copyVMA(r, c);
 }
 int fork(){
 
