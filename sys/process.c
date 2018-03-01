@@ -145,7 +145,7 @@ void loadPML4(uint64_t toLoad){
     __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
 }
 
-void setTaskRSP(char *name, task_Struct *ts){
+void setTaskRSP(char *name, task_struct *ts){
     int len = strlen(name)+1;
     ts->rsp = ts->rsp - len;
     memcpy(ts->rsp,name,len);
