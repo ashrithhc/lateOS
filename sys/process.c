@@ -238,8 +238,8 @@ int fork(){
 	copytask(new);	
 
 	uint64_t s_add ;
-	new->ustack = (uint64_t*)STACK_S;
-	new->rsp = (uint64_t *)((uint64_t)new->ustack + (uint64_t)getMemorysize(8));
+	new->ustack = (uint64_t*)0x100FFFFF0000;
+	new->rsp = (uint64_t *)((uint64_t)new->ustack + getMemorysize(8));
 	new->state = RUNNING;
 	uint64_t pcr3;	
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
