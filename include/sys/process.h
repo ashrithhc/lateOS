@@ -5,7 +5,7 @@
 #include <sys/file.h>
 
 #define MAX 1100
-#define STACK_S = 0x100FFFFF0000;
+#define STACK_S 0x100FFFFF0000
 
 /**
 
