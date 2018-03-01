@@ -239,7 +239,7 @@ int fork(){
 
 	uint64_t s_add ;
 	new->ustack = (uint64_t*)0x100FFFFF0000;
-	new->rsp = (uint64_t *)((uint64_t)new->ustack + getMemorysize(8));
+	new->rsp = (uint64_t *)((uint64_t)new->ustack + 511*8);
 	new->state = RUNNING;
 	uint64_t pcr3;	
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
