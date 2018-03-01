@@ -215,7 +215,7 @@ void copyVMA(task_struct *curTask, task_struct *copyTask){
 }
 
 int getMemorysize(int num){
-    return 0x1FF*num;
+    return 511*num;
 }
 
 void copytask(task_struct* c){
