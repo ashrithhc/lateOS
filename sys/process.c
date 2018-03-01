@@ -60,12 +60,19 @@ void init_p(){
     setupTask("idle", (uint64_t)&idle);
 }
 
+int stillAlive(int i){
+    if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEPING || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == SUSPENDED) {
+        return 1;
+    }
+    return 0;
+}
+
 void ps()
 {
 	kprintf("pid  |  process\n");
 	for(int i=0; i<MAX; i++)
 	{
-        if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEPING || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == SUSPENDED) {
+        if(stillAlive(i) == 1) {
             kprintf("%d  |", (&taskQueue[i])->pid);
             kprintf("  %s", (&taskQueue[i])->name);
             kprintf("\n");
