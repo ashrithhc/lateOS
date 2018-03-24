@@ -315,7 +315,7 @@ int execvpe(char* path, char *argv[],char* env[]){
         }
 
         while (argv[argc]) {
-            strcpy(args[argc], argv[argc]);
+            strcpy(*(args + argc), argv[argc]);
             argc++;
         }
     }
@@ -393,9 +393,9 @@ int execvpe(char* path, char *argv[],char* env[]){
 
 	uint64_t* temp[argc];
 	for(int i=argc-1;i>=0;i--){
-		int l = strlen(args[i])+1;
+		int l = strlen(*(args +i))+1;
 		ts->rsp = ts->rsp-l;
-		memcpy(ts->rsp,args[i],l);
+		memcpy(ts->rsp,*(args +i),l);
 		temp[i] = ts->rsp;
 	}
 
