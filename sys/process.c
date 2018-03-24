@@ -266,14 +266,71 @@ int validPath(char *ref){
     return 0;
 }
 
+int setFileAddress(char* path, char *file, int *fileAddress, task_struct* ts, int *argc){
+    if(validPath(path)){
+        strcpy(file, &(r->curr_dir[1]));
+        strcat(file, path+2);
+        uint64_t scriptChar = get_file_address(file)+512;
+        if(scriptChar<512){
+            return -1;
+        }
+        if( *((char *)scriptChar) == '!' && *((char *)scriptChar+1) == '#') {
+            char ex[50];
+            int q= 0;
+            scriptChar+=2;
+            while( (*(char *) scriptChar) != '\n'){
+                if( (*(char *) scriptChar) != ' ') {
+                    ex[q++] = *(char *) scriptChar;
+                }
+                scriptChar = scriptChar+1;
+            }
+            ex[q++]='\0';
+            if(strlen(ex) == 0){
+                strcpy(ex,"bin/sbush");
+            }
+            *fileAddress = get_file_address(ex) + 512;
+            strcpy(args[*argc++], argv[0]);
+            strcpy(args[*argc++], path+2);
+        }
+        else {
+            *fileAddress = get_file_address("bin/sbush") + 512;
+            strcpy(args[*argc++], argv[0]);
+            strcpy(args[*argc++], path+2);
+        }
+    }
+    else {
+        strcpy(file, "bin/");
+        strcat(file, path);
+        strcpy(ts->name, file);
+
+
+        *fileAddress = get_file_address(file) + 512;
+        if (*fileAddress < 512) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    return 1;
+}
+
 int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
-    char file[50];
+    char *file;
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
     char args[10][80];
-    char envs[40][80];
-    if(validPath(path)){
+    char envs[40][80]; 
+    int binValue = setFileAddress(path, file, &fileAddress, ts, &argc);
+    if (binValue == -1) return -1;
+    else if (binValue == 0) {
+        while (argv[argc]) {
+            strcpy(args[argc], argv[argc]);
+            argc++;
+        }
+    }
+    /*if(validPath(path)){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
         uint64_t y = get_file_address(file)+512;
@@ -319,7 +376,7 @@ int execvpe(char* path, char *argv[],char* env[]){
             strcpy(args[argc], argv[argc]);
             argc++;
         }
-    }
+    }*/
     while (env[envl]) {
         strcpy(envs[envl], env[envl]);
         argc++;
