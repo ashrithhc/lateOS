@@ -266,8 +266,10 @@ int execvpe(char* path, char *argv[],char* env[]){
     char file[50];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
-    char args[10][80];
-    char envs[40][80];
+    // char args[10][80];
+    // char envs[40][80];
+    char **args[10][80];
+    char **envs[40][80];
     if(path[0] == '.' && path[1] == '/'){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -290,8 +292,10 @@ int execvpe(char* path, char *argv[],char* env[]){
                 strcpy(ex,"bin/sbush");
             }
             fileAddress = get_file_address(ex) + 512;
-            strcpy(args[argc++], argv[0]);
-            strcpy(args[argc++], path+2);
+            // strcpy(args[argc++], argv[0]);
+            // strcpy(args[argc++], path+2);
+            strcpy(*(args + argc++), argv[0]);
+            strcpy(*(args + argc++]), path+2);
         }
         else {
             fileAddress = get_file_address("bin/sbush") + 512;
