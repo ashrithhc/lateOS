@@ -266,7 +266,7 @@ int validPath(char *ref){
     return 0;
 }
 
-int setFileAddress(char* path, char *file, int *fileAddress, task_struct* ts, int *argc){
+int setFileAddress(char* path, char *file, int *fileAddress, task_struct* ts, int *argc, char *args[10][80]){
     if(validPath(path)){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -322,7 +322,7 @@ int execvpe(char* path, char *argv[],char* env[]){
     uint64_t fileAddress = 0 ;
     char args[10][80];
     char envs[40][80]; 
-    int binValue = setFileAddress(path, file, &fileAddress, ts, &argc);
+    int binValue = setFileAddress(path, file, &fileAddress, ts, &argc, &args);
     if (binValue == -1) return -1;
     else if (binValue == 0) {
         while (argv[argc]) {
