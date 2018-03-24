@@ -318,6 +318,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, task_struct* t
 int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
     char *file;
+    *file = "s";
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
     char args[10][80];
