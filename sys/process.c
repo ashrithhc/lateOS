@@ -289,13 +289,13 @@ int setFileAddress(char* path, char *file, int *fileAddress, task_struct* ts, in
                 strcpy(ex,"bin/sbush");
             }
             *fileAddress = get_file_address(ex) + 512;
-            strcpy(args[*argc++], argv[0]);
-            strcpy(args[*argc++], path+2);
+            strcpy(*args[*argc++], argv[0]);
+            strcpy(*args[*argc++], path+2);
         }
         else {
             *fileAddress = get_file_address("bin/sbush") + 512;
-            strcpy(args[*argc++], argv[0]);
-            strcpy(args[*argc++], path+2);
+            strcpy(*args[*argc++], argv[0]);
+            strcpy(*args[*argc++], path+2);
         }
     }
     else {
