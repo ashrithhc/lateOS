@@ -266,7 +266,7 @@ int validPath(char *ref){
     return 0;
 }
 
-int setFileAddress(char* path, char *file, int *fileAddress, task_struct* ts, int *argc, char *args[10][80]){
+int setFileAddress(char* path, char *file, uint64_t *fileAddress, task_struct* ts, int *argc, char args[10][80], char *argv[]){
     if(validPath(path)){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -289,13 +289,13 @@ int setFileAddress(char* path, char *file, int *fileAddress, task_struct* ts, in
                 strcpy(ex,"bin/sbush");
             }
             *fileAddress = get_file_address(ex) + 512;
-            strcpy(*args[*argc++], argv[0]);
-            strcpy(*args[*argc++], path+2);
+            strcpy(args[*argc++], argv[0]);
+            strcpy(args[*argc++], path+2);
         }
         else {
             *fileAddress = get_file_address("bin/sbush") + 512;
-            strcpy(*args[*argc++], argv[0]);
-            strcpy(*args[*argc++], path+2);
+            strcpy(args[*argc++], argv[0]);
+            strcpy(args[*argc++], path+2);
         }
     }
     else {
@@ -322,7 +322,7 @@ int execvpe(char* path, char *argv[],char* env[]){
     uint64_t fileAddress = 0 ;
     char args[10][80];
     char envs[40][80]; 
-    int binValue = setFileAddress(path, file, &fileAddress, ts, &argc, &args);
+    int binValue = setFileAddress(path, file, &fileAddress, ts, &argc, args, argv);
     if (binValue == -1) return -1;
     else if (binValue == 0) {
         while (argv[argc]) {
