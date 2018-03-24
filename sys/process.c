@@ -266,10 +266,8 @@ int execvpe(char* path, char *argv[],char* env[]){
     char file[50];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
-    // char args[10][80];
-    // char envs[40][80];
-    char **args;
-    char **envs;
+    char args[10][80];
+    char envs[40][80];
     if(path[0] == '.' && path[1] == '/'){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -292,10 +290,8 @@ int execvpe(char* path, char *argv[],char* env[]){
                 strcpy(ex,"bin/sbush");
             }
             fileAddress = get_file_address(ex) + 512;
-            // strcpy(args[argc++], argv[0]);
-            // strcpy(args[argc++], path+2);
-            strcpy(*(args + argc++), argv[0]);
-            strcpy(*(args + argc++]), path+2);
+            strcpy(args[argc++], argv[0]);
+            strcpy(args[argc++], path+2);
         }
         else {
             fileAddress = get_file_address("bin/sbush") + 512;
@@ -315,12 +311,12 @@ int execvpe(char* path, char *argv[],char* env[]){
         }
 
         while (argv[argc]) {
-            strcpy(*(args + argc), argv[argc]);
+            strcpy(args[argc], argv[argc]);
             argc++;
         }
     }
     while (env[envl]) {
-        strcpy(*(envs +envl), env[envl]);
+        strcpy(envs[envl], env[envl]);
         argc++;
     }
     if (fileAddress < 512) {
@@ -385,17 +381,17 @@ int execvpe(char* path, char *argv[],char* env[]){
 
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
-        int l = strlen(*(envs + i))+1;
+        int l = strlen(envs[i])+1;
         ts->rsp = ts->rsp-l;
-        memcpy(ts->rsp,*(envs + i),l);
+        memcpy(ts->rsp,envs[i],l);
         temp1[i] = ts->rsp;
     }
 
 	uint64_t* temp[argc];
 	for(int i=argc-1;i>=0;i--){
-		int l = strlen(*(args +i))+1;
+		int l = strlen(args[i])+1;
 		ts->rsp = ts->rsp-l;
-		memcpy(ts->rsp,*(args +i),l);
+		memcpy(ts->rsp,args[i],l);
 		temp[i] = ts->rsp;
 	}
 
