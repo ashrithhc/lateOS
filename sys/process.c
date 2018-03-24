@@ -261,6 +261,11 @@ int fork(){
     return new->pid;
 }
 
+int validPath(char *ref){
+    if (ref[0] == '.' && ref[1] == '/') return 1;
+    return 0;
+}
+
 int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
     char file[50];
@@ -268,7 +273,7 @@ int execvpe(char* path, char *argv[],char* env[]){
     uint64_t fileAddress = 0 ;
     char args[10][80];
     char envs[40][80];
-    if(path[0] == '.' && path[1] == '/'){
+    if(validPath(path)){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
         uint64_t y = get_file_address(file)+512;
