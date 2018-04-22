@@ -457,23 +457,23 @@ void exit(){
     r->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
         if((taskQueue + i)->ppid == r->pid){
-            taskQueue[i].ppid = 0;
+            (taskQueue + i)->ppid = 0;
         }
     }
-    if(taskQueue[r->ppid].state ==  WAIT){
-        taskQueue[r->ppid].state =  RUNNING;
+    if((taskQueue + r->ppid)->state ==  WAIT){
+        (taskQueue + r->ppid)->state =  RUNNING;
     }
     yield();
 }
 void removeProcess(int i){
-    vma* vm = taskQueue[i].vm;
+    vma* vm = (taskQueue + i)->vm;
     while(vm){
         uint64_t k = (uint64_t)vm;
         vm = vm->next;
         free(k-kernbase);
     }
-    dealloc_pml4(taskQueue[i].pml4e);
-    free(taskQueue[i].pml4e);
+    dealloc_pml4((taskQueue + i)->pml4e);
+    free((taskQueue + i)->pml4e);
 }
 int wait(){
     while(1) {
@@ -502,8 +502,8 @@ int kill(int pid){
             (taskQueue + i)->ppid = 0;
         }
     }
-    if(taskQueue[(taskQueue + pid)->ppid].state == WAIT){
-        taskQueue[(taskQueue + pid)->ppid].state = RUNNING;
+    if((taskQueue + (taskQueue + pid)->ppid)->state == WAIT){
+        (taskQueue + (taskQueue + pid)->ppid)->state = RUNNING;
     }
     return 1;
 }
