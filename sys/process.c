@@ -184,6 +184,14 @@ void setMyVMA(task_struct *ts, uint64_t from, uint64_t toend){
     ts->vm = taskVMA;
 }
 
+void shiftTaskVMA(task_struct *ts, uint64_t from, uint64_t toend){
+    vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
+    vm2->beginAddress = from;
+    vm2->lastAddress = toend;
+    vm2->next = ts->vm;
+    ts->vm = vm2;
+}
+
 void loadPML4(uint64_t toLoad){
     __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
 }
@@ -421,11 +429,13 @@ int execvpe(char* path, char *argv[],char* env[]){
 	}*/
     uint64_t* pml4 = (uint64_t*)gammaFunction(fileAddress, ts);
 
-    vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
-    vm2->beginAddress = 0x4B0FFFFF0000;
-    vm2->lastAddress = 0x4B0FFFFF0000;
-    vm2->next = ts->vm;
-    ts->vm = vm2;
+    // vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
+    // vm2->beginAddress = 0x4B0FFFFF0000;
+    // vm2->lastAddress = 0x4B0FFFFF0000;
+    // vm2->next = ts->vm;
+    // ts->vm = vm2;
+
+    shiftTaskVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 
 
     uint64_t s_add = getFreeFrame();
