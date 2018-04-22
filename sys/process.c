@@ -377,7 +377,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, task_struct* t
     return 1;
 }
 
-void execvpeRSP(task_struct *ts, int envl, int argc, char envs[40][80]){
+void execvpeRSP(task_struct *ts, int envl, int argc, char envs[40][80], char args[10][80]){
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
         int l = strlen(envs[i])+1;
@@ -503,7 +503,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 	// ts->vm = vm;
     setNewVMA(ts, pml4, 0x100FFFFF0000, 0x100FFEFF0000);
 
-    execvpeRSP(ts, envl, argc, envs);
+    execvpeRSP(ts, envl, argc, envs, args);
 	return 1;
 }
 
