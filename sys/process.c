@@ -450,14 +450,14 @@ int execvpe(char* path, char *argv[],char* env[]){
 
 
     // uint64_t s_add = ;
-	init_pages_for_process(0x100FFFFF0000,getFreeFrame(),pml4);
-	ts->ustack = (uint64_t*)0x100FFFFF0000;
-	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-	vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-	vm->beginAddress = 0x100FFFFF0000;
-	vm->lastAddress = 0x100FFEFF0000;
-	vm->next = ts->vm;
-	ts->vm = vm;
+	// init_pages_for_process(0x100FFFFF0000,getFreeFrame(),pml4);
+	// ts->ustack = (uint64_t*)0x100FFFFF0000;
+	// ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
+	// vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
+	// vm->beginAddress = 0x100FFFFF0000;
+	// vm->lastAddress = 0x100FFEFF0000;
+	// vm->next = ts->vm;
+	// ts->vm = vm;
     setNewVMA(ts, pml4, 0x100FFFFF0000, 0x100FFEFF0000);
 
     uint64_t* temp1[envl];
