@@ -419,7 +419,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
 		}
 	}*/
-    uint64_t pml4 = gammaFunction(fileAddress, ts);
+    uint64_t* pml4 = (uint64_t*)gammaFunction(fileAddress, ts);
 
     vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
     vm2->beginAddress = 0x4B0FFFFF0000;
