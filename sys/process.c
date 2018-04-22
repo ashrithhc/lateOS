@@ -192,6 +192,17 @@ void shiftTaskVMA(task_struct *ts, uint64_t from, uint64_t toend){
     ts->vm = vm2;
 }
 
+void setNewVMA(task_struct *ts, uint64_t* pml4, uint64_t from, uint64_t toend){
+    init_pages_for_process(from,getFreeFrame(),pml4);
+    ts->ustack = (uint64_t*)from;
+    ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
+    vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
+    vm->beginAddress = from;
+    vm->lastAddress = toend;
+    vm->next = ts->vm;
+    ts->vm = vm;
+}
+
 void loadPML4(uint64_t toLoad){
     __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
 }
@@ -438,8 +449,8 @@ int execvpe(char* path, char *argv[],char* env[]){
     shiftTaskVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 
 
-    uint64_t s_add = getFreeFrame();
-	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
+    // uint64_t s_add = ;
+	init_pages_for_process(0x100FFFFF0000,getFreeFrame(),pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 	vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
@@ -447,6 +458,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 	vm->lastAddress = 0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
+    setNewVMA(ts, pml4, 0x100FFFFF0000, 0x100FFEFF0000);
 
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
