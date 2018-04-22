@@ -456,7 +456,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 void exit(){
     r->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
-        if(taskQueue + i)->ppid == r->pid){
+        if((taskQueue + i)->ppid == r->pid){
             taskQueue[i].ppid = 0;
         }
     }
