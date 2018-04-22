@@ -16,7 +16,7 @@ static task_struct* p;
 static task_struct* new;
 
 int newPID(){
-	for(int i=0; i<MAX; i++) if(taskQueue[i].state == READY) return i;
+	for(int i=0; i<MAX; i++) if((taskQueue + i)->state == READY) return i;
 	return -1;
 }
 
@@ -478,18 +478,18 @@ void removeProcess(int i){
 int wait(){
     while(1) {
         for (int i = 0; i < MAX; ++i) {
-            if ((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)) {
+            if (((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)) {
                 removeProcess(i);
-                taskQueue[i].state = READY;
+                (taskQueue + i)->state = READY;
                 return i;
             }
         }
         r->state = WAIT;
         yield();
         for (int i = 0; i < MAX; ++i) {
-            if ((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)) {
+            if (((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)) {
                 removeProcess(i);
-                taskQueue[i].state = READY;
+                (taskQueue + i)->state = READY;
                 return i;
             }
         }
@@ -498,8 +498,8 @@ int wait(){
 int kill(int pid){
     (taskQueue + pid)->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
-        if(taskQueue[i].ppid == pid){
-            taskQueue[i].ppid = 0;
+        if((taskQueue + i)->ppid == pid){
+            (taskQueue + i)->ppid = 0;
         }
     }
     if(taskQueue[(taskQueue + pid)->ppid].state == WAIT){
@@ -509,17 +509,17 @@ int kill(int pid){
 }
 int waitpid(int pid){
     int i = pid;
-    if((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)){
+    if(((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)){
         removeProcess(i);
-        taskQueue[i].state = READY;
+        (taskQueue + i)->state = READY;
         return i;
     }
     r->state = WAIT;
     while(1){
         yield();
-        if((taskQueue[i].ppid == r->pid) && (taskQueue[i].state == ZOMBIE)){
+        if(((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)){
             removeProcess(i);
-            taskQueue[i].state = READY;
+            (taskQueue + i)->state = READY;
             return i;
         }
     }
