@@ -442,65 +442,11 @@ int execvpe(char* path, char *argv[],char* env[]){
     if (fileAddress < 512) {
         return -1;
     }
-/*	Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
-	ts->regs.rip = eh->e_entry;
-	uint64_t* pml4 = (uint64_t *)(ts->pml4e + kernbase);
-    dealloc_pml4((ts->pml4e));
 
-	for(int i=eh->e_phnum;i>0;i--){
-		Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
-		ep = ep + (i-1);
-		if(ep->p_type == 1){               
-
-			vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-			vm->beginAddress = ep->p_vaddr;
-			vm->lastAddress = ep->p_vaddr+ep->p_memsz;
-            uint64_t k = vm->beginAddress;
-            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
-                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
-            }
-			if(ts->vm == NULL){
-				vm->next = NULL;
-				ts->vm = vm;
-			}
-			else{
-				vm->next = ts->vm;
-				ts->vm = vm;
-			}
-			for(;k<( vm->lastAddress);k+=pageSize){
-				uint64_t yy = getFreeFrame();
-				init_pages_for_process(k,yy, pml4);
-			}
-
-			uint64_t pcr3;
-			__asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
-			uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)kernbase);
-			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
-			memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-			memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
-			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
-		}
-	}*/
     uint64_t* pml4 = (uint64_t*)gammaFunction(fileAddress, ts);
-
-    // vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
-    // vm2->beginAddress = 0x4B0FFFFF0000;
-    // vm2->lastAddress = 0x4B0FFFFF0000;
-    // vm2->next = ts->vm;
-    // ts->vm = vm2;
 
     shiftTaskVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 
-
-    // uint64_t s_add = ;
-	// init_pages_for_process(0x100FFFFF0000,getFreeFrame(),pml4);
-	// ts->ustack = (uint64_t*)0x100FFFFF0000;
-	// ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-	// vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
-	// vm->beginAddress = 0x100FFFFF0000;
-	// vm->lastAddress = 0x100FFEFF0000;
-	// vm->next = ts->vm;
-	// ts->vm = vm;
     setNewVMA(ts, pml4, 0x100FFFFF0000, 0x100FFEFF0000);
 
     execvpeRSP(ts, envl, argc, envs, args);
