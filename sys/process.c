@@ -377,6 +377,49 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, task_struct* t
     return 1;
 }
 
+void execvpeRSP(int envl, int argc){
+    uint64_t* temp1[envl];
+    for(int i=envl-1;i>=0;i--){
+        int l = strlen(envs[i])+1;
+        ts->rsp = ts->rsp-l;
+        memcpy(ts->rsp,envs[i],l);
+        temp1[i] = ts->rsp;
+    }
+
+    uint64_t* temp[argc];
+    for(int i=argc-1;i>=0;i--){
+        int l = strlen(args[i])+1;
+        ts->rsp = ts->rsp-l;
+        memcpy(ts->rsp,args[i],l);
+        temp[i] = ts->rsp;
+    }
+
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+    for(int i=envl-1;i>=0;i--){
+        (ts->rsp)-=1;
+        *(ts->rsp) = (uint64_t)temp1[i];
+    }
+
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+
+    for(int i=argc-1;i>=0;i--){
+        (ts->rsp)-=1;
+        *(ts->rsp) = (uint64_t)temp[i];
+    }
+    (ts->rsp)-=1;
+    *(ts->rsp) = argc;
+    set_tss_rsp(&(ts->kstack[511]));
+    __asm__ volatile("\
+    push $0x23;\
+    push %0;\
+    pushf;\
+    push $0x2B;\
+    push %1"::"g"(ts->rsp),"g"(ts->regs.rip):"memory");
+    __asm__ volatile("iretq;");
+}
+
 int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
     char file[80];
@@ -460,46 +503,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 	// ts->vm = vm;
     setNewVMA(ts, pml4, 0x100FFFFF0000, 0x100FFEFF0000);
 
-    uint64_t* temp1[envl];
-    for(int i=envl-1;i>=0;i--){
-        int l = strlen(envs[i])+1;
-        ts->rsp = ts->rsp-l;
-        memcpy(ts->rsp,envs[i],l);
-        temp1[i] = ts->rsp;
-    }
-
-	uint64_t* temp[argc];
-	for(int i=argc-1;i>=0;i--){
-		int l = strlen(args[i])+1;
-		ts->rsp = ts->rsp-l;
-		memcpy(ts->rsp,args[i],l);
-		temp[i] = ts->rsp;
-	}
-
-    ts->rsp -= 1;
-    *(ts->rsp) = 0;
-    for(int i=envl-1;i>=0;i--){
-        (ts->rsp)-=1;
-        *(ts->rsp) = (uint64_t)temp1[i];
-    }
-
-    ts->rsp -= 1;
-    *(ts->rsp) = 0;
-
-    for(int i=argc-1;i>=0;i--){
-		(ts->rsp)-=1;
-		*(ts->rsp) = (uint64_t)temp[i];
-	}
-	(ts->rsp)-=1;
-	*(ts->rsp) = argc;
-	set_tss_rsp(&(ts->kstack[511]));
-	__asm__ volatile("\
-	push $0x23;\
-	push %0;\
-	pushf;\
-	push $0x2B;\
-	push %1"::"g"(ts->rsp),"g"(ts->regs.rip):"memory");
-	__asm__ volatile("iretq;");
+    execvpeRSP(envl, argc);
 	return 1;
 }
 
