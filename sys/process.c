@@ -93,7 +93,7 @@ void initTaskVariables(taskStruct *task, char *filename, int pid){
     task->state = RUNNING;
 }
 
-vmaStruct* validateTaskVM(taskStruct task){
+vmaStruct* validateTaskVM(taskStruct *task){
     if (task->vm == NULL) return NULL;
     return task->vm;
 }
