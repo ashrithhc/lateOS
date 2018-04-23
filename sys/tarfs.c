@@ -25,8 +25,8 @@ unsigned int getsize(const char *in)
 void read_elf(uint64_t add){
         struct Elf64_Ehdr* elf_hdr = (struct Elf64_Ehdr*)add;
         uint64_t phdr;
-        if(elf_hdcurrentTask->e_phoff > 0){
-                phdr = add + (elf_hdcurrentTask->e_phoff);
+        if(elf_hdr->e_phoff > 0){
+                phdr = add + (elf_hdr->e_phoff);
                 struct Elf64_Phdr* phdr1 = (struct Elf64_Phdr*)phdr;
                 if(phdr1 != NULL){
                         kprintf("Whatever\n");
@@ -47,7 +47,7 @@ void init_tarfs()
         struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
         char* address = &_binary_tarfs_start;
         while(address< &_binary_tarfs_end){
-                unsigned int size = getsize(headecurrentTask->size);
+                unsigned int size = getsize(header->size);
                 headers[fc++] = header;
                 address += ((size / 512) + 1) * 512;
 
