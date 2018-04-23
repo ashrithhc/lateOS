@@ -74,12 +74,14 @@ int stillAlive(int i){
 
 void ps()
 {
+    kprintf("------START-------");
 	for(int i=0; i<MAX; i++)
         if(stillAlive(i) == 1) {
             kprintf("PID : %d\n", (&taskQueue[i])->pid);
             kprintf("Process : %s\n", (&taskQueue[i])->name);
             kprintf("\n");
         }
+    kprintf("------END-------");
 }
 
 void initTaskVariables(taskStruct *task, char *filename, int pid){
