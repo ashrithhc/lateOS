@@ -11,8 +11,13 @@
 static taskStruct* p;
 static taskStruct* new;
 
+int checkTaskState(int i){
+    if ((taskQueue + i)->state == READY) return True;
+    return False;
+}
+
 int newPID(){
-	for(int i=0; i<MAX; i++) if((taskQueue + i)->state == READY) return i;
+	for(int i=0; i<MAX; i++) if(checkTaskState(i)) return i;
 	return -1;
 }
 
@@ -55,7 +60,7 @@ void init_p(){
 }
 
 int stillAlive(int i){
-    if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEPING || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == SUSPENDED) {
+    if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEP || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == HANG) {
         return 1;
     }
     return 0;
@@ -532,7 +537,7 @@ unsigned int sleep(unsigned int seconds){
         return 0;
     }
     r->time = seconds;
-    r->state = SUSPENDED;
+    r->state = HANG;
     schedule();
     return 0;
 }

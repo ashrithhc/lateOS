@@ -36,12 +36,12 @@ typedef struct taskStruct {
 	int time;
 	enum {
 		RUNNING,
-		SLEEPING,
+		SLEEP,
 		ZOMBIE,
 		IDLE,
 		READY,
 		WAIT,
-        SUSPENDED
+        HANG
 	} state;
 	uint64_t pid;
 	uint64_t ppid;

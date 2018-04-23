@@ -22,10 +22,10 @@ void timer_handler(){
 		}
 		count = 0;
         for(int i=0;i<MAX;i++){
-            if(taskQueue[i].state == SUSPENDED && taskQueue[i].time >0){
+            if(taskQueue[i].state == HANG && taskQueue[i].time >0){
                 taskQueue[i].time--;
             }
-            if(taskQueue[i].time == 0 && taskQueue[i].state == SUSPENDED){
+            if(taskQueue[i].time == 0 && taskQueue[i].state == HANG){
                 taskQueue[i].state = RUNNING;
             }
         }

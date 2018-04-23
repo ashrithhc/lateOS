@@ -159,7 +159,7 @@ static inline uint8_t inb(uint64_t port)
 }
 void wake_process(){
     for(int i=0;i<MAX;++i){
-        if(taskQueue[i].state == SLEEPING){
+        if(taskQueue[i].state == SLEEP){
             taskQueue[i].state = RUNNING;
             //      schedule();
             return;
@@ -181,7 +181,7 @@ void read_input(char* b){
                 buf[i] = '\0';
             }
         } else{
-            r->state = SLEEPING;
+            r->state = SLEEP;
         }
         schedule();
     }
