@@ -62,7 +62,7 @@
 	return fd_last;
 }
 
-int get_fd(struct task_struct* task)
+int get_fd(struct taskStruct* task)
 {
 	int i=0;
 	while(i<100)

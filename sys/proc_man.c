@@ -11,7 +11,7 @@ void init_proc(){
 	}
 }
 void yield(){
-		task_struct *last = r;
+		taskStruct *last = r;
 		int i = (last->pid+1)%MAX;
 			/*
 			Code to check for the next running process to schedule from the process array in a circular manner
@@ -22,7 +22,7 @@ void yield(){
 			}
 			i = (i+1)%MAX;
 		}
-        r = (task_struct *)&taskQueue[i];
+        r = (taskStruct *)&taskQueue[i];
 //		kprintf("switch enter");
 		set_tss_rsp((uint64_t*)&(r->kstack[511]));
 //		__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);

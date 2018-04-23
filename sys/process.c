@@ -8,8 +8,8 @@
 #include <sys/elf64.h>
 #include <sys/terminal.h>
 
-static task_struct* p;
-static task_struct* new;
+static taskStruct* p;
+static taskStruct* new;
 
 int newPID(){
 	for(int i=0; i<MAX; i++) if((taskQueue + i)->state == READY) return i;
@@ -76,7 +76,7 @@ void ps()
 	}
 }
 
-void initTaskVariables(task_struct *task, char *filename, int pid){
+void initTaskVariables(taskStruct *task, char *filename, int pid){
     strcpy(task->name, filename);
     strcpy(task->curr_dir, "/");
     task->ppid = 0;
@@ -85,7 +85,7 @@ void initTaskVariables(task_struct *task, char *filename, int pid){
     task->state = RUNNING;
 }
 
-uint64_t* yappaFunction(uint64_t fileAddress, task_struct* ts){
+uint64_t* yappaFunction(uint64_t fileAddress, taskStruct* ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     uint64_t* pml4 = (uint64_t *)getNewPage();
     memset(pml4,0,pageSize);
@@ -129,7 +129,7 @@ uint64_t* yappaFunction(uint64_t fileAddress, task_struct* ts){
     return pml4;
 }
 
-uint64_t* gammaFunction(uint64_t fileAddress, task_struct* ts){
+uint64_t* gammaFunction(uint64_t fileAddress, taskStruct* ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     ts->regs.rip = eh->e_entry;
     uint64_t* pml4 = (uint64_t *)(ts->pml4e + kernbase);
@@ -172,7 +172,7 @@ uint64_t* gammaFunction(uint64_t fileAddress, task_struct* ts){
     return pml4;
 }
 
-void setMyVMA(task_struct *ts, uint64_t from, uint64_t toend){
+void setMyVMA(taskStruct *ts, uint64_t from, uint64_t toend){
     vma* taskVMA = (vma *) kmalloc(sizeof(struct vmaStruct));
     taskVMA->beginAddress = from;
     taskVMA->lastAddress = toend;
@@ -180,7 +180,7 @@ void setMyVMA(task_struct *ts, uint64_t from, uint64_t toend){
     ts->vm = taskVMA;
 }
 
-void shiftTaskVMA(task_struct *ts, uint64_t from, uint64_t toend){
+void shiftTaskVMA(taskStruct *ts, uint64_t from, uint64_t toend){
     vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
     vm2->beginAddress = from;
     vm2->lastAddress = toend;
@@ -188,7 +188,7 @@ void shiftTaskVMA(task_struct *ts, uint64_t from, uint64_t toend){
     ts->vm = vm2;
 }
 
-void setNewVMA(task_struct *ts, uint64_t* pml4, uint64_t from, uint64_t toend){
+void setNewVMA(taskStruct *ts, uint64_t* pml4, uint64_t from, uint64_t toend){
     init_pages_for_process(from,getFreeFrame(),pml4);
     ts->ustack = (uint64_t*)from;
     ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
@@ -203,7 +203,7 @@ void loadPML4(uint64_t toLoad){
     __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
 }
 
-void setTaskRSP(char *name, task_struct *ts){
+void setTaskRSP(char *name, taskStruct *ts){
     int len = strlen(name)+1;
     ts->rsp = ts->rsp - len;
     memcpy(ts->rsp,name,len);
@@ -233,7 +233,7 @@ void create_process(char* filename){
     char tempFilename[50];
     strcpy(tempFilename,filename);
 	int pid = newPID();
-	task_struct* ts = (task_struct *) &taskQueue[pid];
+	taskStruct* ts = (taskStruct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
 
     uint64_t* pml4 = yappaFunction(fileAddress, ts);
@@ -253,7 +253,7 @@ void create_process(char* filename){
 	__asm__("iretq");
 }
 
-void copyVMA(task_struct *curTask, task_struct *copyTask){
+void copyVMA(taskStruct *curTask, taskStruct *copyTask){
     vma* a = curTask->vm;
     vma* p = NULL;
     copyTask->vm = NULL;
@@ -276,7 +276,7 @@ uint64_t getMemorysize(int num){
     return 511*num;
 }
 
-void copytask(task_struct* c){
+void copytask(taskStruct* c){
 	c->ppid = r->pid;
 
 	c->pml4e = (uint64_t)((uint64_t)getNewPage() - (uint64_t)kernbase);
@@ -290,7 +290,7 @@ void copytask(task_struct* c){
 int fork(){
 
     int pid = newPID();
-	new = (task_struct *) &taskQueue[pid];
+	new = (taskStruct *) &taskQueue[pid];
 	new->pid = pid;
 	p = r;
 	copytask(new);	
@@ -324,7 +324,7 @@ int validPath(char *ref){
     return 0;
 }
 
-int setFileAddress(char* path, char *file, uint64_t *fileAddress, task_struct* ts, int *argc, char args[10][80], char *argv[]){
+int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct* ts, int *argc, char args[10][80], char *argv[]){
     if(validPath(path)){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -373,7 +373,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, task_struct* t
     return 1;
 }
 
-void execvpeRSP(task_struct *ts, int envl, int argc, char envs[40][80], char args[10][80]){
+void execvpeRSP(taskStruct *ts, int envl, int argc, char envs[40][80], char args[10][80]){
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
         int l = strlen(envs[i])+1;
@@ -417,7 +417,7 @@ void execvpeRSP(task_struct *ts, int envl, int argc, char envs[40][80], char arg
 }
 
 int execvpe(char* path, char *argv[],char* env[]){
-	task_struct* ts = r;
+	taskStruct* ts = r;
     char file[80];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;

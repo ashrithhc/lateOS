@@ -26,7 +26,7 @@ typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
 }reg;
 
-typedef struct task_struct {
+typedef struct taskStruct {
 	char name[50];
 	uint64_t kstack[512];
 	uint64_t *ustack;
@@ -50,11 +50,11 @@ typedef struct task_struct {
 	struct file_t fd[25];
 	int fd_c;
 	struct Register regs;
-}task_struct;
+}taskStruct;
 
 void switch_task(reg*, reg*);
 void init_task();
-void create_task(task_struct*,uint64_t main, uint64_t flags, uint64_t pagedir);
+void create_task(taskStruct*,uint64_t main, uint64_t flags, uint64_t pagedir);
 void yield();
 void switchtor3();
 int execvpe(char* file, char *argv[],char* env[]);
@@ -63,10 +63,10 @@ int get_pid();
 int get_ppid();
 int fork();
 void create_process(char* filename);
-void addToQ(task_struct* q);
-int get_fd(struct task_struct*);
-task_struct* r;
-struct task_struct taskQueue[MAX];
+void addToQ(taskStruct* q);
+int get_fd(struct taskStruct*);
+taskStruct* r;
+struct taskStruct taskQueue[MAX];
 void init_proc();
 void exit();
 void init_p();
