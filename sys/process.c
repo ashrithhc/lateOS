@@ -93,7 +93,7 @@ void initTaskVariables(taskStruct *task, char *filename, int pid){
     task->state = RUNNING;
 }
 
-vma* validateTaskVM(taskStruct task){
+vmaStruct* validateTaskVM(taskStruct task){
     if (task->vm == NULL) return NULL;
     return task->vm;
 }
@@ -109,7 +109,7 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
         ep = ep + (i-1);
         if(ep->p_type == 1){               
 
-            vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
+            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
             vm->beginAddress = ep->p_vaddr;
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
@@ -118,14 +118,6 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
             }
             vm->next = validateTaskVM(ts);
             ts->vm = vm;
-            /*if(ts->vm == NULL){
-                vm->next = NULL;
-                ts->vm = vm;
-            }
-            else{
-                vm->next = ts->vm;
-                ts->vm = vm;
-            }*/
             while(k<(vm->lastAddress)){
                 uint64_t yy = getFreeFrame();
                 init_pages_for_process(k,yy, pml4);
@@ -155,7 +147,7 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
         ep = ep + (i-1);
         if(ep->p_type == 1){               
 
-            vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
+            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
             vm->beginAddress = ep->p_vaddr;
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
@@ -182,7 +174,7 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
 }
 
 void setMyVMA(taskStruct *ts, uint64_t from, uint64_t toend){
-    vma* taskVMA = (vma *) kmalloc(sizeof(struct vmaStruct));
+    vmaStruct* taskVMA = (vmaStruct *) kmalloc(sizeof(struct vmaStruct));
     taskVMA->beginAddress = from;
     taskVMA->lastAddress = toend;
     taskVMA->next = ts->vm;
@@ -190,7 +182,7 @@ void setMyVMA(taskStruct *ts, uint64_t from, uint64_t toend){
 }
 
 void shiftTaskVMA(taskStruct *ts, uint64_t from, uint64_t toend){
-    vma* vm2 = (vma *)kmalloc(sizeof(struct vmaStruct));
+    vmaStruct* vm2 = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
     vm2->beginAddress = from;
     vm2->lastAddress = toend;
     vm2->next = ts->vm;
@@ -201,7 +193,7 @@ void setNewVMA(taskStruct *ts, uint64_t* pml4, uint64_t from, uint64_t toend){
     init_pages_for_process(from,getFreeFrame(),pml4);
     ts->ustack = (uint64_t*)from;
     ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-    vma* vm = (vma *)kmalloc(sizeof(struct vmaStruct));
+    vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
     vm->beginAddress = from;
     vm->lastAddress = toend;
     vm->next = ts->vm;
@@ -263,11 +255,11 @@ void create_process(char* filename){
 }
 
 void copyVMA(taskStruct *curTask, taskStruct *copyTask){
-    vma* a = curTask->vm;
-    vma* p = NULL;
+    vmaStruct* a = curTask->vm;
+    vmaStruct* p = NULL;
     copyTask->vm = NULL;
     while(a!=NULL){ 
-        vma* new = (vma *)kmalloc(sizeof(struct vmaStruct));
+        vmaStruct* new = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
         memcpy(new,a,sizeof(struct vmaStruct));
         if(p == NULL){
             p = new;
@@ -471,7 +463,7 @@ void exit(){
     schedule();
 }
 void removeProcess(int i){
-    vma* vm = (taskQueue + i)->vm;
+    vmaStruct* vm = (taskQueue + i)->vm;
     while(vm){
         uint64_t k = (uint64_t)vm;
         vm = vm->next;
@@ -582,7 +574,7 @@ void getcwd(char *buf, int size){
     }
 }
 void* malloc(int no_of_bytes){
-    vma* vm = currentTask->vm->next;
+    vmaStruct* vm = currentTask->vm->next;
 
     uint64_t ret = vm->lastAddress;
     for(int i =0;i<((no_of_bytes/pageSize))+1;i++){

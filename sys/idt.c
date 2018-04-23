@@ -187,7 +187,7 @@ void isr14(){
 	uint64_t bb;
     int flag = 0;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
-    vma* vm = currentTask->vm;
+    vmaStruct* vm = currentTask->vm;
     if(((vm->beginAddress + 4096) > bb) && (vm->lastAddress < bb)){
         flag =1;
     }

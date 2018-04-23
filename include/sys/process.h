@@ -13,8 +13,8 @@
 
 /**
 
-VMA & Task struct References:
-	 http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vma.html
+vmaStruct & Task struct References:
+	 http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vmaStruct.html
 	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
 **/
 
@@ -24,7 +24,7 @@ typedef struct vmaStruct {
 	uint64_t lastAddress;
 	uint64_t offset;
     struct vmaStruct *next;
-} vma;
+} vmaStruct;
 
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
