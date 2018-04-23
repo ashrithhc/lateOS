@@ -3,6 +3,10 @@
 
 #define EI_NIDENT 16
 
+# define kernbase 0xffffffff80000000
+# define validatebits 0xFFFFFFFFFFFFF000
+# define pageSize 0x1000
+
 typedef uint64_t Elf64_Addr;
 typedef uint16_t Elf64_Half;
 typedef uint64_t Elf64_Lword;

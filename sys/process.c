@@ -8,10 +8,6 @@
 #include <sys/elf64.h>
 #include <sys/terminal.h>
 
-# define kernbase 0xffffffff80000000
-# define validatebits 0xFFFFFFFFFFFFF000
-# define pageSize 0x1000
-
 static task_struct* p;
 static task_struct* new;
 
