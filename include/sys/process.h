@@ -6,6 +6,7 @@
 
 #define MAX 1100
 #define STACK_S 0x100FFFFF0000
+#define VADDR_MASK 0xFFFFFFFFFFFFF000
 
 #define True 1
 #define False 0

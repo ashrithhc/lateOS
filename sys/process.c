@@ -74,14 +74,14 @@ int stillAlive(int i){
 
 void ps()
 {
-    kprintf("------START-------");
+    kprintf("------START-------\n");
 	for(int i=0; i<MAX; i++)
         if(stillAlive(i) == 1) {
             kprintf("PID : %d\n", (&taskQueue[i])->pid);
             kprintf("Process : %s\n", (&taskQueue[i])->name);
             kprintf("\n");
         }
-    kprintf("------END-------");
+    kprintf("------END-------\n");
 }
 
 void initTaskVariables(taskStruct *task, char *filename, int pid){
@@ -91,6 +91,11 @@ void initTaskVariables(taskStruct *task, char *filename, int pid){
     task->pid = pid;
     task->vm = NULL;
     task->state = RUNNING;
+}
+
+vma* validateTaskVM(taskStruct task){
+    if (task->vm == NULL) return NULL;
+    return task->vm;
 }
 
 uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
@@ -109,16 +114,18 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
-                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
+                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
             }
-            if(ts->vm == NULL){
+            vm->next = validateTaskVM(ts);
+            ts->vm = vm;
+            /*if(ts->vm == NULL){
                 vm->next = NULL;
                 ts->vm = vm;
             }
             else{
                 vm->next = ts->vm;
                 ts->vm = vm;
-            }
+            }*/
             while(k<(vm->lastAddress)){
                 uint64_t yy = getFreeFrame();
                 init_pages_for_process(k,yy, pml4);
@@ -153,7 +160,7 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
-                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
+                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
             }
             if(ts->vm == NULL){
                 vm->next = NULL;
