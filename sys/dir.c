@@ -53,12 +53,12 @@
 		return fd_last;
 	}
 	char* curr_dir;
-	curr_dir = r->curr_dir;
+	curr_dir = currentTask->curr_dir;
 	char* abs_path="";
 	strcpy(abs_path, curr_dir);
 	abs_path = strcat(abs_path, path);
 	struct file_t* f = open_tarfs(abs_path, flags);
-	r->fd[fd_last] = f;
+	currentTask->fd[fd_last] = f;
 	return fd_last;
 }
 

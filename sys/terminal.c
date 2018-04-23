@@ -174,14 +174,14 @@ void read_input(char* b){
                 if( buf[i] == '\n'){
                     setoffset(i+1);
                     no_lines--;
-                    r->state = RUNNING;
+                    currentTask->state = RUNNING;
                     return;
                 }
                 *(b+j) = buf[i];
                 buf[i] = '\0';
             }
         } else{
-            r->state = SLEEP;
+            currentTask->state = SLEEP;
         }
         schedule();
     }

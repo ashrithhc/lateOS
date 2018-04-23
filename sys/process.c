@@ -280,12 +280,12 @@ uint64_t getMemorysize(int num){
 }
 
 void copytask(taskStruct *c){
-	c->ppid = r->pid;
+	c->ppid = currentTask->pid;
 
 	c->pml4e = (uint64_t)((uint64_t)getNewPage() - (uint64_t)kernbase);
     memset((uint64_t*)(c->pml4e+(kernbase)),0,pageSize);
-	strcpy(c->name,r->name);
-    strcpy(c->curr_dir,r->curr_dir);
+	strcpy(c->name,currentTask->name);
+    strcpy(c->curr_dir,currentTask->curr_dir);
 
     copytables(r,c);
 	copyVMA(r, c);
@@ -306,8 +306,8 @@ int fork(){
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
 
-	r->child_count+=1;
-	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);
+	currentTask->child_count+=1;
+	memcpy(&(new->kstack[0]),&(currentTask->kstack[0]),512*8);
     new->kstack[14] = 9999;
 	__asm__ __volatile__(
             "movq 8(%%rsp),%%rax;movq %%rax, %0;"
@@ -318,7 +318,7 @@ int fork(){
 			:"=g"(s_add)::"memory"
 			);
 
-    new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
+    new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(currentTask->kstack[511]) - (uint64_t)s_add));
     return new->pid;
 }
 
@@ -329,7 +329,7 @@ int validPath(char *ref){
 
 int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts, int *argc, char args[10][80], char *argv[]){
     if(validPath(path)){
-        strcpy(file, &(r->curr_dir[1]));
+        strcpy(file, &(currentTask->curr_dir[1]));
         strcat(file, path+2);
         uint64_t scriptChar = get_file_address(file)+512;
         if(scriptChar<512){
@@ -453,14 +453,14 @@ int execvpe(char* path, char *argv[],char* env[]){
 }
 
 void exit(){
-    r->state = ZOMBIE;
+    currentTask->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
-        if((taskQueue + i)->ppid == r->pid){
+        if((taskQueue + i)->ppid == currentTask->pid){
             (taskQueue + i)->ppid = 0;
         }
     }
-    if((taskQueue + r->ppid)->state ==  WAIT){
-        (taskQueue + r->ppid)->state =  RUNNING;
+    if((taskQueue + currentTask->ppid)->state ==  WAIT){
+        (taskQueue + currentTask->ppid)->state =  RUNNING;
     }
     schedule();
 }
@@ -477,16 +477,16 @@ void removeProcess(int i){
 int wait(){
     while(1) {
         for (int i = 0; i < MAX; ++i) {
-            if (((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)) {
+            if (((taskQueue + i)->ppid == currentTask->pid) && ((taskQueue + i)->state == ZOMBIE)) {
                 removeProcess(i);
                 (taskQueue + i)->state = READY;
                 return i;
             }
         }
-        r->state = WAIT;
+        currentTask->state = WAIT;
         schedule();
         for (int i = 0; i < MAX; ++i) {
-            if (((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)) {
+            if (((taskQueue + i)->ppid == currentTask->pid) && ((taskQueue + i)->state == ZOMBIE)) {
                 removeProcess(i);
                 (taskQueue + i)->state = READY;
                 return i;
@@ -508,15 +508,15 @@ int kill(int pid){
 }
 int waitpid(int pid){
     int i = pid;
-    if(((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)){
+    if(((taskQueue + i)->ppid == currentTask->pid) && ((taskQueue + i)->state == ZOMBIE)){
         removeProcess(i);
         (taskQueue + i)->state = READY;
         return i;
     }
-    r->state = WAIT;
+    currentTask->state = WAIT;
     while(1){
         schedule();
-        if(((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)){
+        if(((taskQueue + i)->ppid == currentTask->pid) && ((taskQueue + i)->state == ZOMBIE)){
             removeProcess(i);
             (taskQueue + i)->state = READY;
             return i;
@@ -525,19 +525,19 @@ int waitpid(int pid){
 }
 
 pid_t getpid(void){
-	return r->pid;
+	return currentTask->pid;
 }
 
 pid_t getppid(void){
-	return r->ppid;
+	return currentTask->ppid;
 }
 
 unsigned int sleep(unsigned int seconds){
     if(seconds <= 0){
         return 0;
     }
-    r->time = seconds;
-    r->state = HANG;
+    currentTask->time = seconds;
+    currentTask->state = HANG;
     schedule();
     return 0;
 }
@@ -547,7 +547,7 @@ int chdir(char* path){
         strcpy(k,path);
         setTruePath(k);
         if(strcmp(k,"")==0){
-            strcpy(r->curr_dir,"/");
+            strcpy(currentTask->curr_dir,"/");
             return 0;
         }
     }
@@ -559,14 +559,14 @@ int chdir(char* path){
         l[0] = '/';
         l[1] = '\0';
         strcat(l,k);
-        strcpy(r->curr_dir,l);
+        strcpy(currentTask->curr_dir,l);
         return 0;
     }
     return  -1;
 }
 void getcwd(char *buf, int size){
 
-    strcpy(buf,r->curr_dir);
+    strcpy(buf,currentTask->curr_dir);
     int l = strlen(buf);
     if(l == 1){
         return;
@@ -576,12 +576,12 @@ void getcwd(char *buf, int size){
     }
 }
 void* malloc(int no_of_bytes){
-    vma* vm = r->vm->next;
+    vma* vm = currentTask->vm->next;
 
     uint64_t ret = vm->lastAddress;
     for(int i =0;i<((no_of_bytes/pageSize))+1;i++){
         uint64_t s_add = getFreeFrame();
-        init_pages_for_process(vm->lastAddress,s_add,(uint64_t *)(r->pml4e+kernbase));
+        init_pages_for_process(vm->lastAddress,s_add,(uint64_t *)(currentTask->pml4e+kernbase));
         vm->lastAddress = vm->lastAddress + pageSize;
     }
     return (uint64_t*)ret;

@@ -28,21 +28,21 @@ void *memset(void *s, int c, size_t n)
 void probe_port(hba_mem_t *abar)
 {
 	// Search disk in impelemented ports
-	uint32_t pi = abar->pi;
+	uint32_t pi = abacurrentTask->pi;
 	int i = 0;
 	while (i<32)
 	{
 		//		kprintf("%d",i);
 		if (pi & 1)
 		{
-			int dt = check_type(&abar->ports[i]);
+			int dt = check_type(&abacurrentTask->ports[i]);
 			if (dt == AHCI_DEV_SATA)
 			{
 				kprintf("SATA drive found at port %d\n", i);
-				//				port_rebase(&abar->ports[i],i,(uint32_t)abar);
+				//				port_rebase(&abacurrentTask->ports[i],i,(uint32_t)abar);
 				if(i==1)
 				{
-//					verify_read_write(&(abar->ports[i]));
+//					verify_read_write(&(abacurrentTask->ports[i]));
 				}
 			}
 			else if (dt == AHCI_DEV_SATAPI)
@@ -105,18 +105,18 @@ BOOL readorwrite(hba_port_t *port, uint32_t startl, uint32_t starth, uint32_t co
 
 	hba_cmd_header_t *cmdheader = (hba_cmd_header_t*)port->clb;
 	cmdheader += slot;
-	cmdheader->cfl = sizeof(fis_reg_h2d_t)/sizeof(uint32_t);	// Command FIS size
-	if(mode == 0)cmdheader->w = 0;
-	else cmdheader->w=1;		// Read from device
-	cmdheader->prdtl = (uint16_t)((count-1)>>4) + 1;	// PRDT entries count
+	cmdheadecurrentTask->cfl = sizeof(fis_reg_h2d_t)/sizeof(uint32_t);	// Command FIS size
+	if(mode == 0)cmdheadecurrentTask->w = 0;
+	else cmdheadecurrentTask->w=1;		// Read from device
+	cmdheadecurrentTask->prdtl = (uint16_t)((count-1)>>4) + 1;	// PRDT entries count
 
-	hba_cmd_tbl_t *cmdtbl = (hba_cmd_tbl_t*)(cmdheader->ctba);
+	hba_cmd_tbl_t *cmdtbl = (hba_cmd_tbl_t*)(cmdheadecurrentTask->ctba);
 	memset(cmdtbl, 0, sizeof(hba_cmd_tbl_t) +
-			(cmdheader->prdtl-1)*sizeof(hba_prdt_entry_t));
+			(cmdheadecurrentTask->prdtl-1)*sizeof(hba_prdt_entry_t));
 
 	int i=0; 
 	// 8K bytes (16 sectors) per PRDT
-	for (i=0; i<cmdheader->prdtl-1; i++)
+	for (i=0; i<cmdheadecurrentTask->prdtl-1; i++)
 	{
 		cmdtbl->prdt_entry[i].dba = (uint64_t)buf;
 		cmdtbl->prdt_entry[i].dbc = 8*1024;	// 8K bytes

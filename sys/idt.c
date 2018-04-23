@@ -187,7 +187,7 @@ void isr14(){
 	uint64_t bb;
     int flag = 0;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
-    vma* vm = r->vm;
+    vma* vm = currentTask->vm;
     if(((vm->beginAddress + 4096) > bb) && (vm->lastAddress < bb)){
         flag =1;
     }
@@ -201,7 +201,7 @@ void isr14(){
         }
     }
     if(flag == 0){
-       // kprintf("New allocated stack at %p - range %p,%p \n",bb,r->vm->beginAddress+4096,r->vm->lastAddress);
+       // kprintf("New allocated stack at %p - range %p,%p \n",bb,currentTask->vm->beginAddress+4096,currentTask->vm->lastAddress);
 
         kprintf("Segmentation Fault: Address:%p \n",bb);
             exit();
@@ -217,7 +217,7 @@ void isr14(){
             uint64_t p_n = getFreeFrame();
             memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
             switchtokern();
-            init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
+            init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
             free(add);
         } else if(i == 1){
             k[(bb>>12)&0x1FF] = (k[(bb>>12)&0x1FF] | 0x2) & 0xFFFFFFFFFFFFFDFF;
@@ -227,14 +227,14 @@ void isr14(){
         }
         __asm__ volatile("movq %0,%%cr3;"::"r"(k1):);
 	}
-	else if( (r->vm->beginAddress > bb)  && (r->vm->lastAddress < bb)){   //Auto Growing stack
+	else if( (currentTask->vm->beginAddress > bb)  && (currentTask->vm->lastAddress < bb)){   //Auto Growing stack
         uint64_t k;
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
-		//uint64_t n_s = r->vm->beginAddress - 4096;
+		//uint64_t n_s = currentTask->vm->beginAddress - 4096;
 		uint64_t p_n = getFreeFrame();
 		switchtokern();
-		init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
-	//	r->vm->beginAddress = n_s;
+		init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
+	//	currentTask->vm->beginAddress = n_s;
 		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 //		while(1);
 	}
@@ -331,9 +331,9 @@ uint64_t isr128(){
 	}
 	else if(cval == 57){
 		ret = (uint64_t)fork();
-        if((uint64_t)r->kstack[14] == 9999){
+        if((uint64_t)currentTask->kstack[14] == 9999){
             ret = 0;
-            r->kstack[14] = 0;
+            currentTask->kstack[14] = 0;
             __asm__ volatile("popq %%rax":::"%rax");
             __asm__ volatile("popq %%rax":::"%rax");
         }

@@ -35,8 +35,8 @@ void free(void *ap)
             break;
 
     if (bp + bp->s.size == p->s.ptr) {
-        bp->s.size += p->s.ptr->s.size;
-        bp->s.ptr = p->s.ptr->s.ptr;
+        bp->s.size += p->s.ptcurrentTask->s.size;
+        bp->s.ptr = p->s.ptcurrentTask->s.ptr;
     } else {
         bp->s.ptr = p->s.ptr;
     }
