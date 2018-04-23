@@ -25,11 +25,11 @@ void *memcpy(void *dest, const void *src, int n){
     return dest;
 }
 
-void in(){
+/*void in(){
     while(1){
         wait();
     }
-}
+}*/
 void idle(){
     while(1) {
         __asm__ volatile("sti");

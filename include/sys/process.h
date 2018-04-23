@@ -7,6 +7,8 @@
 #define MAX 1100
 #define STACK_S 0x100FFFFF0000
 
+#define in() while(1) wait();
+
 /**
 
 VMA & Task struct References:
