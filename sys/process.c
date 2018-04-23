@@ -223,7 +223,7 @@ void setTaskRSP(char *name, taskStruct *ts){
     (ts->rsp)-=1;
     *(ts->rsp) = 0x1;
 
-    r = ts;
+    currentTask = ts;
 }
 
 void create_process(char* filename){
@@ -287,15 +287,15 @@ void copytask(taskStruct *c){
 	strcpy(c->name,currentTask->name);
     strcpy(c->curr_dir,currentTask->curr_dir);
 
-    copytables(r,c);
-	copyVMA(r, c);
+    copytables(currentTask, c);
+	copyVMA(currentTask, c);
 }
 int fork(){
 
     int pid = newPID();
 	new = (taskStruct *) &taskQueue[pid];
 	new->pid = pid;
-	p = r;
+	p = currentTask;
 	copytask(new);	
 
 	uint64_t s_add ;
@@ -420,7 +420,7 @@ void execvpeRSP(taskStruct *ts, int envl, int argc, char envs[40][80], char args
 }
 
 int execvpe(char* path, char *argv[],char* env[]){
-	taskStruct *ts = r;
+	taskStruct *ts = currentTask;
     char file[80];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
