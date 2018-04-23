@@ -161,7 +161,7 @@ void wake_process(){
     for(int i=0;i<MAX;++i){
         if(taskQueue[i].state == SLEEPING){
             taskQueue[i].state = RUNNING;
-            //      yield();
+            //      schedule();
             return;
         }
     }
@@ -183,7 +183,7 @@ void read_input(char* b){
         } else{
             r->state = SLEEPING;
         }
-        yield();
+        schedule();
     }
 }
 int getoffset(){

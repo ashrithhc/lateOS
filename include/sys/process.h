@@ -7,7 +7,8 @@
 #define MAX 1100
 #define STACK_S 0x100FFFFF0000
 
-#define in() while(1) wait();
+#define True 1
+#define False 0
 
 /**
 
@@ -57,7 +58,7 @@ typedef struct taskStruct {
 void switch_task(reg*, reg*);
 void init_task();
 void create_task(taskStruct*,uint64_t main, uint64_t flags, uint64_t pagedir);
-void yield();
+void schedule();
 void switchtor3();
 int execvpe(char* file, char *argv[],char* env[]);
 void *memcpy(void *dst,const void *src, int count);

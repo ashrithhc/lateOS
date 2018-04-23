@@ -25,17 +25,15 @@ void *memcpy(void *dest, const void *src, int n){
     return dest;
 }
 
-/*void in(){
-    while(1){
-        wait();
-    }
-}*/
+void in(){
+    while(True) wait();
+}
 void idle(){
-    while(1) {
+    while(True) {
         __asm__ volatile("sti");
         __asm__ volatile("hlt");
         __asm__ volatile("cli");
-        yield();
+        schedule();
     }
 }
 
@@ -459,7 +457,7 @@ void exit(){
     if((taskQueue + r->ppid)->state ==  WAIT){
         (taskQueue + r->ppid)->state =  RUNNING;
     }
-    yield();
+    schedule();
 }
 void removeProcess(int i){
     vma* vm = (taskQueue + i)->vm;
@@ -481,7 +479,7 @@ int wait(){
             }
         }
         r->state = WAIT;
-        yield();
+        schedule();
         for (int i = 0; i < MAX; ++i) {
             if (((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)) {
                 removeProcess(i);
@@ -512,7 +510,7 @@ int waitpid(int pid){
     }
     r->state = WAIT;
     while(1){
-        yield();
+        schedule();
         if(((taskQueue + i)->ppid == r->pid) && ((taskQueue + i)->state == ZOMBIE)){
             removeProcess(i);
             (taskQueue + i)->state = READY;
@@ -535,7 +533,7 @@ unsigned int sleep(unsigned int seconds){
     }
     r->time = seconds;
     r->state = SUSPENDED;
-    yield();
+    schedule();
     return 0;
 }
 int chdir(char* path){

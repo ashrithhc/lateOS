@@ -10,7 +10,7 @@ void init_proc(){
 		taskQueue[i].time = 0;
 	}
 }
-void yield(){
+void schedule(){
 		taskStruct *last = r;
 		int i = (last->pid+1)%MAX;
 			/*
