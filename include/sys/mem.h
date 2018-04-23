@@ -27,7 +27,7 @@ void init_pages_for_process(uint64_t vaddr_s,uint64_t vaddr_e,uint64_t* pml4);
 
 uint64_t kmalloc(int size);
 
-void copytables(taskStruct* a,taskStruct* b);
+void copytables(taskStruct *a,taskStruct *b);
 
 uint64_t* getPTE(uint64_t v);
 

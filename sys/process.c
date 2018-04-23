@@ -8,8 +8,8 @@
 #include <sys/elf64.h>
 #include <sys/terminal.h>
 
-static taskStruct* p;
-static taskStruct* new;
+static taskStruct *p;
+static taskStruct *new;
 
 int checkTaskState(int i){
     if ((taskQueue + i)->state == READY) return True;
@@ -88,7 +88,7 @@ void initTaskVariables(taskStruct *task, char *filename, int pid){
     task->state = RUNNING;
 }
 
-uint64_t* yappaFunction(uint64_t fileAddress, taskStruct* ts){
+uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     uint64_t* pml4 = (uint64_t *)getNewPage();
     memset(pml4,0,pageSize);
@@ -132,7 +132,7 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct* ts){
     return pml4;
 }
 
-uint64_t* gammaFunction(uint64_t fileAddress, taskStruct* ts){
+uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     ts->regs.rip = eh->e_entry;
     uint64_t* pml4 = (uint64_t *)(ts->pml4e + kernbase);
@@ -236,7 +236,7 @@ void create_process(char* filename){
     char tempFilename[50];
     strcpy(tempFilename,filename);
 	int pid = newPID();
-	taskStruct* ts = (taskStruct *) &taskQueue[pid];
+	taskStruct *ts = (taskStruct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
 
     uint64_t* pml4 = yappaFunction(fileAddress, ts);
@@ -279,7 +279,7 @@ uint64_t getMemorysize(int num){
     return 511*num;
 }
 
-void copytask(taskStruct* c){
+void copytask(taskStruct *c){
 	c->ppid = r->pid;
 
 	c->pml4e = (uint64_t)((uint64_t)getNewPage() - (uint64_t)kernbase);
@@ -327,7 +327,7 @@ int validPath(char *ref){
     return 0;
 }
 
-int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct* ts, int *argc, char args[10][80], char *argv[]){
+int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts, int *argc, char args[10][80], char *argv[]){
     if(validPath(path)){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -420,7 +420,7 @@ void execvpeRSP(taskStruct *ts, int envl, int argc, char envs[40][80], char args
 }
 
 int execvpe(char* path, char *argv[],char* env[]){
-	taskStruct* ts = r;
+	taskStruct *ts = r;
     char file[80];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;

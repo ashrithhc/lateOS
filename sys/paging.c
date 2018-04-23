@@ -281,7 +281,7 @@ void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4)
 	else setExistingPagePDPTE(virtual, physical, pml4);
 }
 
-void copytables(taskStruct* p, taskStruct* c){
+void copytables(taskStruct *p, taskStruct *c){
 	uint64_t* pml4eParent = (uint64_t *)(p->pml4e + kernbase);
 	uint64_t* pml4eChild =(uint64_t *) (c->pml4e + kernbase);
 	pml4eChild[511] = pml4eParent[511];
