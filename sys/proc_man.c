@@ -22,7 +22,7 @@ void schedule(){
 			}
 			i = (i+1)%MAX;
 		}
-        r = (taskStruct *)&taskQueue[i];
+        currentTask = (taskStruct *)&taskQueue[i];
 //		kprintf("switch enter");
 		set_tss_rsp((uint64_t*)&(currentTask->kstack[511]));
 //		__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
