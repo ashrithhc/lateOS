@@ -162,14 +162,8 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
             }
-            if(ts->vm == NULL){
-                vm->next = NULL;
-                ts->vm = vm;
-            }
-            else{
-                vm->next = ts->vm;
-                ts->vm = vm;
-            }
+            vm->next = validateTaskVM(ts);
+            ts->vm = vm;
             for(;k<( vm->lastAddress);k+=pageSize){
                 uint64_t yy = getFreeFrame();
                 init_pages_for_process(k,yy, pml4);
