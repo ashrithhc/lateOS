@@ -57,8 +57,7 @@ void setupTask(char *name, uint64_t function){
     (taskQueue + pid)->state = RUNNING;
     (&(taskQueue + pid)->regs)->rip = function;
     (&(taskQueue + pid)->regs)->rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
-    uint64_t processCR3 = getCurrentCR3();
-    (taskQueue + pid)->pml4e = processCR3;
+    (taskQueue + pid)->pml4e = getCurrentCR3();
 }
 
 void init_p(){
