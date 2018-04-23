@@ -60,6 +60,17 @@ void setupTask(char *name, uint64_t function){
     (taskQueue + pid)->pml4e = getCurrentCR3();
 }
 
+uint64_t setupVMA(vmaStruct* vm, Elf64_Phdr* ep){
+    vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
+    vm->beginAddress = ep->p_vaddr;
+    vm->lastAddress = ep->p_vaddr+ep->p_memsz;
+    uint64_t k = vm->beginAddress;
+    if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
+        k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
+    }
+    return k;
+}
+
 void init_p(){
     setupTask("init", (uint64_t)&in);
     setupTask("idle", (uint64_t)&idle);
@@ -109,13 +120,16 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
         ep = ep + (i-1);
         if(ep->p_type == 1){               
 
-            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
+            vmaStruct* vm;
+/*            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
             vm->beginAddress = ep->p_vaddr;
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
             uint64_t k = vm->beginAddress;
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
             }
+*/          
+            uint64_t k = setupVMA(vma, ep); 
             vm->next = validateTaskVM(ts);
             ts->vm = vm;
             while(k<(vm->lastAddress)){
