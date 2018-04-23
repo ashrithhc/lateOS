@@ -68,7 +68,7 @@ int fork();
 void create_process(char* filename);
 void addToQ(taskStruct *q);
 int get_fd(struct taskStruct*);
-taskStruct *r;
+taskStruct *currentTask;
 struct taskStruct taskQueue[MAX];
 void init_proc();
 void exit();
