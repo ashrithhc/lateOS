@@ -35,14 +35,14 @@ void probe_port(hba_mem_t *abar)
 		//		kprintf("%d",i);
 		if (pi & 1)
 		{
-			int dt = check_type(&abacurrentTask->ports[i]);
+			int dt = check_type(&abar->ports[i]);
 			if (dt == AHCI_DEV_SATA)
 			{
 				kprintf("SATA drive found at port %d\n", i);
-				//				port_rebase(&abacurrentTask->ports[i],i,(uint32_t)abar);
+				//				port_rebase(&abar->ports[i],i,(uint32_t)abar);
 				if(i==1)
 				{
-//					verify_read_write(&(abacurrentTask->ports[i]));
+//					verify_read_write(&(abar->ports[i]));
 				}
 			}
 			else if (dt == AHCI_DEV_SATAPI)
