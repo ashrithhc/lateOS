@@ -17,7 +17,8 @@ int checkTaskState(int i){
 }
 
 int newPID(){
-	for(int i=0; i<MAX; i++) if(checkTaskState(i)) return i;
+    int pid;
+	for(pid = 0; pid<MAX; pid++) if(checkTaskState(pid)) return pid;
 	return -1;
 }
 
@@ -30,9 +31,16 @@ void *memcpy(void *dest, const void *src, int n){
     return dest;
 }
 
+uint64_t getCurrentCR3(){
+    uint64_t processCR3;
+    __asm__ volatile ("movq %%cr3,%0" : "=r"(processCR3) : : );
+    return processCR3;    
+}
+
 void in(){
     while(True) wait();
 }
+
 void idle(){
     while(True) {
         __asm__ volatile("sti");
@@ -49,9 +57,8 @@ void setupTask(char *name, uint64_t function){
     (taskQueue + pid)->state = RUNNING;
     (&(taskQueue + pid)->regs)->rip = function;
     (&(taskQueue + pid)->regs)->rsp = (uint64_t)(&((taskQueue + pid)->kstack[511]));
-    uint64_t pcr3;
-    __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-    (taskQueue + pid)->pml4e = pcr3;
+    uint64_t processCR3 = getCurrentCR3();
+    (taskQueue + pid)->pml4e = processCR3;
 }
 
 void init_p(){
