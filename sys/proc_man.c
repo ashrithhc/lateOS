@@ -11,7 +11,7 @@ void init_proc(){
 	}
 }
 void schedule(){
-		taskStruct *last = r;
+		taskStruct *last = currentTask;
 		int i = (last->pid+1)%MAX;
 			/*
 			Code to check for the next running process to schedule from the process array in a circular manner
