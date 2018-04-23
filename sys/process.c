@@ -236,10 +236,10 @@ void create_process(char* filename){
 
     uint64_t* pml4 = yappaFunction(fileAddress, ts);
     setMyVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
-	init_pages_for_process(0x100FFFFF0000,(uint64_t)getFreeFrame(),pml4);
-	ts->ustack = (uint64_t*)0x100FFFFF0000;
+	init_pages_for_process(STACK_S,(uint64_t)getFreeFrame(),pml4);
+	ts->ustack = (uint64_t*)STACK_S;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-    setMyVMA(ts, 0x100FFFFF0000, 0x100FFEFF0000);
+    setMyVMA(ts, STACK_S, 0x100FFEFF0000);
 	set_tss_rsp(&(ts->kstack[511]));
     loadPML4((uint64_t)pml4);
 
@@ -441,7 +441,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 
     shiftTaskVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 
-    setNewVMA(ts, pml4, 0x100FFFFF0000, 0x100FFEFF0000);
+    setNewVMA(ts, pml4, STACK_S, 0x100FFEFF0000);
 
     execvpeRSP(ts, envl, argc, envs, args);
 	return 1;
