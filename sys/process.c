@@ -61,7 +61,7 @@ void setupTask(char *name, uint64_t function){
 }
 
 uint64_t setupVMA(vmaStruct* vm, Elf64_Phdr* ep){
-    vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
+    // vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
     vm->beginAddress = ep->p_vaddr;
     vm->lastAddress = ep->p_vaddr+ep->p_memsz;
     uint64_t k = vm->beginAddress;
@@ -120,7 +120,7 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
         ep = ep + (i-1);
         if(ep->p_type == 1){               
 
-            vmaStruct* vm;
+            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
 /*            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
             vm->beginAddress = ep->p_vaddr;
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
@@ -161,7 +161,7 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
         ep = ep + (i-1);
         if(ep->p_type == 1){               
 
-            vmaStruct* vm;
+            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
             /*vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
             vm->beginAddress = ep->p_vaddr;
             vm->lastAddress = ep->p_vaddr+ep->p_memsz;
@@ -169,7 +169,7 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
             if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
                 k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
             }*/
-                
+
             uint64_t k = setupVMA(vm, ep); 
             vm->next = validateTaskVM(ts);
             ts->vm = vm;
