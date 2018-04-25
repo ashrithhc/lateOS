@@ -228,7 +228,7 @@ void createNewTask(char* filename){
 		return;
 	}
 */
-    char tempFilename[50];
+    char tempFilename[100];
     strcpy(tempFilename,filename);
 	int pid = newPID();
 	taskStruct *ts = (taskStruct *) &taskQueue[pid];
@@ -333,7 +333,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts
             return -1;
         }
         if( *((char *)scriptChar) == '!' && *((char *)scriptChar+1) == '#') {
-            char ex[50];
+            char ex[100];
             int q= 0;
             scriptChar+=2;
             while( (*(char *) scriptChar) != '\n'){
@@ -373,7 +373,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts
     return 1;
 }
 
-void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[40][80], char args[100][100]){
+void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[100][100], char args[100][100]){
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
         int l = strlen(envs[i])+1;
@@ -418,11 +418,11 @@ void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[40][80], char a
 
 int execvpe(char* path, char *argv[],char* env[]){
 	taskStruct *ts = currentTask;
-    char file[80];
+    char file[100];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
     char args[100][100];
-    char envs[40][80]; 
+    char envs[100][100]; 
     int binValue = setFileAddress(path, file, &fileAddress, ts, &argc, args, argv);
     if (binValue == -1) return -1;
     else if (binValue == 0) {
