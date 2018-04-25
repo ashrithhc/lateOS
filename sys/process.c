@@ -288,9 +288,9 @@ void copytask(taskStruct *c){
 }
 int fork(){
 
-    int pid = newPID();
-	duplicateTask = (taskStruct *) &taskQueue[pid];
-	duplicateTask->pid = pid;
+    int dupPID = newPID();
+	duplicateTask = (taskStruct *) &taskQueue[dupPID];
+	duplicateTask->pid = dupPID;
 	p = currentTask;
 	copytask(duplicateTask);	
 
