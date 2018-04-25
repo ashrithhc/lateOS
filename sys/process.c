@@ -11,6 +11,13 @@
 static taskStruct *p;
 static taskStruct *new;
 
+int stillAlive(int i){
+    if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEP || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == HANG) {
+        return 1;
+    }
+    return 0;
+}
+
 void ps()
 {
     kprintf("------START-------\n");
@@ -86,13 +93,6 @@ uint64_t setupVMA(vmaStruct* vm, Elf64_Phdr* ep){
 void initTask(){
     setupTask("init", (uint64_t)&in);
     setupTask("idle", (uint64_t)&idle);
-}
-
-int stillAlive(int i){
-    if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEP || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == HANG) {
-        return 1;
-    }
-    return 0;
 }
 
 void initTaskVariables(taskStruct *task, char *filename, int pid){
