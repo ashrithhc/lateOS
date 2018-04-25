@@ -50,6 +50,12 @@ void idle(){
     }
 }
 
+uint64_t loadCR3(){
+    uint64_t taskCR3;
+    __asm__ __volatile__ ("movq %%cr3, %0;" : "=r" (taskCR3) : : );
+    return taskCR3;
+}
+
 void setupTask(char *name, uint64_t function){
     int pid = newPID();
     (taskQueue + pid)->pid = pid;
@@ -118,26 +124,22 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
     for(int i=eh->e_phnum;i>0;i--){
         Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
         ep = ep + (i-1);
-        if(ep->p_type == 1){               
-
-            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
-            uint64_t k = setupVMA(vm, ep); 
-            vm->next = validateTaskVM(ts);
-            ts->vm = vm;
-            while(k<(vm->lastAddress)){
-                uint64_t yy = getFreeFrame();
-                init_pages_for_process(k,yy, pml4);
-                k+=pageSize;
-            }
-            uint64_t pcr3;
-            __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
-            uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
-
-            __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
-            memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-            memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
-            __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
+        if(ep->p_type != 1) continue;
+        vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
+        uint64_t k = setupVMA(vm, ep); 
+        vm->next = validateTaskVM(ts);
+        ts->vm = vm;
+        while(k<(vm->lastAddress)){
+            uint64_t yy = getFreeFrame();
+            init_pages_for_process(k,yy, pml4);
+            k+=pageSize;
         }
+        uint64_t currentCR3 = getCurrentCR3();
+        uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
+        __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+        memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
+        memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
+        __asm__ volatile ("movq %0, %%cr3;" :: "r"(currentCR3));
     }
     return pml4;
 }
@@ -368,7 +370,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts
     return 1;
 }
 
-void execvpeRSP(taskStruct *ts, int envl, int argc, char envs[40][80], char args[10][80]){
+void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[40][80], char args[10][80]){
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
         int l = strlen(envs[i])+1;
@@ -440,7 +442,7 @@ int execvpe(char* path, char *argv[],char* env[]){
 
     setNewVMA(ts, pml4, STACK_S, 0x100FFEFF0000);
 
-    execvpeRSP(ts, envl, argc, envs, args);
+    setRSPandExec(ts, envl, argc, envs, args);
 	return 1;
 }
 
