@@ -19,6 +19,8 @@ vmaStruct & Task struct References:
 	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
 **/
 
+taskStruct *currentTask;
+
 int pid[MAX];
 typedef struct vmaStruct {
 	uint64_t beginAddress;
@@ -70,7 +72,6 @@ int fork();
 void createNewTask(char* filename);
 void addToQ(taskStruct *q);
 int get_fd(struct taskStruct*);
-taskStruct *currentTask;
 struct taskStruct taskQueue[MAX];
 void init_proc();
 void exit();

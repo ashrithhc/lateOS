@@ -8,7 +8,7 @@
 #include <sys/elf64.h>
 #include <sys/terminal.h>
 
-static taskStruct *p;
+// static taskStruct *p;
 static taskStruct *duplicateTask;
 
 int stillAlive(int i){
