@@ -290,7 +290,7 @@ int fork(){
 	new->ustack = (uint64_t*)STACK_S;
 	new->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
 	new->state = RUNNING;
-	uint64_t pcr3;	
+	// uint64_t pcr3;	
 	// __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
     uint64_t currentCR3 = getCurrentCR3();
     loadCR3(currentCR3);
