@@ -311,17 +311,11 @@ int fork(){
 	memcpy(&(duplicateTask->kstack[0]), &(currentTask->kstack[0]), 512*8);
     setStackTask(duplicateTask);
 
-	__asm__ __volatile__(
-            "movq 8(%%rsp),%%rax;movq %%rax, %0;"
-			:"=g"((&(duplicateTask->regs))->rip)::"memory","%rax"
-			);
-    uint64_t s_add;
-	__asm__ __volatile__(
-			"movq %%rsp, %0;"
-			:"=g"(s_add)::"memory"
-			);
+	__asm__ __volatile__("movq 8(%%rsp), %%rax;movq %%rax, %0;" : "=g"((&(duplicateTask->regs))->rip) : : "memory", "%rax");
+    uint64_t rspAddress;
+	__asm__ __volatile__("movq %%rsp, %0;" : "=g"(rspAddress) : : "memory");
 
-    duplicateTask->regs.rsp = (uint64_t) ((uint64_t)&(duplicateTask->kstack[511]) -(uint64_t)((uint64_t)&(currentTask->kstack[511]) - (uint64_t)s_add));
+    (&(duplicateTask->regs))->rsp = (uint64_t) ((uint64_t)&(duplicateTask->kstack[511]) - (uint64_t)((uint64_t)&(currentTask->kstack[511]) - (uint64_t)rspAddress));
     return duplicateTask->pid;
 }
 
