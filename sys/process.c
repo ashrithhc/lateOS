@@ -291,7 +291,7 @@ int fork(){
     int dupPID = newPID();
 	duplicateTask = (taskStruct *) &taskQueue[dupPID];
 	duplicateTask->pid = dupPID;
-	p = currentTask;
+	// p = currentTask;
 	copytask(duplicateTask);	
 
 	uint64_t s_add;
