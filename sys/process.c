@@ -263,7 +263,7 @@ void copyVMA(taskStruct *curTask, taskStruct *copyTask){
     }
 }
 
-uint64_t getMemorysize(uint64_t num){
+uint64_t getMemorysize(int num){
     return 511*num;
 }
 
@@ -288,7 +288,7 @@ int fork(){
 
 	uint64_t s_add ;
 	new->ustack = (uint64_t*)STACK_S;
-	new->rsp = (uint64_t *)((uint64_t)STACK_S + (uint64_t)getMemorysize(8));
+	new->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8/*(uint64_t)getMemorysize(8)*/);
 	new->state = RUNNING;
 	uint64_t pcr3;	
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
