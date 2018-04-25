@@ -286,7 +286,7 @@ void copytask(taskStruct *c){
 	copyVMA(currentTask, c);
 }
 
-void increaseChildCount(taskStruct currentTask){
+void increaseChildCount(taskStruct *currentTask){
     currentTask->child_count += 1;
 }
 
