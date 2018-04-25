@@ -324,7 +324,7 @@ int validPath(char *ref){
     return 0;
 }
 
-int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts, int *argc, char args[10][80], char *argv[]){
+int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts, int *argc, char args[100][100], char *argv[]){
     if(validPath(path)){
         strcpy(file, &(currentTask->curr_dir[1]));
         strcat(file, path+2);
@@ -373,7 +373,7 @@ int setFileAddress(char* path, char *file, uint64_t *fileAddress, taskStruct *ts
     return 1;
 }
 
-void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[40][80], char args[10][80]){
+void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[40][80], char args[100][100]){
     uint64_t* temp1[envl];
     for(int i=envl-1;i>=0;i--){
         int l = strlen(envs[i])+1;
@@ -421,7 +421,7 @@ int execvpe(char* path, char *argv[],char* env[]){
     char file[80];
     int argc = 0, envl = 0;
     uint64_t fileAddress = 0 ;
-    char args[10][80];
+    char args[100][100];
     char envs[40][80]; 
     int binValue = setFileAddress(path, file, &fileAddress, ts, &argc, args, argv);
     if (binValue == -1) return -1;
