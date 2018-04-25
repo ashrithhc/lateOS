@@ -218,6 +218,10 @@ void setTaskRSP(char *name, taskStruct *ts){
     currentTask = ts;
 }
 
+void setStackTask(taskStruct *task){
+    task->kstack[14] = posInfinity;
+}
+
 void createNewTask(char* filename){
 	uint64_t fileAddress = get_file_address(filename) + 512;
 /*	if(fileAddress < 512){
@@ -285,35 +289,32 @@ void copytask(taskStruct *c){
 int fork(){
 
     int pid = newPID();
-	new = (taskStruct *) &taskQueue[pid];
-	new->pid = pid;
+	duplicateTask = (taskStruct *) &taskQueue[pid];
+	duplicateTask->pid = pid;
 	p = currentTask;
-	copytask(new);	
+	copytask(duplicateTask);	
 
-	uint64_t s_add ;
-	new->ustack = (uint64_t*)STACK_S;
-	new->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
-	new->state = RUNNING;
-	// uint64_t pcr3;	
-	// __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+	uint64_t s_add;
+	duplicateTask->ustack = (uint64_t*)STACK_S;
+	duplicateTask->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
+	duplicateTask->state = RUNNING;
     uint64_t currentCR3 = getCurrentCR3();
     loadCR3(currentCR3);
-	// __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
 
-	currentTask->child_count+=1;
-	memcpy(&(new->kstack[0]),&(currentTask->kstack[0]),512*8);
-    new->kstack[14] = 9999;
+	currentTask->child_count += 1;
+	memcpy(&(duplicateTask->kstack[0]), &(currentTask->kstack[0]), 512*8);
+    setStackTask(duplicateTask);
 	__asm__ __volatile__(
             "movq 8(%%rsp),%%rax;movq %%rax, %0;"
-			:"=g"(new->regs.rip)::"memory","%rax"
+			:"=g"(duplicateTask->regs.rip)::"memory","%rax"
 			);
 	__asm__ __volatile__(
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
 			);
 
-    new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(currentTask->kstack[511]) - (uint64_t)s_add));
-    return new->pid;
+    duplicateTask->regs.rsp = (uint64_t) ((uint64_t)&(duplicateTask->kstack[511]) -(uint64_t)((uint64_t)&(currentTask->kstack[511]) - (uint64_t)s_add));
+    return duplicateTask->pid;
 }
 
 int validPath(char *ref){

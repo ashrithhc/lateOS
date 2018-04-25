@@ -10,6 +10,7 @@
 
 #define True 1
 #define False 0
+#define posInfinity 9999
 
 /**
 
