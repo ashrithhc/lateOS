@@ -32,7 +32,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	init_idt();
 
     init_proc();
-    init_p();
+    initTask();
     createNewTask("bin/sbush");
     while(1);
 }

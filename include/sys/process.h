@@ -73,7 +73,7 @@ taskStruct *currentTask;
 struct taskStruct taskQueue[MAX];
 void init_proc();
 void exit();
-void init_p();
+void initTask();
 int wait();
 int waitpid(int pid);
 pid_t getpid(void);

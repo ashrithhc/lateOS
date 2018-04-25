@@ -11,6 +11,18 @@
 static taskStruct *p;
 static taskStruct *new;
 
+void ps()
+{
+    kprintf("------START-------\n");
+    for(int i=0; i<MAX; i++)
+        if(stillAlive(i) == 1) {
+            kprintf("PID : %d\n", (&taskQueue[i])->pid);
+            kprintf("Process : %s\n", (&taskQueue[i])->name);
+            kprintf("\n");
+        }
+    kprintf("------END-------\n");
+}
+
 int checkTaskState(int i){
     if ((taskQueue + i)->state == READY) return True;
     return False;
@@ -50,12 +62,6 @@ void idle(){
     }
 }
 
-uint64_t loadCR3(){
-    uint64_t taskCR3;
-    __asm__ __volatile__ ("movq %%cr3, %0;" : "=r" (taskCR3) : : );
-    return taskCR3;
-}
-
 void setupTask(char *name, uint64_t function){
     int pid = newPID();
     (taskQueue + pid)->pid = pid;
@@ -70,14 +76,14 @@ uint64_t setupVMA(vmaStruct* vm, Elf64_Phdr* ep){
     // vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
     vm->beginAddress = ep->p_vaddr;
     vm->lastAddress = ep->p_vaddr+ep->p_memsz;
-    uint64_t k = vm->beginAddress;
+    uint64_t memCount = vm->beginAddress;
     if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
-        k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
+        memCount = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
     }
-    return k;
+    return memCount;
 }
 
-void init_p(){
+void initTask(){
     setupTask("init", (uint64_t)&in);
     setupTask("idle", (uint64_t)&idle);
 }
@@ -87,18 +93,6 @@ int stillAlive(int i){
         return 1;
     }
     return 0;
-}
-
-void ps()
-{
-    kprintf("------START-------\n");
-	for(int i=0; i<MAX; i++)
-        if(stillAlive(i) == 1) {
-            kprintf("PID : %d\n", (&taskQueue[i])->pid);
-            kprintf("Process : %s\n", (&taskQueue[i])->name);
-            kprintf("\n");
-        }
-    kprintf("------END-------\n");
 }
 
 void initTaskVariables(taskStruct *task, char *filename, int pid){
@@ -115,7 +109,7 @@ vmaStruct* validateTaskVM(taskStruct *task){
     return task->vm;
 }
 
-uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
+uint64_t* readELFandFork(uint64_t fileAddress, taskStruct *ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     uint64_t* pml4 = (uint64_t *)getNewPage();
     memset(pml4,0,pageSize);
@@ -144,7 +138,7 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
     return pml4;
 }
 
-uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
+uint64_t* readELFandExec(uint64_t fileAddress, taskStruct *ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     ts->regs.rip = eh->e_entry;
     uint64_t* pml4 = (uint64_t *)(ts->pml4e + kernbase);
@@ -221,7 +215,7 @@ void setTaskRSP(char *name, taskStruct *ts){
 }
 
 void createNewTask(char* filename){
-	uint64_t fileAddress = get_file_address(filename) +512;
+	uint64_t fileAddress = get_file_address(filename) + 512;
 /*	if(fileAddress < 512){
 		kprintf("No such file\n");
 		return;
@@ -233,7 +227,7 @@ void createNewTask(char* filename){
 	taskStruct *ts = (taskStruct *) &taskQueue[pid];
     initTaskVariables(ts, filename, pid);
 
-    uint64_t* pml4 = yappaFunction(fileAddress, ts);
+    uint64_t* pml4 = readELFandFork(fileAddress, ts);
     setMyVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 	init_pages_for_process(STACK_S,(uint64_t)getFreeFrame(),pml4);
 	ts->ustack = (uint64_t*)STACK_S;
@@ -294,7 +288,7 @@ int fork(){
 
 	uint64_t s_add ;
 	new->ustack = (uint64_t*)STACK_S;
-	new->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
+	new->rsp = (uint64_t *)((uint64_t)STACK_S + getMemorysize(8));
 	new->state = RUNNING;
 	uint64_t pcr3;	
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
@@ -436,7 +430,7 @@ int execvpe(char* path, char *argv[],char* env[]){
         return -1;
     }
 
-    uint64_t* pml4 = (uint64_t*)gammaFunction(fileAddress, ts);
+    uint64_t* pml4 = (uint64_t*)readELFandExec(fileAddress, ts);
 
     shiftTaskVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 
