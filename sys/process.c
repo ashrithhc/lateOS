@@ -290,15 +290,19 @@ void increaseChildCount(taskStruct *currentTask){
     currentTask->child_count += 1;
 }
 
-int fork(){
-
+void createChild(){
     int dupPID = newPID();
-	duplicateTask = (taskStruct *) &taskQueue[dupPID];
-	duplicateTask->pid = dupPID;
-	copytask(duplicateTask);	
-	duplicateTask->ustack = (uint64_t*)STACK_S;
-	duplicateTask->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
-	duplicateTask->state = RUNNING;
+    duplicateTask = (taskStruct *) &taskQueue[dupPID];
+    duplicateTask->pid = dupPID;
+    copytask(duplicateTask);    
+    duplicateTask->ustack = (uint64_t*)STACK_S;
+    duplicateTask->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
+    duplicateTask->state = RUNNING;
+}
+
+int fork(){
+    createChild();
+
     uint64_t currentCR3 = getCurrentCR3();
     loadCR3(currentCR3);
 
@@ -306,6 +310,7 @@ int fork(){
 	
 	memcpy(&(duplicateTask->kstack[0]), &(currentTask->kstack[0]), 512*8);
     setStackTask(duplicateTask);
+    
 	__asm__ __volatile__(
             "movq 8(%%rsp),%%rax;movq %%rax, %0;"
 			:"=g"(duplicateTask->regs.rip)::"memory","%rax"
