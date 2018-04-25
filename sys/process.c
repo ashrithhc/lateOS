@@ -210,17 +210,14 @@ void setTaskRSP(char *name, taskStruct *ts){
     ts->rsp = ts->rsp - len;
     memcpy(ts->rsp,name,len);
 
-    ts->rsp -= 1;
-    *(ts->rsp) = 0;
+    int i;
+    for (i=0; i<4; i++){
+        ts->rsp -= 1;
+        if (i<2) *(ts->rsp) = 0;
+        else if (i==2) *(ts->rsp) = (uint64_t)((ts->rsp)+1);
+        else *(ts->rsp) = 0x1;
+    }
 
-    ts->rsp -= 1;
-    *(ts->rsp) = 0;
-
-    (ts->rsp)-=1;
-    *(ts->rsp) = (uint64_t)((ts->rsp)+1);
-
-    (ts->rsp)-=1;
-    *(ts->rsp) = 0x1;
 
     currentTask = ts;
 }
