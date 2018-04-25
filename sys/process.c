@@ -285,6 +285,11 @@ void copytask(taskStruct *c){
     copytables(currentTask, c);
 	copyVMA(currentTask, c);
 }
+
+void increaseChildCount(taskStruct currentTask){
+    currentTask->child_count += 1;
+}
+
 int fork(){
 
     int dupPID = newPID();
@@ -297,7 +302,8 @@ int fork(){
     uint64_t currentCR3 = getCurrentCR3();
     loadCR3(currentCR3);
 
-	currentTask->child_count += 1;
+    increaseChildCount(currentTask);
+	
 	memcpy(&(duplicateTask->kstack[0]), &(currentTask->kstack[0]), 512*8);
     setStackTask(duplicateTask);
 	__asm__ __volatile__(
