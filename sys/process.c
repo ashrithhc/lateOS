@@ -8,7 +8,6 @@
 #include <sys/elf64.h>
 #include <sys/terminal.h>
 
-// static taskStruct *p;
 static taskStruct *duplicateTask;
 
 int stillAlive(int i){
@@ -291,10 +290,7 @@ int fork(){
     int dupPID = newPID();
 	duplicateTask = (taskStruct *) &taskQueue[dupPID];
 	duplicateTask->pid = dupPID;
-	// p = currentTask;
 	copytask(duplicateTask);	
-
-	uint64_t s_add;
 	duplicateTask->ustack = (uint64_t*)STACK_S;
 	duplicateTask->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
 	duplicateTask->state = RUNNING;
@@ -308,6 +304,7 @@ int fork(){
             "movq 8(%%rsp),%%rax;movq %%rax, %0;"
 			:"=g"(duplicateTask->regs.rip)::"memory","%rax"
 			);
+    uint64_t s_add;
 	__asm__ __volatile__(
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
