@@ -121,14 +121,6 @@ uint64_t* yappaFunction(uint64_t fileAddress, taskStruct *ts){
         if(ep->p_type == 1){               
 
             vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
-/*            vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
-            vm->beginAddress = ep->p_vaddr;
-            vm->lastAddress = ep->p_vaddr+ep->p_memsz;
-            uint64_t k = vm->beginAddress;
-            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
-                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
-            }
-*/          
             uint64_t k = setupVMA(vm, ep); 
             vm->next = validateTaskVM(ts);
             ts->vm = vm;
@@ -162,14 +154,6 @@ uint64_t* gammaFunction(uint64_t fileAddress, taskStruct *ts){
         if(ep->p_type == 1){               
 
             vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
-            /*vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
-            vm->beginAddress = ep->p_vaddr;
-            vm->lastAddress = ep->p_vaddr+ep->p_memsz;
-            uint64_t k = vm->beginAddress;
-            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)pageSize)) != 0){
-                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)VADDR_MASK);
-            }*/
-
             uint64_t k = setupVMA(vm, ep); 
             vm->next = validateTaskVM(ts);
             ts->vm = vm;
@@ -241,13 +225,13 @@ void setTaskRSP(char *name, taskStruct *ts){
     currentTask = ts;
 }
 
-void create_process(char* filename){
+void createNewTask(char* filename){
 	uint64_t fileAddress = get_file_address(filename) +512;
-	if(fileAddress < 512){
+/*	if(fileAddress < 512){
 		kprintf("No such file\n");
 		return;
 	}
-
+*/
     char tempFilename[50];
     strcpy(tempFilename,filename);
 	int pid = newPID();

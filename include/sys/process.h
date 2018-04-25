@@ -66,7 +66,7 @@ void *memcpy(void *dst,const void *src, int count);
 int get_pid();
 int get_ppid();
 int fork();
-void create_process(char* filename);
+void createNewTask(char* filename);
 void addToQ(taskStruct *q);
 int get_fd(struct taskStruct*);
 taskStruct *currentTask;
