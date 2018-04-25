@@ -102,13 +102,17 @@ void initTask(){
     setupTask("idle", (uint64_t)&idle);
 }
 
-void initTaskVariables(taskStruct *task, char *filename, int pid){
+taskStruct* initTaskVariables(char *filename){
+    int pid = newPID();
+    taskStruct *task = (taskStruct *) &taskQueue[pid];
     strcpy(task->name, filename);
     strcpy(task->curr_dir, "/");
     task->ppid = 0;
     task->pid = pid;
     task->vm = NULL;
     task->state = RUNNING;
+
+    return task;
 }
 
 vmaStruct* validateTaskVM(taskStruct *task){
@@ -230,9 +234,7 @@ void createNewTask(char* filename){
 */
     char tempFilename[100];
     strcpy(tempFilename,filename);
-	int pid = newPID();
-	taskStruct *ts = (taskStruct *) &taskQueue[pid];
-    initTaskVariables(ts, filename, pid);
+    taskStruct *ts = initTaskVariables(filename);
 
     uint64_t* pml4 = readELFandFork(fileAddress, ts);
     setMyVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
