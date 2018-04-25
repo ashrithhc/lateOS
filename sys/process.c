@@ -313,7 +313,7 @@ int fork(){
 
 	__asm__ __volatile__(
             "movq 8(%%rsp),%%rax;movq %%rax, %0;"
-			:"=g"(*(&duplicateTask->regs)->rip)::"memory","%rax"
+			:"=g"*(&(duplicateTask->regs)->rip)::"memory","%rax"
 			);
     uint64_t s_add;
 	__asm__ __volatile__(
