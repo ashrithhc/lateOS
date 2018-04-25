@@ -9,7 +9,7 @@
 #include <sys/terminal.h>
 
 static taskStruct *p;
-static taskStruct *new;
+static taskStruct *duplicateTask;
 
 int stillAlive(int i){
     if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEP || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == HANG) {
@@ -257,15 +257,15 @@ void copyVMA(taskStruct *curTask, taskStruct *copyTask){
     vmaStruct* p = NULL;
     copyTask->vm = NULL;
     while(a!=NULL){ 
-        vmaStruct* new = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
-        memcpy(new,a,sizeof(struct vmaStruct));
+        vmaStruct* duplicateTask = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
+        memcpy(duplicateTask,a,sizeof(struct vmaStruct));
         if(p == NULL){
-            p = new;
+            p = duplicateTask;
             copyTask->vm = p;  
         }
         else{
-            p->next = new;
-            p = new;
+            p->next = duplicateTask;
+            p = duplicateTask;
         }
         a = a->next;
     }
