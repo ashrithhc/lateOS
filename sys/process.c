@@ -263,7 +263,7 @@ void copyVMA(taskStruct *curTask, taskStruct *copyTask){
     }
 }
 
-uint64_t getMemorysize(int num){
+uint64_t getMemorysize(uint64_t num){
     return 511*num;
 }
 
