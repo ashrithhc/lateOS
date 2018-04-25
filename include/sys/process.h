@@ -32,27 +32,19 @@ typedef struct Register{
 }reg;
 
 typedef struct taskStruct {
-	char name[50];
+	char name[100];
 	uint64_t kstack[512];
 	uint64_t *ustack;
 	int time;
-	enum {
-		RUNNING,
-		SLEEP,
-		ZOMBIE,
-		IDLE,
-		READY,
-		WAIT,
-        HANG
-	} state;
+	enum {RUNNING, SLEEP, ZOMBIE, IDLE, READY, WAIT, HANG} state;
 	uint64_t pid;
 	uint64_t ppid;
 	uint64_t *rsp;
 	uint64_t pml4e;
 	int child_count;
 	struct vmaStruct *vm;
-	char curr_dir[50];
-	struct file_t fd[25];
+	char curr_dir[100];
+	struct file_t fd[100];
 	int fd_c;
 	struct Register regs;
 }taskStruct;

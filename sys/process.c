@@ -496,6 +496,7 @@ int wait(){
         }
     }
 }
+
 int kill(int pid){
     (taskQueue + pid)->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
@@ -508,6 +509,7 @@ int kill(int pid){
     }
     return 1;
 }
+
 int waitpid(int pid){
     int i = pid;
     if(((taskQueue + i)->ppid == currentTask->pid) && ((taskQueue + i)->state == ZOMBIE)){
@@ -543,6 +545,7 @@ unsigned int sleep(unsigned int seconds){
     schedule();
     return 0;
 }
+
 int chdir(char* path){
     if(strcmp("../",path) == 0){
         char k[100];
@@ -566,6 +569,7 @@ int chdir(char* path){
     }
     return  -1;
 }
+
 void getcwd(char *buf, int size){
 
     strcpy(buf,currentTask->curr_dir);
@@ -577,6 +581,7 @@ void getcwd(char *buf, int size){
         buf[l-1] = '\0';
     }
 }
+
 void* malloc(int no_of_bytes){
     vmaStruct* vm = currentTask->vm->next;
 
