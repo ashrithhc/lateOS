@@ -56,6 +56,10 @@ uint64_t getCurrentCR3(){
     return processCR3;    
 }
 
+void loadCR3(uint64_t toLoad){
+    __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
+}
+
 void in(){
     while(True) wait();
 }
@@ -195,10 +199,6 @@ void setNewVMA(taskStruct *ts, uint64_t* pml4, uint64_t from, uint64_t toend){
     ts->vm = vm;
 }
 
-void loadPML4(uint64_t toLoad){
-    __asm__ volatile ("movq %0, %%cr3;" :: "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
-}
-
 void setTaskRSP(char *name, taskStruct *ts){
     int len = strlen(name)+1;
     ts->rsp = ts->rsp - len;
@@ -234,7 +234,7 @@ void createNewTask(char* filename){
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
     setMyVMA(ts, STACK_S, 0x100FFEFF0000);
 	set_tss_rsp(&(ts->kstack[511]));
-    loadPML4((uint64_t)pml4);
+    loadCR3((uint64_t)pml4);
 
     setTaskRSP(tempFilename, ts);
 
@@ -288,11 +288,13 @@ int fork(){
 
 	uint64_t s_add ;
 	new->ustack = (uint64_t*)STACK_S;
-	new->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8/*(uint64_t)getMemorysize(8)*/);
+	new->rsp = (uint64_t *)((uint64_t)STACK_S + 511*8);
 	new->state = RUNNING;
 	uint64_t pcr3;	
-	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
+	// __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+    uint64_t currentCR3 = getCurrentCR3();
+    loadCR3(currentCR3);
+	// __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
 
 	currentTask->child_count+=1;
 	memcpy(&(new->kstack[0]),&(currentTask->kstack[0]),512*8);
