@@ -234,25 +234,25 @@ void createNewTask(char* filename){
 */
     char tempFilename[100];
     strcpy(tempFilename,filename);
-    taskStruct *ts = initTaskVariables(filename);
+    taskStruct *newTask = initTaskVariables(filename);
 
-    uint64_t* pml4 = readELFandFork(fileAddress, ts);
-    setMyVMA(ts, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
+    uint64_t* pml4 = readELFandFork(fileAddress, newTask);
+    setMyVMA(newTask, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
 	init_pages_for_process(STACK_S, (uint64_t)getFreeFrame(), pml4);
-	ts->ustack = (uint64_t*)STACK_S;
-	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-    setMyVMA(ts, STACK_S, 0x100FFEFF0000);
-	set_tss_rsp(&(ts->kstack[511]));
+	newTask->ustack = (uint64_t*)STACK_S;
+	newTask->rsp = (uint64_t *)((uint64_t)newTask->ustack + (510 * 8));
+    setMyVMA(newTask, STACK_S, 0x100FFEFF0000);
+	set_tss_rsp(&(newTask->kstack[511]));
     loadCR3Virtual((uint64_t)pml4);
 
-    setTaskRSP(tempFilename, ts);
+    setTaskRSP(tempFilename, newTask);
 
 	__asm__ volatile("\
         pushq $0x23;\
         pushq %0;\
         pushf;\
-        pushq $0x2B;" : : "r"(ts->rsp) : "%rax", "%rsp");
-	__asm__ volatile("pushq %0" : : "r"((&(ts->regs))->rip) : "memory");
+        pushq $0x2B;" : : "r"(newTask->rsp) : "%rax", "%rsp");
+	__asm__ volatile("pushq %0" : : "r"((&(newTask->regs))->rip) : "memory");
 	__asm__ volatile("iretq");
 }
 
