@@ -37,19 +37,11 @@ int main(int argc, char *argv[], char* envp[])
     dirPointer = openDirectory(argc, argv);
 
     if (dirPointer->fd == -1) {
-        puts("Unknown file path passed\n");
+        puts("Incorrect parameter\n");
         return 0;
     }
 
     printList(dirPointer);
-/*    for ( ; ; ) {
-        struct dirent *p = readdir(dirPointer);
-		if (p == NULL)
-			break;
-        puts(p->d_name);
-        puts(" ");
-    }
-    puts("\n");
-*/    close(dirPointer->fd);
+    close(dirPointer->fd);
     return 0;
 }
