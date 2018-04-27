@@ -44,7 +44,7 @@ int main(int argc, char *argv[], char* envp[])
 
     if (dp->fd == -1) {
         puts("Unknown file path passed\n");
-        puts(dir);
+        // puts(dir);
         return 0;
     }
     for ( ; ; ) {
