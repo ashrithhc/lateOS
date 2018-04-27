@@ -6,15 +6,16 @@
 
 int main(int argc, char* argv[], char* envp[])
 {
+	int i;
 	if (argv[1] == NULL) {
 	    puts("\n");
 		return 0;
 	}
 
-	for(int i=1; i<argc; i++)
+	for(i=1; i<argc; i++)
 	{
-		puts(argv[i]);
-        puts(" ");
+		puts(argv[i] + " ");
+        // puts(" ");
 	}
     puts("\n");
 	return 0;
