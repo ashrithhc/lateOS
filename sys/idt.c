@@ -377,7 +377,7 @@ uint64_t isr128(){
             ret = sleep((int)y->rbx);
     }
     else if(cval == 79){
-            getcwd((char*)y->rbx,(int)y->rcx);
+            getCurrentDirectory((char*)y->rbx,(int)y->rcx);
     }
     else if(cval == 80){
             ret = chdir((char*)y->rbx);

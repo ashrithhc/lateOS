@@ -10,7 +10,7 @@ ssize_t write(int fd, const void *buf, size_t count);
 int unlink(const char *pathname);
 
 int chdir(const char *path);
-char *getcwd(char *buf, size_t size);
+char *getCurrentDirectory(char *buf, size_t size);
 
 pid_t fork();
 int execvpe(const char *file, char *const argv[], char *const envp[]);

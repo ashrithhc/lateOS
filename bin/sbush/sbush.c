@@ -41,7 +41,7 @@ int readstring(int fd,char* buf,int size){
 int main(int argc, char *argv[], char *envp[]) {
     initargs();
     strcpy(prompt,"sbush");
-    getcwd(pwd,-1);
+    getCurrentDirectory(pwd,-1);
     strcpy(prompt1,prompt);
     strcat(prompt1,":");
     strcat(prompt1,pwd);
@@ -104,7 +104,7 @@ int main(int argc, char *argv[], char *envp[]) {
 void execCommand(){
     if(strcmp(command,"cd") == 0){
         chdir_1(args);
-        getcwd(pwd,-1);
+        getCurrentDirectory(pwd,-1);
         strcpy(prompt1,prompt);
         strcat(prompt1,":");
         strcat(prompt1,pwd);
@@ -117,7 +117,7 @@ void execCommand(){
         clrscr();
     }
     else if(strcmp(command,"pwd") == 0){
-        getcwd(pwd,-1);
+        getCurrentDirectory(pwd,-1);
         puts(pwd);
         puts("\n");
     }

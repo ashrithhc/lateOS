@@ -576,7 +576,7 @@ int chdir(char* path){
     return  -1;
 }
 
-void getcwd(char *buf, int size){
+void getCurrentDirectory(char *buf, int size){
 
     strcpy(buf,currentTask->curr_dir);
     int l = strlen(buf);

@@ -13,9 +13,9 @@ int chdir(const char *path)
 	_syscall1(int,chdir, char*, a);
 }
 int cwd_call(char* buf,size_t size){
-    _syscall2(int,getcwd, char*, buf,int,size);
+    _syscall2(int,getCurrentDirectory, char*, buf,int,size);
 }
-char *getcwd(char *buf, size_t size){
+char *getCurrentDirectory(char *buf, size_t size){
     cwd_call(buf,size);
     return buf;
 }
