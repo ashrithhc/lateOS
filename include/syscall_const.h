@@ -41,7 +41,7 @@
 #define __NR_getitimer				36
 #define __NR_alarm				37
 #define __NR_setitimer				38
-#define __NR_getpid				39
+#define __NR_getTaskPID				39
 
 #define __NR_sendfile				40
 #define __NR_socket				41
@@ -122,7 +122,7 @@
 #define __NR_geteuid				107
 #define __NR_getegid				108
 #define __NR_setpgid				109
-#define __NR_getppid				110
+#define __NR_getTaskPPID				110
 #define __NR_getpgrp				111
 
 #define __NR_setsid				112
