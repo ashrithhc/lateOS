@@ -1,17 +1,6 @@
-#include <sys/defs.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-void fn(int n){
-    if(n == 0){
-        return;
-    }
-   fn(n-1);
-}
 int main(int argc, char *argv[], char* envp[])
 {
-    pid_t pid;
+/*    pid_t pid;
     for (int i = 0; i < 100000; ++i) {
         if((pid = fork()) == 0) {
             fn(i);
@@ -23,5 +12,6 @@ int main(int argc, char *argv[], char* envp[])
             waitpid(pid, &k);
             puts("In parent\n");
         }
-    }
+    }*/
+    return 0;
 }
