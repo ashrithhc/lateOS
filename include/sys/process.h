@@ -1,6 +1,5 @@
 #ifndef _PROCESS_H
 #define _PROCESS_H
-#endif
 
 #include <sys/defs.h>
 #include <sys/file.h>
@@ -71,3 +70,4 @@ int chdir(char* path);
 unsigned int sleep(unsigned int seconds);
 void ps();
 void* malloc(int no_of_bytes);
+#endif
