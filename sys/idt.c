@@ -362,10 +362,10 @@ uint64_t isr128(){
         	ret = (uint64_t)waitpid((int)y->rbx);
     	}
 	else if(cval == 39){
-		ret = getpid();
+		ret = getTaskPID();
 	}
 	else if(cval == 110){
-		ret = getppid();
+		ret = getTaskPPID();
 	}
     else if(cval == 7){
             clrscr();

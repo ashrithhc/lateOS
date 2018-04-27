@@ -19,8 +19,8 @@ int waitpid(pid_t pid, pid_t *status);
 
 unsigned int sleep(unsigned int seconds);
 
-pid_t getpid(void);
-pid_t getppid(void);
+pid_t getTaskPID(void);
+pid_t getTaskPPID(void);
 
 // OPTIONAL: implement for ``on-disk r/w file system (+10 pts)''
 off_t lseek(int fd, off_t offset, int whence);

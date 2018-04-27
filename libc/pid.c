@@ -3,9 +3,9 @@
 #include <syscall.h>
 
 pid_t getpid_call(){
-        _syscall(pid_t, getpid);
+        _syscall(pid_t, getTaskPID);
 }
 
 pid_t getppid_call(){
-        _syscall(pid_t, getppid);
+        _syscall(pid_t, getTaskPPID);
 }

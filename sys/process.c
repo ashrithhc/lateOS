@@ -528,11 +528,11 @@ int waitpid(int pid){
     }
 }
 
-pid_t getpid(void){
+pid_t getTaskPID(void){
 	return currentTask->pid;
 }
 
-pid_t getppid(void){
+pid_t getTaskPPID(void){
 	return currentTask->ppid;
 }
 
