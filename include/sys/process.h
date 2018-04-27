@@ -1,5 +1,6 @@
 #ifndef _PROCESS_H
 #define _PROCESS_H
+#endif
 
 #include <sys/defs.h>
 #include <sys/file.h>
@@ -12,14 +13,8 @@
 #define False 0
 #define posInfinity 9999
 
-/**
-
-vmaStruct & Task struct References:
-	 http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vmaStruct.html
-	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
-**/
-
 int pid[MAX];
+
 typedef struct vmaStruct {
 	uint64_t beginAddress;
 	uint64_t lastAddress;
@@ -76,4 +71,3 @@ int chdir(char* path);
 unsigned int sleep(unsigned int seconds);
 void ps();
 void* malloc(int no_of_bytes);
-#endif

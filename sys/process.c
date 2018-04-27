@@ -1,3 +1,9 @@
+/*
+References :
+http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vmaStruct.html
+http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
+*/
+
 #include <sys/defs.h>
 #include <sys/process.h>
 #include <sys/mem.h>
