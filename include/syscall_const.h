@@ -86,7 +86,7 @@
 #define __NR_truncate				76
 #define __NR_ftruncate				77
 #define __NR_getdents				78
-#define __NR_getcwd				79
+#define __NR_getCurrentDirectory				79
 
 #define __NR_chdir				80
 #define __NR_fchdir				81
