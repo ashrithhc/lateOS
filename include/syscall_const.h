@@ -7,14 +7,14 @@
 #define __NR_lstat				6
 #define __NR_clrscr				7
 
-#define __NR_lseek				8
-#define __NR_malloc				9
-#define __NR_mprotect				10
-#define __NR_munmap				11
-#define __NR_brk				12
-#define __NR_rt_sigaction			13
-#define __NR_rt_sigprocmask			14
-#define __NR_rt_sigreturn			15
+// #define __NR_lseek				8
+// #define __NR_malloc				9
+// #define __NR_mprotect				10
+// #define __NR_munmap				11
+// #define __NR_brk				12
+// #define __NR_rt_sigaction			13
+// #define __NR_rt_sigprocmask			14
+// #define __NR_rt_sigreturn			15
 
 #define __NR_opendir			16
 #define __NR_pread64				17
