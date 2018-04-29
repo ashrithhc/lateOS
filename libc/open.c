@@ -24,11 +24,11 @@ int open(const char *path,int flags)
 	return 0;
 }
 int close(int fd){
-    _syscall1(int,close,int,fd);
+    _syscall1(int,close,fd);
 }
 int open_dir(const char *path)
 {
-    _syscall1(int, opendir, char*, path);
+    _syscall1(int, opendir, path);
 }
 
 DIR *opendir(const char *name){

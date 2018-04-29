@@ -2,5 +2,5 @@
 
 int pipe(int fd[2])
 {
-	_syscall1(int, pipe, int*, &fd[0]);
+	_syscall1(int, pipe, &fd[0]);
 }

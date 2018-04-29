@@ -52,7 +52,7 @@ void free(void *ap)
 }
 
 void* sbrk_call(int increment){
-    _syscall1(void*,malloc,int,increment);
+    _syscall1(void*,malloc,increment);
 }
 void* sbrk(int increment)
 {

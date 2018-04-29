@@ -10,7 +10,7 @@ int chdir(const char *path)
     if(path[l-1] != '/'){
         strcat(a,"/");
     }
-	_syscall1(int,chdir, char*, a);
+	_syscall1(int,chdir, a);
 }
 int cwd_call(char* buf,size_t size){
     _syscall2(int,getCurrentDirectory, char*, buf,int,size);

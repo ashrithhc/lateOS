@@ -7,7 +7,7 @@
 #include <unistd.h>
 unsigned int sleep_call(unsigned int seconds)
 {
-    _syscall1(int,sleep,int,seconds);
+    _syscall1(int,sleep,seconds);
 }
 unsigned int sleep(unsigned int seconds)
 {

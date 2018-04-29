@@ -7,7 +7,7 @@
 #include <unistd.h>
 int kill_call(pid_t pid)
 {
-    _syscall1(int,kill,pid_t,pid);
+    _syscall1(int,kill,pid);
 }
 void kill(pid_t pid)
 {

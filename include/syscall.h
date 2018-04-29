@@ -17,7 +17,7 @@ __asm__ volatile (  "int $0x80;" \
  return (type) (__res); \
 }while(0)
 
-#define _syscall1(type,name,type1,arg1) \
+#define _syscall1(type,name,arg1) \
 do{ \
 long __res; \
 __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; int $0x80; movq %%rax, %0;" \

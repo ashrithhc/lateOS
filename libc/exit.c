@@ -2,5 +2,5 @@
 
 void exit(int status)
 {
-	_syscall1(void, exit, int, status);
+	_syscall1(void, exit, status);
 }
