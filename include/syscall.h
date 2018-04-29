@@ -6,17 +6,7 @@
 do{ 				\
 	return (type)(res); \
 }while(0) 
-/*
-#define _syscall(type,name) \
-do{ \
-long __res; \
-__asm__ volatile (  "movq %1, %%rax; int $0x80; movq %%rax, %0;" \
-                  : "=m" (__res) \
-                  : "g" (__NR_##name) \
-		  : "rax"); \
- return (type) (__res); \
-}while(0)
-*/
+
 #define _syscall(type,name) \
 do{ \
 long __res; \
