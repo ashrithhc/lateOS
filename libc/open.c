@@ -21,7 +21,7 @@ int fopen(char *name, char *mode)
 int open(const char *path,int flags)
 {
     long retVal;
-    __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(2), "g"((long)(path)), "g"((long)(flags)) : "rax", "rbx", "rcx");
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(2), "g"((long)(path)), "g"((long)(flags)) : "rax", "rbx", "rcx");
     return (int)(retVal);
 }
 int close(int fd){
@@ -51,7 +51,7 @@ DIR *opendir(const char *name){
 int direccall(int fd,char* buff,int size){
     // _syscall3(int,getdents,int, fd,char*, buff,int,size);
     long retVal;
-    __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(78), "r"((long)(fd)), "r"((long)(buff)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(78), "r"((long)(fd)), "r"((long)(buff)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
     return (int)(retVal);
 }
 struct dirent *readdir(DIR *dirp){

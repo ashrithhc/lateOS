@@ -4,7 +4,7 @@ void ps_call()
 {
 	// _syscall(void, ps);
 	long retVal;
-	__asm__ volatile ("int $0x80;" : "=a"(retVal) : "a"(299) : );
+	__asm__ __volatile__ ("int $0x80;" : "=a"(retVal) : "a"(299) : );
 	// return (type) (__res);
 }
 

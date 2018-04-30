@@ -65,7 +65,7 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pte & validatebits) | 3;
 	pte = (uint64_t*)virtual;*/
 
-	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
+	__asm__ __volatile__("movq %0,%%cr3"::"r"(k_cr3));	
 }
 
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree){
@@ -137,7 +137,7 @@ void free(uint64_t add){
 }
 
 void switchtokern(){
-__asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));
+__asm__ __volatile__("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));
 }
 
 uint64_t kmalloc(int size){

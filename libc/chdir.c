@@ -21,7 +21,7 @@ int chdir(const char *path)
 }
 int cwd_call(char* buf,size_t size){
     long retVal;
-    __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(79), "g"((long)(buf)), "g"((long)(size)) : "rax", "rbx", "rcx");
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(79), "g"((long)(buf)), "g"((long)(size)) : "rax", "rbx", "rcx");
     return (int)(retVal);
 }
 char *getCurrentDirectory(char *buf, size_t size){

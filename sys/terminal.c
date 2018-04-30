@@ -150,7 +150,7 @@ void write_terminal()
 static inline uint8_t inb(uint64_t port)
 {
         uint8_t r;
-        __asm__ volatile(
+        __asm__ __volatile__(
                         "inb %1, %0"
                         : "=a"(r)
                         : "Nd"(port)

@@ -57,16 +57,16 @@ void *memcpy(void *dest, const void *src, int n){
 
 uint64_t getCurrentCR3(){
     uint64_t processCR3;
-    __asm__ volatile ("movq %%cr3,%0" : "=r"(processCR3) : : );
+    __asm__ __volatile__ ("movq %%cr3,%0" : "=r"(processCR3) : : );
     return processCR3;    
 }
 
 void loadCR3(uint64_t toLoad){
-    __asm__ volatile ("movq %0, %%cr3;" : : "r"(toLoad));
+    __asm__ __volatile__ ("movq %0, %%cr3;" : : "r"(toLoad));
 }
 
 void loadCR3Virtual(uint64_t toLoad){
-    __asm__ volatile ("movq %0, %%cr3;" : : "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
+    __asm__ __volatile__ ("movq %0, %%cr3;" : : "r"(( uint64_t*)(toLoad - (uint64_t)kernbase)));
 }
 
 void in(){
@@ -75,9 +75,9 @@ void in(){
 
 void idle(){
     while(True) {
-        __asm__ volatile("sti");
-        __asm__ volatile("hlt");
-        __asm__ volatile("cli");
+        __asm__ __volatile__("sti");
+        __asm__ __volatile__("hlt");
+        __asm__ __volatile__("cli");
         schedule();
     }
 }
@@ -147,10 +147,10 @@ uint64_t* readELFandFork(uint64_t fileAddress, taskStruct *ts){
         }
         uint64_t currentCR3 = getCurrentCR3();
         uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
-        __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+        __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pl));
         memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
         memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
-        __asm__ volatile ("movq %0, %%cr3;" :: "r"(currentCR3));
+        __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(currentCR3));
     }
     return pml4;
 }
@@ -177,10 +177,10 @@ uint64_t* readELFandExec(uint64_t fileAddress, taskStruct *ts){
         uint64_t pcr3;
         __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
         uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)kernbase);
-        __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+        __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pl));
         memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
         memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
-        __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
+        __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pcr3));
     }
     return pml4;
 }
@@ -253,13 +253,13 @@ void createNewTask(char* filename){
 
     setTaskRSP(tempFilename, newTask);
 
-	__asm__ volatile("\
+	__asm__ __volatile__("\
         pushq $0x23;\
         pushq %0;\
         pushf;\
         pushq $0x2B;" : : "r"(newTask->rsp) : "%rax", "%rsp");
-	__asm__ volatile("pushq %0" : : "r"((&(newTask->regs))->rip) : "memory");
-	__asm__ volatile("iretq");
+	__asm__ __volatile__("pushq %0" : : "r"((&(newTask->regs))->rip) : "memory");
+	__asm__ __volatile__("iretq");
 }
 
 void copyVMA(taskStruct *curTask, taskStruct *copyTask){
@@ -418,13 +418,13 @@ void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[100][100], char
     (ts->rsp)-=1;
     *(ts->rsp) = argc;
     set_tss_rsp(&(ts->kstack[511]));
-    __asm__ volatile("\
+    __asm__ __volatile__("\
     push $0x23;\
     push %0;\
     pushf;\
     push $0x2B;\
     push %1"::"g"(ts->rsp),"g"(ts->regs.rip):"memory");
-    __asm__ volatile("iretq;");
+    __asm__ __volatile__("iretq;");
 }
 
 int execvpe(char* path, char *argv[],char* env[]){

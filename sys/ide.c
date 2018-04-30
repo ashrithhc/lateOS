@@ -24,19 +24,19 @@ void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int
 }*/
 static inline void outb(uint16_t port, uint8_t val)
 {
-	__asm__ volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
+	__asm__ __volatile__ ( "outb %0, %1" : : "a"(val), "Nd"(port) );
 }
 static inline uint8_t inb(uint16_t port)
 {
 	uint8_t ret;
-	__asm__ volatile ( "inb %1, %0"
+	__asm__ __volatile__ ( "inb %1, %0"
 			: "=a"(ret)
 			: "Nd"(port) );
 	return ret;
 }
 void insl(uint16_t port, void *addr, uint32_t cnt)
 {
-	__asm__ volatile("cld; rep insl" : "=D" (addr), "=c" (cnt) : "d" (port), "0" (addr), "1" (cnt) : "memory", "cc");
+	__asm__ __volatile__("cld; rep insl" : "=D" (addr), "=c" (cnt) : "d" (port), "0" (addr), "1" (cnt) : "memory", "cc");
 }
 void ide_write(unsigned char channel, unsigned char reg, unsigned char data) {
 	if (reg > 0x07 && reg < 0x0C)
@@ -73,7 +73,7 @@ void ide_read_buffer(unsigned char channel, unsigned char reg, void*  buffer,
 
 	if (reg > 0x07 && reg < 0x0C)
 		ide_write(channel, ATA_REG_CONTROL, 0x80 | channels[channel].nIEN);
-	__asm__ volatile ("push %rax; movw %ds, %ax; movw %ax, %es");
+	__asm__ __volatile__ ("push %rax; movw %ds, %ax; movw %ax, %es");
 	if (reg < 0x08)
 		insl(channels[channel].base  + reg - 0x00, buffer, quads);
 	else if (reg < 0x0C)
@@ -82,7 +82,7 @@ void ide_read_buffer(unsigned char channel, unsigned char reg, void*  buffer,
 		insl(channels[channel].ctrl  + reg - 0x0A, buffer, quads);
 	else if (reg < 0x16)
 		insl(channels[channel].bmide + reg - 0x0E, buffer, quads);
-	__asm__ volatile("pop %rax;");
+	__asm__ __volatile__("pop %rax;");
 	if (reg > 0x07 && reg < 0x0C)
 		ide_write(channel, ATA_REG_CONTROL, channels[channel].nIEN);
 }
@@ -318,16 +318,16 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba, unsigned cha
 	// (VII): Waiting for the driver to finish or return an error code:
 	if ((err = ide_polling(channel, 1))) return err;         // Polling and return if error.
 	// (VIII): Sending the packet data:
-	__asm__ volatile ("rep   outsw" : : "c"(6), "d"(bus), "S"(atapi_packet));   // Send Packet Data
+	__asm__ __volatile__ ("rep   outsw" : : "c"(6), "d"(bus), "S"(atapi_packet));   // Send Packet Data
 	// (IX): Receiving Data:
 	for (i = 0; i < numsects; i++) {
 		ide_wait_irq();                  // Wait for an IRQ.
 		if ((err = ide_polling(channel, 1)))
 			return err;      // Polling and return if error.
-		__asm__ volatile ("push %rax");
-		__asm__ volatile ("mov %%ax, %%es"::"a"(selector));
-		__asm__ volatile("rep insw"::"c"(words), "d"(bus), "D"(edi));// Receive Data.
-		__asm__ volatile ("pop %rax");
+		__asm__ __volatile__ ("push %rax");
+		__asm__ __volatile__ ("mov %%ax, %%es"::"a"(selector));
+		__asm__ __volatile__("rep insw"::"c"(words), "d"(bus), "D"(edi));// Receive Data.
+		__asm__ __volatile__ ("pop %rax");
 		edi += (words * 2);
 	}
 	// (X): Waiting for an IRQ:
@@ -439,7 +439,7 @@ unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsig
 				if ((err = ide_polling(channel, 1)))
 					return err; // Polling, set error and exit if there is.
 				//char* buf = (char*)0x700000;
-				__asm__ volatile ("rep insw" : : "c"(words), "d"(bus), "D"(buf+(i*512) )); // Receive Data.
+				__asm__ __volatile__ ("rep insw" : : "c"(words), "d"(bus), "D"(buf+(i*512) )); // Receive Data.
 		//		kprintf("%s",buf);
 //				kprintf("Read ------------------------%s----------------\n",buf);
 			} else {
@@ -454,7 +454,7 @@ unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsig
 				//	*(buf+j) = '\0';	
 //					kprintf("++++++++++++%s",buf);
 					ide_polling(channel, 0); // Polling.
-					__asm__ volatile ("rep outsw"::"c"(words), "d"(bus), "S"(buf+(i*512))); // Send Data
+					__asm__ __volatile__ ("rep outsw"::"c"(words), "d"(bus), "S"(buf+(i*512))); // Send Data
 				}
 				ide_write(channel, ATA_REG_COMMAND, (char []) {   ATA_CMD_CACHE_FLUSH,
 						ATA_CMD_CACHE_FLUSH,

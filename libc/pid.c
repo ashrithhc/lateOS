@@ -5,13 +5,13 @@
 pid_t getpid_call(){
     // _syscall(pid_t, getTaskPID);
     long retVal;
-	__asm__ volatile ("int $0x80;" : "=a"(retVal) : "a"(39) : );
+	__asm__ __volatile__ ("int $0x80;" : "=a"(retVal) : "a"(39) : );
 	return (pid_t)retVal;
 }
 
 pid_t getppid_call(){
     // _syscall(pid_t, getTaskPPID);
     long retVal;
-	__asm__ volatile ("int $0x80;" : "=a"(retVal) : "a"(110) : );
+	__asm__ __volatile__ ("int $0x80;" : "=a"(retVal) : "a"(110) : );
 	return (pid_t)retVal;
 }

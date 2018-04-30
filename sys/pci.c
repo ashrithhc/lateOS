@@ -7,11 +7,11 @@ void checkDevice(uint8_t bus, uint8_t device,uint8_t fun);
 
 
 void sysOutLong(uint16_t port,uint32_t addr){
-	__asm__ volatile ( "outl %0, %1" : : "a"(addr), "Nd"(port) );
+	__asm__ __volatile__ ( "outl %0, %1" : : "a"(addr), "Nd"(port) );
 }
 uint32_t sysInLong(uint16_t port){
 	uint32_t ret;
-	__asm__ volatile ( "inl %1, %0"
+	__asm__ __volatile__ ( "inl %1, %0"
 			: "=a"(ret)
 			: "Nd"(port) );
 	return ret;

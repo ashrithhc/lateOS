@@ -11,37 +11,7 @@
 #define timerMask 0xFF
 
 void isr_0();
-void isr_1();
-void isr_2();
-void isr_3();
-void isr_4();
-void isr_5();
-void isr_6();
-void isr_7();
-void isr_8();
-void isr_9();
-void isr_10();
-void isr_11();
-void isr_12();
-void isr_13();
 void isr_14();
-void isr_15();
-void isr_16();
-void isr_17();
-void isr_18();
-void isr_19();
-void isr_20();
-void isr_21();
-void isr_22();
-void isr_23();
-void isr_24();
-void isr_25();
-void isr_26();
-void isr_27();
-void isr_28();
-void isr_29();
-void isr_30();
-void isr_31();
 void isr_128();
 extern void timer();
 extern void kb1();
@@ -52,12 +22,12 @@ static struct idt_ptr IDTloader;
 static inline uint8_t inportb(uint64_t port)
 {
         uint8_t retVal;
-        __asm__ volatile("inb %1, %0" : "=a"(retVal) : "Nd"(port));  
+        __asm__ __volatile__("inb %1, %0" : "=a"(retVal) : "Nd"(port));  
         return retVal;
 }
 
 void outportb(uint16_t port, uint8_t data){
-	__asm__ volatile("outb %1, %0" : : "dN"(port), "a"(data));
+	__asm__ __volatile__("outb %1, %0" : : "dN"(port), "a"(data));
 }
 
 void setIDTtype(uint16_t interrupt){
@@ -83,7 +53,7 @@ void initISR(uint16_t interrupt, uint64_t function)
 void loadIDT(){
 	(&IDTloader)->size = (sizeof(struct idt) * 256) - 1 ;
 	(&IDTloader)->base = (uint64_t)IDTset;
-	__asm__ volatile ("lidt (%0)" : : "r"(&IDTloader));
+	__asm__ __volatile__ ("lidt (%0)" : : "r"(&IDTloader));
 }
 
 void startTimer(){
@@ -103,14 +73,15 @@ void init_idt(){
 }
 
 void isr0(){
-	kprintf("This is an exception");
+	kprintf("Invalid Interrupt received");
 	outportb(0x20,0x20);
 }
+
 void isr14(){
 
 	uint64_t bb;
     int flag = 0;
-	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
+	__asm__ __volatile__("movq %%cr2,%0;":"=g"(bb)::);
     vmaStruct* vm = currentTask->vm;
     if(((vm->beginAddress + 4096) > bb) && (vm->lastAddress < bb)){
         flag =1;
@@ -134,7 +105,7 @@ void isr14(){
     uint64_t* k = getPTE(bb);
     if( k[(bb>>12)&0x1FF] & 0x0000000000000200){     //COW
         uint64_t k1;
-        __asm__ volatile("movq %%cr3,%0;":"=g"(k1)::);
+        __asm__ __volatile__("movq %%cr3,%0;":"=g"(k1)::);
         uint64_t  add = (k[(bb>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
         int i = 2;//getrefcount(add);
         if(i == 2){
@@ -149,17 +120,17 @@ void isr14(){
             kprintf("Should never be here\n");
             while(1);
         }
-        __asm__ volatile("movq %0,%%cr3;"::"r"(k1):);
+        __asm__ __volatile__("movq %0,%%cr3;"::"r"(k1):);
 	}
 	else if( (currentTask->vm->beginAddress > bb)  && (currentTask->vm->lastAddress < bb)){   //Auto Growing stack
         uint64_t k;
-		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
+		__asm__ __volatile__("movq %%cr3,%0;":"=g"(k)::);
 		//uint64_t n_s = currentTask->vm->beginAddress - 4096;
 		uint64_t p_n = getFreeFrame();
 		switchtokern();
 		init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
 	//	currentTask->vm->beginAddress = n_s;
-		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
+		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(k):);
 //		while(1);
 	}
     else{
@@ -176,8 +147,8 @@ typedef struct registers_t{
 uint64_t isr128(){
 	uint64_t cval;
 	 uint64_t as,ret = 0;
-	__asm__ volatile("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
-	__asm__ volatile("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
+	__asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
+	__asm__ __volatile__("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
 	registers_t *y = (registers_t *)as;
     	if(cval == 0 && y->rbx == 0){
         	read_input((char *)y->rcx);
@@ -190,8 +161,8 @@ uint64_t isr128(){
         if((uint64_t)currentTask->kstack[14] == 9999){
             ret = 0;
             currentTask->kstack[14] = 0;
-            __asm__ volatile("popq %%rax":::"%rax");
-            __asm__ volatile("popq %%rax":::"%rax");
+            __asm__ __volatile__("popq %%rax":::"%rax");
+            __asm__ __volatile__("popq %%rax":::"%rax");
         }
 	}
 	else if(cval == 59){
