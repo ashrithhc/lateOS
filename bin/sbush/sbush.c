@@ -24,7 +24,6 @@ static char pwd[100];
 static char com[1025]={'\0'};
 static char arg[1000][1000]={'\0'};
 static char prompt[100]={'\0'};
-// static char prompt1[100]={'\0'};
 static char *in = &input[0] ;
 static char *args[1000] ;
 static char *command = &com[0];
@@ -38,14 +37,18 @@ int readstring(int fd,char* buf,int size){
     return (int)(retVal);
 }
 
+void setprompt(){
+    getCurrentDirectory(pwd, -1);
+    strcpy(prompt, "sbush");
+    strcat(prompt, ":");
+    strcat(prompt, pwd);
+    strcat(prompt, ">");
+}
+
 void execCommand(){
     if(strcmp(command,"cd") == 0){
         chdir_1(args);
-        getCurrentDirectory(pwd,-1);
-        strcpy(prompt,"sbush");
-        strcat(prompt,":");
-        strcat(prompt,pwd);
-        strcat(prompt,">");
+        setprompt();
     }
     else if(strcmp(command,"export") == 0){
         setvar(args);
@@ -197,12 +200,7 @@ int main(int argc, char *argv[], char *envp[]) {
     for(int i=0;i<1000;i++){
         args[i] = &arg[i][0];
     }
-    strcpy(prompt,"sbush");
-    getCurrentDirectory(pwd,-1);
-    // strcpy(prompt1,prompt);
-    strcat(prompt,":");
-    strcat(prompt,pwd);
-    strcat(prompt,">");
+    setprompt();
     setenvs();
     if(argc==1){
         clrscr();
