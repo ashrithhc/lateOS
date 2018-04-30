@@ -14,7 +14,7 @@ void clearCommand();
 void clearArguments();
 void strtokBeta(char* string, char delimiter, char* strs[]);
 void changeSbush(char *args[]);
-void execCommand(char* cmd,char* ag[]);
+// void execCommand(char* cmd,char* ag[]);
 int getInputArgCounts();
 void setenvs();
 
