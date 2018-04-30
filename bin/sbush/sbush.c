@@ -76,25 +76,12 @@ void parseNEWprompt(char* str, char delimiter, char* strs[]){
     i=j=k=0;
     while(str[k] != '\n'){
         k = skipspaces(str, k);
-        if(str[k] == delimiter || str[k] == '\0'){
-            strs[i][j]='\0';
-            isBackground = isBackgroundTask(strs, i);
-            if (isBackground) strs[i] = NULL;
-            if(str[k]=='\0'){
-                makeNullExecvp(strs, i, j);
-                return;
-            }
-            i++;
-            j=0;
+        if(str[k] == '"' && delimiter == '='){
+            k++;
+            continue;
         }
-        else{
-            if(str[k] == '"' && delimiter == '='){
-                k++;
-                continue;
-            }
-            strs[i][j++]=str[k];
-            ++k;
-        }
+        strs[i][j++]=str[k];
+        ++k;
     }
 }
 
@@ -131,7 +118,7 @@ void setvar(char *args[]){
     a[0]=&pul[0][0];
     a[1]=&pul[1][0];
     a[2]=&pul[2][0];
-    parseNEWprompt(args[1],'=',a);
+    strtokBeta(args[1],'=',a);
     if(strcmp("PS1",a[0])==0){
         strcpy(prompt,a[1]);
     }
