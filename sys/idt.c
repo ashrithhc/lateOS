@@ -144,7 +144,7 @@ typedef struct registers_t{
 	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
 }registers_t;
 
-uint64_t isr128(){
+/*uint64_t isr128(){
 	uint64_t cval;
 	 uint64_t as,ret = 0;
 	__asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
@@ -218,9 +218,9 @@ uint64_t isr128(){
 	// schedule();
 	outportb(0x20,0x20);
 	return ret;
-}
+}*/
 
-/*uint64_t isr128(){
+uint64_t isr128(){
     uint64_t cval;
     uint64_t as, retVal = 0;
     __asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
@@ -235,17 +235,20 @@ uint64_t isr128(){
                     else {
                         retVal = read_tarfs((int) y->rbx, (char*) y->rcx, (int) y->rdx);
                     }
+                    break;
         case 1:     if (y->rbx == 1){
                         kprintf("%s", y->rcx);
                         retVal = 0;
                     }
+                    break;
         case 2:     retVal = open_tarfs((char*) y->rbx, (int) y->rcx);
-        case 3:     retVal = close_tarfs((int)y->rbx);
-        case 7:     clrscr();
-        case 9:     retVal = (uint64_t) malloc((int)y->rbx);
-        case 16:    retVal = open_dir((char *)y->rbx);
-        case 35:    retVal = sleep((int)y->rbx);
-        case 39:    retVal = getTaskPID();
+                    break;
+        case 3:     retVal = close_tarfs((int)y->rbx); break;
+        case 7:     clrscr(); break;
+        case 9:     retVal = (uint64_t) malloc((int)y->rbx); break;
+        case 16:    retVal = open_dir((char *)y->rbx); break;
+        case 35:    retVal = sleep((int)y->rbx); break;
+        case 39:    retVal = getTaskPID(); break;
         case 57:    retVal = (uint64_t)fork();
                     if((uint64_t)currentTask->kstack[14] == 9999){
                         retVal = 0;
@@ -253,17 +256,18 @@ uint64_t isr128(){
                         __asm__ __volatile__("popq %%rax":::"%rax");
                         __asm__ __volatile__("popq %%rax":::"%rax");
                     }
-        case 59:    retVal = execvpe((char *)y->rbx,(char **)y->rcx,(char **) y->rdx);
-        case 60:    exit();
-        case 62:    retVal = kill((int)y->rbx);
-        case 78:    retVal = readdir_tarfs((int) y->rbx, (char *) y->rcx);
-        case 79:    getCurrentDirectory((char*)y->rbx,(int)y->rcx);
-        case 80:    retVal = chdir((char*)y->rbx);
-        case 110:   retVal = getTaskPPID();
-        case 247:   retVal = (uint64_t) waitpid((int)y->rbx);
-        case 299:   ps();
-        default:    retVal = 0;
+                    break;
+        case 59:    retVal = execvpe((char *)y->rbx,(char **)y->rcx,(char **) y->rdx); break;
+        case 60:    exit(); break;
+        case 62:    retVal = kill((int)y->rbx); break;
+        case 78:    retVal = readdir_tarfs((int) y->rbx, (char *) y->rcx); break;
+        case 79:    getCurrentDirectory((char*)y->rbx,(int)y->rcx); break;
+        case 80:    retVal = chdir((char*)y->rbx); break;
+        case 110:   retVal = getTaskPPID(); break;
+        case 247:   retVal = (uint64_t) waitpid((int)y->rbx); break;
+        case 299:   ps(); break;
+        default:    retVal = 0; break;
     }
     outportb(0x20,0x20);
     return retVal;
-}*/
+}
