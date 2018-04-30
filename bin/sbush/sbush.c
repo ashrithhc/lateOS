@@ -207,7 +207,7 @@ int main(int argc, char *argv[], char *envp[]) {
     if(argc==1){
         clrscr();
         while(1){
-            puts(prompt1);
+            puts(prompt);
             readInput();
             if(input[0] == '\0'){
                 continue;
