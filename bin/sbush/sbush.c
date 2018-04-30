@@ -12,7 +12,7 @@ void changeDirectory(char **args);
 void clearInput();
 void clearCommand();
 void clearArguments();
-void setStringTokens(char* string, char delimiter, char* strs[]);
+void strtokBeta(char* string, char delimiter, char* strs[]);
 void setvar(char *args[]);
 void forkandExec(char* cmd,char* ag[]);
 int getInputArgCounts();
@@ -50,13 +50,53 @@ void changeDirectory(char **args){
     else if(chdir(args[1]) != 0) puts("Invalid path\n");
 }
 
+int skipspaces(char* str, int k){
+    if( k == 0 && str[k] == ' '){
+        k++;
+        continue;
+    }
+    return k;
+}
+
+void strtokBeta(char* str, char delimiter, char* strs[]){
+    int i, j, k;
+    i=j=k=0;
+    while(str[k]!='\n'){
+        k = skipspaces(str, k);
+        else if(str[k] == delimiter || str[k] == '\0'){
+            strs[i][j]='\0';
+            if(strcmp(strs[i],"&") == 0){
+                isBackground = 1;
+                strs[i] = NULL;
+            }
+            if(str[k]=='\0'){
+                if(j==0){
+                    strs[i] = NULL;
+                }
+                strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+                return;
+            }
+            i++;
+            j=0;
+        }
+        else{
+            if(str[k] == '"' && delimiter == '='){
+                k++;
+                continue;
+            }
+            strs[i][j++]=str[k];
+        }
+        ++k;
+    }
+}
+
 void setvar(char *args[]){
     char pul[3][1000];//={"aaaaaaaaA","aaaaaaaaA"};
     char *a[3];
     a[0]=&pul[0][0];
     a[1]=&pul[1][0];
     a[2]=&pul[2][0];
-    setStringTokens(args[1],'=',a);
+    strtokBeta(args[1],'=',a);
     if(strcmp("PS1",a[0])==0){
         strcpy(prompt,a[1]);
     }
@@ -112,10 +152,10 @@ void readInput(){
 }
 
 void parseInput(){
-    setStringTokens(in,'|',args);
+    strtokBeta(in,'|',args);
     if(args[1] == NULL){ //Not a pipe command
         clearArguments();
-        setStringTokens(in,' ',args);
+        strtokBeta(in,' ',args);
         command = args[0];
         execCommand();
         return;
@@ -153,39 +193,7 @@ void clearArguments(){
     }
 }
 
-void setStringTokens(char* str, char delimiter, char* strs[]){
-    int i=0,j=0,k=0;
-    while(str[k]!='\n'){
-        if( k == 0 && str[k] == ' '){
-            k++;
-            continue;
-        }
-        else if(str[k] == delimiter || str[k] == '\0'){
-            strs[i][j]='\0';
-            if(strcmp(strs[i],"&") == 0){
-                isBackground = 1;
-                strs[i] = NULL;
-            }
-            if(str[k]=='\0'){
-                if(j==0){
-                    strs[i] = NULL;
-                }
-                strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
-                return;
-            }
-            i++;
-            j=0;
-        }
-        else{
-            if(str[k] == '"' && delimiter == '='){
-                k++;
-                continue;
-            }
-            strs[i][j++]=str[k];
-        }
-        ++k;
-    }
-}
+
 void setenvs(){
     for(int j=0;j<getenvlength();j++)
     {
