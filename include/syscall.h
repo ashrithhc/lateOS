@@ -17,24 +17,6 @@ __asm__ volatile (  "int $0x80;" \
  return (type) (__res); \
 }while(0)
 
-#define _syscall1(type,name,arg1) \
-long __res; \
-__asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; int $0x80; movq %%rax, %0;" \
-                  : "=m" (__res) \
-                  : "g" (__NR_##name),"g" ((long)(arg1)) \
-		  : "rax","rbx" );\
- return (type) (__res);
-
-#define _syscall2(type,name,type1,arg1,type2,arg2) \
-do{\
-long __res; \
-__asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" \
-                  : "=m" (__res) \
-                  : "g" (__NR_##name),"g" ((long)(arg1)),"g" ((long)(arg2)) \
-		  : "rax","rbx","rcx"); \
- _sys_return(type,__res); \
-}while(0)
-
 #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
 do{ \
 long __res; \
