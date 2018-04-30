@@ -94,18 +94,15 @@ void isr0(){
 }
 
 void isr14(){
-
 	uint64_t cr2Val;
-    int flag = 0;
+    int isValid = 0;
 	__asm__ __volatile__("movq %%cr2, %0;" : "=g"(cr2Val) : : );
 
     vmaStruct* vm = currentTask->vm;
-    if(((vm->beginAddress + 0x1000) > cr2Val) && (vm->lastAddress < cr2Val)) flag = 1;
-    else flag = checkForVM(vm, cr2Val);
-    if(flag == 0){
-        kprintf("Segmentation Fault: Address\n");
-            exit();
-    }
+    if(((vm->beginAddress + 0x1000) > cr2Val) && (vm->lastAddress < cr2Val)) isValid = 1;
+    else isValid = checkForVM(vm, cr2Val);
+    if(isValid == 0) exit();
+
     uint64_t* k = getPTE(cr2Val);
     if( k[(cr2Val>>12)&0x1FF] & 0x0000000000000200){     //COW
         uint64_t k1;
@@ -129,13 +126,10 @@ void isr14(){
 	else if( (currentTask->vm->beginAddress > cr2Val)  && (currentTask->vm->lastAddress < cr2Val)){   //Auto Growing stack
         uint64_t k;
 		__asm__ __volatile__("movq %%cr3,%0;":"=g"(k)::);
-		//uint64_t n_s = currentTask->vm->beginAddress - 0x1000;
 		uint64_t p_n = getFreeFrame();
 		switchtokern();
 		init_pages_for_process((cr2Val&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
-	//	currentTask->vm->beginAddress = n_s;
 		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(k):);
-//		while(1);
 	}
     else{
         kprintf("Segmentation Fault: Address:%p \n",cr2Val);
