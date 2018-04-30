@@ -49,7 +49,10 @@ DIR *opendir(const char *name){
 }
 
 int direccall(int fd,char* buff,int size){
-    _syscall3(int,getdents,int, fd,char*, buff,int,size);
+    // _syscall3(int,getdents,int, fd,char*, buff,int,size);
+    long retVal;
+    __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(78), "r"((long)(fd)), "r"((long)(buff)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
+    return (int)(retVal);
 }
 struct dirent *readdir(DIR *dirp){
     int i = direccall(dirp->fd,d[dirp->fd].d_name,4096);
