@@ -23,7 +23,6 @@ int open(const char *path,int flags)
     long retVal;
     __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(2), "g"((long)(path)), "g"((long)(flags)) : "rax", "rbx", "rcx");
     return (int)(retVal);
-	return 0;
 }
 int close(int fd){
     long retVal;
