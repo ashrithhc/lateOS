@@ -88,7 +88,7 @@ void startTimer(){
 }
 
 void init_idt(){
-	 for (i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
+	 for (int i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
 	// initISR(0 , (uint64_t)&isr_0);
 	// initISR(1 , (uint64_t)&isr_1);
 	// initISR(2 , (uint64_t)&isr_2);
