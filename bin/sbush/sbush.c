@@ -53,7 +53,7 @@ void makeNullExecvp(char* strs[], int index, int j){
 void changeDirectory(char **args){
     if(args[1] == NULL) puts("Usage : cd <path>\n");
     else if(chdir(args[1]) != 0) puts("Invalid path\n");
-    setprompt("sbush");
+    setprompt(prompt);
 }
 
 int skipspaces(char* str, int k){
