@@ -144,7 +144,7 @@ typedef struct registers_t{
 	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
 }registers_t;
 
-/*uint64_t isr128(){
+uint64_t isr128(){
 	uint64_t cval;
 	 uint64_t as,ret = 0;
 	__asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
@@ -218,9 +218,9 @@ typedef struct registers_t{
 	// schedule();
 	outportb(0x20,0x20);
 	return ret;
-}*/
+}
 
-uint64_t isr128(){
+/*uint64_t isr128(){
     uint64_t cval;
     uint64_t as, retVal = 0;
     __asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
@@ -262,7 +262,8 @@ uint64_t isr128(){
         case 110:   retVal = getTaskPPID();
         case 247:   retVal = (uint64_t) waitpid((int)y->rbx);
         case 299:   ps();
+        default:    retVal = 0;
     }
     outportb(0x20,0x20);
     return retVal;
-}
+}*/
