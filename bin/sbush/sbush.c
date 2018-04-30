@@ -5,18 +5,18 @@
 #include <string.h>
 #include <syscall.h>
 #include <sys/wait.h>
-// void readInput();
-// void parseInput();
-// void execCommand();
-// void chdir_1(char **args);
-// void clearInput();
-// void clearCommand();
-// void clearArguments();
-// void setStringTokens(char* string, char delimiter, char* strs[]);
-// void setvar(char *args[]);
-// void forkandExec(char* cmd,char* ag[]);
-// int getInputArgCounts();
-// void setenvs();
+void readInput();
+void parseInput();
+void execCommand();
+void chdir_1(char **args);
+void clearInput();
+void clearCommand();
+void clearArguments();
+void setStringTokens(char* string, char delimiter, char* strs[]);
+void setvar(char *args[]);
+void forkandExec(char* cmd,char* ag[]);
+int getInputArgCounts();
+void setenvs();
 
 static int isBackground = 0;
 static char input[1025]={'\0'};
