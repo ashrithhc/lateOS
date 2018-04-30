@@ -87,7 +87,7 @@ isr_128:
 	pushq %r13
 	pushq %r14
 	pushq %r15
-	movq %rsp,%rdi
+	movq %rsp, %rdi
 	callq isr128
 	popq %r15
 	popq %r14

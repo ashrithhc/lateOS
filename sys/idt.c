@@ -47,7 +47,7 @@ extern void timer();
 extern void kb1();
 
 static struct idt IDTset[256];
-static struct idt_ptr pr;
+static struct idt_ptr IDTloader;
 
 static inline uint8_t inportb(uint64_t port)
 {
@@ -80,6 +80,12 @@ void initISR(uint16_t interrupt, uint64_t function)
 	setIDTtype(interrupt);
 }
 
+void loadIDT(){
+	(&IDTloader)->size = (sizeof(struct idt) * 256) - 1 ;
+	(&IDTloader)->base = (uint64_t)IDTset;
+	__asm__ volatile ("lidt (%0)" : : "r"(&IDTloader));
+}
+
 void startTimer(){
     uint8_t lobyte = (uint8_t)(0x4A9 & timerMask);
     uint8_t hibyte = (uint8_t)((0x4A9 >> 8) & timerMask);
@@ -88,45 +94,12 @@ void startTimer(){
 }
 
 void init_idt(){
-	 for (int i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
-	// initISR(0 , (uint64_t)&isr_0);
-	// initISR(1 , (uint64_t)&isr_1);
-	// initISR(2 , (uint64_t)&isr_2);
-	// initISR(3 , (uint64_t)&isr_3);
-	// initISR(4 , (uint64_t)&isr_4);
-	// initISR(5 , (uint64_t)&isr_5);
-	// initISR(6 , (uint64_t)&isr_6);
-	// initISR(7 , (uint64_t)&isr_7);
-	// initISR(8 , (uint64_t)&isr_8);
-	// initISR(9 , (uint64_t)&isr_9);
-	// initISR(10, (uint64_t)&isr_10);
-	// initISR(11, (uint64_t)&isr_11);
-	// initISR(12, (uint64_t)&isr_12);
-	// initISR(13, (uint64_t)&isr_13);
+	for (int i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
 	initISR(14, (uint64_t)&isr_14);
-	// initISR(15, (uint64_t)&isr_15);
-	// initISR(16, (uint64_t)&isr_16);
-	// initISR(17, (uint64_t)&isr_17);
-	// initISR(18, (uint64_t)&isr_18);
-	// initISR(19, (uint64_t)&isr_19);
-	// initISR(20, (uint64_t)&isr_20);
-	// initISR(21, (uint64_t)&isr_21);
-	// initISR(22, (uint64_t)&isr_22);
-	// initISR(23, (uint64_t)&isr_23);
-	// initISR(24, (uint64_t)&isr_24);
-	// initISR(25, (uint64_t)&isr_25);
-	// initISR(26, (uint64_t)&isr_26);
-	// initISR(27, (uint64_t)&isr_27);
-	// initISR(28, (uint64_t)&isr_28);
-	// initISR(29, (uint64_t)&isr_29);
-	// initISR(30, (uint64_t)&isr_30);
-	// initISR(31, (uint64_t)&isr_31);	
 	initISR(32, (uint64_t)&timer);
+	initISR(33, (uint64_t)&kb1);
 	initISR(128, (uint64_t)&isr_128);
-	pr.size = (sizeof(struct idt) * 256) - 1 ;
-	pr.base = (uint64_t)IDTset;
-	initISR(33,(uint64_t)&kb1);
-	__asm__("lidt (%0)"::"r"(&pr));
+	loadIDT();
 }
 
 void isr0(){
