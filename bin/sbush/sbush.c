@@ -5,18 +5,19 @@
 #include <string.h>
 #include <syscall.h>
 #include <sys/wait.h>
-void readInput();
-void parseInput();
-void execCommand();
-void changeDirectory(char **args);
-void clearInput();
-void clearCommand();
-void clearArguments();
-void strtokBeta(char* string, char delimiter, char* strs[]);
-void changeSbush(char *args[]);
-// void execCommand(char* cmd,char* ag[]);
-int getInputArgCounts();
-void setenvs();
+
+// void readInput();
+// void parseInput();
+// void execCommand();
+// void changeDirectory(char **args);
+// void clearInput();
+// void clearCommand();
+// void clearArguments();
+// void strtokBeta(char* string, char delimiter, char* strs[]);
+// void changeSbush(char *args[]);
+// // void execCommand(char* cmd,char* ag[]);
+// int getInputArgCounts();
+// void setenvs();
 
 static int isBackground = 0;
 static char input[1000]={'\0'};
