@@ -13,8 +13,8 @@ void clearInput();
 void clearCommand();
 void clearArguments();
 void strtokBeta(char* string, char delimiter, char* strs[]);
-void setvar(char *args[]);
-void forkandExec(char* cmd,char* ag[]);
+void changeSbush(char *args[]);
+void execCommand(char* cmd,char* ag[]);
 int getInputArgCounts();
 void setenvs();
 
@@ -53,6 +53,7 @@ void makeNullExecvp(char* strs[], int index, int j){
 void changeDirectory(char **args){
     if(args[1] == NULL) puts("Usage : cd <path>\n");
     else if(chdir(args[1]) != 0) puts("Invalid path\n");
+    setprompt("sbush");
 }
 
 int skipspaces(char* str, int k){
@@ -112,42 +113,22 @@ void strtokBeta(char* str, char delimiter, char* strs[]){
     }
 }
 
-void setvar(char *args[]){
-    char pul[3][1000];
-    char *a[3];
-    a[0]=&pul[0][0];
-    a[1]=&pul[1][0];
-    a[2]=&pul[2][0];
-    strtokBeta(args[1], '=', a);
-    if(strcmp("PS1", a[0]) == 0) setprompt(a[1]);
+void changeSbush(char *args[]){
+    char temp[10][1000];
+    char *splitStrings[3];
+    splitStrings[0] = &temp[0][0];
+    splitStrings[1] = &temp[1][0];
+    splitStrings[2] = &temp[2][0];
+    strtokBeta(args[1], '=', splitStrings);
+    if(strcmp("PS1", splitStrings[0]) == 0) setprompt(splitStrings[1]);
 }
 
-void execCommand(){
-    if(strcmp(command, "cd") == 0){
-        changeDirectory(args);
-        setprompt("sbush");
-    }
-    else if(strcmp(command,"export") == 0){
-        setvar(args);
-    }
-    else if(strcmp(command,"clear") == 0){
-        clrscr();
-    }
-    else if(strcmp(command,"pwd") == 0){
-        getCurrentDirectory(pwd,-1);
-        puts(pwd);
-        puts("\n");
-    }
-    else{
-        forkandExec(command,args);
-    }
-}
-void forkandExec(char* cmd,char* ag[]){
+void execCommand(char* command,char* ag[]){
     pid_t pid;
-    if ( (pid = fork()) == 0) {
-        if(execvp(cmd, ag,envpe) == -1){
+    if ((pid = fork()) == 0) {
+        if(execvp(command, ag,envpe) == -1){
             puts("-sbush: ");
-            puts(cmd);
+            puts(command);
             puts(": No such command. \n");
         }
         exit(1);
@@ -162,20 +143,32 @@ void forkandExec(char* cmd,char* ag[]){
         waitpid(pid,&pid);
     }
 }
+
+void execCommand(){
+    
+}
+
 void readInput(){
     in = &input[0];
     gets(in);
 }
 
+void getPWD(){
+    getCurrentDirectory(pwd, -1);
+    puts(pwd);
+    puts("\n");
+}
+
 void parseInput(){
     strtokBeta(in,'|',args);
-    if(args[1] == NULL){ //Not a pipe command
-        clearArguments();
-        strtokBeta(in,' ',args);
-        command = args[0];
-        execCommand();
-        return;
-    }
+    clearArguments();
+    strtokBeta(in,' ',args);
+    command = args[0];
+    if(strcmp(command, "cd") == 0) changeDirectory(args);
+    else if(strcmp(command, "export") == 0) changeSbush(args);
+    else if(strcmp(command, "clear") == 0) clrscr();
+    else if(strcmp(command, "pwd") == 0) getPWD();
+    else execCommand(command,args);
 }
 
 int getInputArgCounts(){
