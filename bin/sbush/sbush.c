@@ -144,10 +144,6 @@ void execCommand(char* command,char* ag[]){
     }
 }
 
-void execCommand(){
-    
-}
-
 void readInput(){
     in = &input[0];
     gets(in);
