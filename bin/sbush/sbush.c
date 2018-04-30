@@ -63,7 +63,7 @@ void strtokBeta(char* str, char delimiter, char* strs[]){
     i=j=k=0;
     while(str[k]!='\n'){
         k = skipspaces(str, k);
-        else if(str[k] == delimiter || str[k] == '\0'){
+        if(str[k] == delimiter || str[k] == '\0'){
             strs[i][j]='\0';
             if(strcmp(strs[i],"&") == 0){
                 isBackground = 1;
