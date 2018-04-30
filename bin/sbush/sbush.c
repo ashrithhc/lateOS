@@ -45,9 +45,9 @@ void setprompt(){
     strcat(prompt, ">");
 }
 
-void makeNullExecvp(){
-    if(j == 0) strs[i] = NULL;
-    strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+void makeNullExecvp(char* strs[], int index, int j){
+    if(j == 0) strs[index] = NULL;
+    strs[index+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
 }
 
 void changeDirectory(char **args){
@@ -95,7 +95,7 @@ void strtokBeta(char* str, char delimiter, char* strs[]){
             isBackground = isBackgroundTask(strs, i);
             if (isBackground) strs[i] = NULL;
             if(str[k]=='\0'){
-                makeNullExecvp();
+                makeNullExecvp(strs, i, j);
                 return;
             }
             i++;
