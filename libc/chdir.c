@@ -17,7 +17,6 @@ int chdir(const char *path)
     if(path[l-1] != '/'){
         strcat(a,"/");
     }
-	// _syscall1(int,chdir, a);
     return chdirsyscall(a);
 }
 int cwd_call(char* buf,size_t size){
