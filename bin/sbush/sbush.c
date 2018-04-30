@@ -61,6 +61,11 @@ int skipspaces(char* str, int k){
     return k;
 }
 
+int isBackgroundTask(char* strs[], int index){
+    if(strcmp(strs[index], "&") == 0) return 1;
+    return 0;
+}
+
 void strtokBeta(char* str, char delimiter, char* strs[]){
     int i, j, k;
     i=j=k=0;
@@ -68,10 +73,8 @@ void strtokBeta(char* str, char delimiter, char* strs[]){
         k = skipspaces(str, k);
         if(str[k] == delimiter || str[k] == '\0'){
             strs[i][j]='\0';
-            if(strcmp(strs[i],"&") == 0){
-                isBackground = 1;
-                strs[i] = NULL;
-            }
+            isBackground = isBackgroundTask(strs, i);
+            if (isBackground) strs[i] = NULL;
             if(str[k]=='\0'){
                 if(j==0){
                     strs[i] = NULL;
