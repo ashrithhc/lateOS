@@ -9,6 +9,5 @@ void exitcall(int inp)
 
 void exit(int status)
 {
-	// _syscall1(void, exit, status);
 	exitcall(status);
 }
