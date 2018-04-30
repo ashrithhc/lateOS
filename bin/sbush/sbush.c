@@ -19,9 +19,9 @@ int getInputArgCounts();
 void setenvs();
 
 static int isBackground = 0;
-static char input[1025]={'\0'};
+static char input[1000]={'\0'};
 static char pwd[100];
-static char com[1025]={'\0'};
+static char com[1000]={'\0'};
 static char arg[1000][1000]={'\0'};
 static char prompt[100]={'\0'};
 static char *in = &input[0] ;
@@ -83,6 +83,13 @@ void parseNEWprompt(char* str, char delimiter, char* strs[]){
         }
         strs[i][j++]=str[k];
         ++k;
+    }
+}
+
+void clearArguments(){
+    for(int i=0; i<1000; i++){
+        args[i] = &arg[i][0];
+        for(int j=0; j<1000; j++) arg[i][j] = '\0' ;
     }
 }
 
@@ -178,7 +185,7 @@ int getInputArgCounts(){
 
 
 void clearInput(){
-    for(int i =0;i<1025;i++) {
+    for(int i =0;i<1000;i++) {
         input[i] = '\0';
     }
 }
@@ -189,21 +196,8 @@ void clearCommand(){
     }
 }
 
-void clearArguments(){
-    for(int i=0;i<1000;i++){
-        args[i] = &arg[i][0];
-        for(int j=0;j<1000;j++){
-            arg[i][j] = '\0' ;
-        }
-    }
-}
-
-
 void setenvs(){
-    for(int j=0;j<getenvlength();j++)
-    {
-        envpe[j] = getallenv(j);
-    }
+    for(int i=0; i < getenvlength(); i++) envpe[i] = getallenv(i);
 }
 
 int main(int argc, char *argv[], char *envp[]) {
