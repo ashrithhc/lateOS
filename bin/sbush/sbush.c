@@ -24,7 +24,7 @@ static char pwd[100];
 static char com[1025]={'\0'};
 static char arg[1000][1000]={'\0'};
 static char prompt[100]={'\0'};
-static char prompt1[100]={'\0'};
+// static char prompt1[100]={'\0'};
 static char *in = &input[0] ;
 static char *args[1000] ;
 static char *command = &com[0];
