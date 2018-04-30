@@ -5,13 +5,9 @@
 
 int kill_call(pid_t pid)
 {
-    // _syscall1(int, kill, (int)pid);
-    long __res;
-    __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; int $0x80; movq %%rax, %0;"
-                  : "=m" (__res)
-                  : "g" (62),"g" ((long)(pid))
-                  : "rax","rbx" );
-    return (int) (__res);
+    long retVal;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (62), "g" ((long)(pid)) : "rax", "rbx");
+    return (int)(retVal);
 }
 
 int strtoInt(char* num){
