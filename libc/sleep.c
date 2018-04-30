@@ -7,7 +7,10 @@
 #include <unistd.h>
 unsigned int sleep_call(unsigned int seconds)
 {
-    _syscall1(int,sleep,seconds);
+    // _syscall1(int,sleep,seconds);
+    long retVal;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (35), "g" ((long)(seconds)) : "rax", "rbx");
+    return (int)(retVal);
 }
 unsigned int sleep(unsigned int seconds)
 {
