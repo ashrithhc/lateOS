@@ -3,7 +3,9 @@
 #include <sys/defs.h>
 pid_t forkcall()
 {
-	_syscall(pid_t,fork);
+	// _syscall(pid_t, fork);
+	long retVal;
+	__asm__ volatile ("int $0x80;" : "=a"(retVal) : "a"(57) : );
 }
 
 pid_t fork()
