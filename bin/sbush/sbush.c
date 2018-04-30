@@ -51,9 +51,12 @@ void changeDirectory(char **args){
 }
 
 int skipspaces(char* str, int k){
-    if( k == 0 && str[k] == ' '){
-        k++;
-        continue;
+    while(str[k]!='\n'){
+        if( k == 0 && str[k] == ' '){
+            k++;
+            continue;
+        }
+        else break;
     }
     return k;
 }
