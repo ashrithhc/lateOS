@@ -42,10 +42,10 @@ void execCommand(){
     if(strcmp(command,"cd") == 0){
         chdir_1(args);
         getCurrentDirectory(pwd,-1);
-        strcpy(prompt1,prompt);
-        strcat(prompt1,":");
-        strcat(prompt1,pwd);
-        strcat(prompt1,"$");
+        strcpy(prompt,"sbush");
+        strcat(prompt,":");
+        strcat(prompt,pwd);
+        strcat(prompt,">");
     }
     else if(strcmp(command,"export") == 0){
         setvar(args);
