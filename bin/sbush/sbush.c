@@ -45,6 +45,11 @@ void setprompt(){
     strcat(prompt, ">");
 }
 
+void makeNullExecvp(){
+    if(j == 0) strs[i] = NULL;
+    strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+}
+
 void changeDirectory(char **args){
     if(args[1] == NULL) puts("Usage : cd <path>\n");
     else if(chdir(args[1]) != 0) puts("Invalid path\n");
@@ -66,20 +71,31 @@ int isBackgroundTask(char* strs[], int index){
     return 0;
 }
 
+void parseNEWprompt(char* str, char delimiter, char* strs[]){
+    int i, j, k;
+    i=j=k=0;
+    while(str[k] != '\n'){
+        k = skipspaces(str, k);
+        if(str[k] == '"' && delimiter == '='){
+            k++;
+            continue;
+        }
+        strs[i][j++]=str[k];
+        ++k;
+    }
+}
+
 void strtokBeta(char* str, char delimiter, char* strs[]){
     int i, j, k;
     i=j=k=0;
-    while(str[k]!='\n'){
+    while(str[k] != '\n'){
         k = skipspaces(str, k);
         if(str[k] == delimiter || str[k] == '\0'){
             strs[i][j]='\0';
             isBackground = isBackgroundTask(strs, i);
             if (isBackground) strs[i] = NULL;
             if(str[k]=='\0'){
-                if(j==0){
-                    strs[i] = NULL;
-                }
-                strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+                makeNullExecvp();
                 return;
             }
             i++;
@@ -102,7 +118,7 @@ void setvar(char *args[]){
     a[0]=&pul[0][0];
     a[1]=&pul[1][0];
     a[2]=&pul[2][0];
-    strtokBeta(args[1],'=',a);
+    parseNEWprompt(args[1],'=',a);
     if(strcmp("PS1",a[0])==0){
         strcpy(prompt,a[1]);
     }
