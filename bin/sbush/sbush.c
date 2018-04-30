@@ -13,7 +13,6 @@ void clearInput();
 void clearCommand();
 void clearArguments();
 void setStringTokens(char* string, char delimiter, char* strs[]);
-void initargs();
 void setvar(char *args[]);
 void forkandExec(char* cmd,char* ag[]);
 int getInputArgCounts();
@@ -42,13 +41,15 @@ int readstring(int fd,char* buf,int size){
 }
 
 int main(int argc, char *argv[], char *envp[]) {
-    initargs();
+    for(int i=0;i<1000;i++){
+        args[i] = &arg[i][0];
+    }
     strcpy(prompt,"sbush");
     getCurrentDirectory(pwd,-1);
     strcpy(prompt1,prompt);
     strcat(prompt1,":");
     strcat(prompt1,pwd);
-    strcat(prompt1,"$");
+    strcat(prompt1,">");
     setenvs();
     if(argc==1){
         clrscr();
@@ -184,12 +185,6 @@ void chdir_1(char **args){
     }
 }
 
-
-void initargs(){
-    for(int i=0;i<1000;i++){
-        args[i] = &arg[i][0];
-    }
-}
 void clearInput(){
     for(int i =0;i<1025;i++) {
         input[i] = '\0';
