@@ -8,6 +8,7 @@
 #define idtLowerMask 0xFFFF
 #define idtMidMask 0xFFFF
 #define idthighMask 0xFFFFFFFF
+#define timerMask 0xFF
 
 void isr_0();
 void isr_1();
@@ -45,7 +46,6 @@ void isr_128();
 extern void timer();
 extern void kb1();
 
-uint16_t PIT_reload_value = 1193;
 static struct idt IDTset[256];
 static struct idt_ptr pr;
 
@@ -81,47 +81,48 @@ void initISR(uint16_t interrupt, uint64_t function)
 }
 
 void startTimer(){
-    uint8_t lobyte = (uint8_t)(0x4A9 & 0xFF);
-    uint8_t hibyte = (uint8_t)((0x4A9 >> 8) & 0xFF);
+    uint8_t lobyte = (uint8_t)(0x4A9 & timerMask);
+    uint8_t hibyte = (uint8_t)((0x4A9 >> 8) & timerMask);
     outportb(0x40, lobyte);
     outportb(0x40, hibyte);
 }
 
 void init_idt(){
-	initISR(0 ,(uint64_t)&isr_0 );
-	initISR(1 ,(uint64_t)&isr_1);
-	initISR(2 ,(uint64_t)&isr_2);
-	initISR(3 ,(uint64_t)&isr_3);
-	initISR(4 ,(uint64_t)&isr_4);
-	initISR(5 ,(uint64_t)&isr_5);
-	initISR(6 ,(uint64_t)&isr_6);
-	initISR(7 ,(uint64_t)&isr_7);
-	initISR(8 ,(uint64_t)&isr_8);
-	initISR(9 ,(uint64_t)&isr_9);
-	initISR(10,(uint64_t)&isr_10) ;
-	initISR(11,(uint64_t)&isr_11) ;
-	initISR(12,(uint64_t)&isr_12) ;
-	initISR(13,(uint64_t)&isr_13) ;
-	initISR(14,(uint64_t)&isr_14) ;
-	initISR(15,(uint64_t)&isr_15) ;
-	initISR(16,(uint64_t)&isr_16) ;
-	initISR(17,(uint64_t)&isr_17) ;
-	initISR(18,(uint64_t)&isr_18) ;
-	initISR(19,(uint64_t)&isr_19) ;
-	initISR(20,(uint64_t)&isr_20) ;
-	initISR(21,(uint64_t)&isr_21) ;
-	initISR(22,(uint64_t)&isr_22) ;
-	initISR(23,(uint64_t)&isr_23) ;
-	initISR(24,(uint64_t)&isr_24) ;
-	initISR(25,(uint64_t)&isr_25) ;
-	initISR(26,(uint64_t)&isr_26) ;
-	initISR(27,(uint64_t)&isr_27) ;
-	initISR(28,(uint64_t)&isr_28) ;
-	initISR(29,(uint64_t)&isr_29) ;
-	initISR(30,(uint64_t)&isr_30) ;
-	initISR(31,(uint64_t)&isr_31) ;	
-	initISR(128,(uint64_t)&isr_128) ;
-	initISR(32,(uint64_t)&timer);
+	 for (i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
+	// initISR(0 , (uint64_t)&isr_0);
+	// initISR(1 , (uint64_t)&isr_1);
+	// initISR(2 , (uint64_t)&isr_2);
+	// initISR(3 , (uint64_t)&isr_3);
+	// initISR(4 , (uint64_t)&isr_4);
+	// initISR(5 , (uint64_t)&isr_5);
+	// initISR(6 , (uint64_t)&isr_6);
+	// initISR(7 , (uint64_t)&isr_7);
+	// initISR(8 , (uint64_t)&isr_8);
+	// initISR(9 , (uint64_t)&isr_9);
+	// initISR(10, (uint64_t)&isr_10);
+	// initISR(11, (uint64_t)&isr_11);
+	// initISR(12, (uint64_t)&isr_12);
+	// initISR(13, (uint64_t)&isr_13);
+	initISR(14, (uint64_t)&isr_14);
+	// initISR(15, (uint64_t)&isr_15);
+	// initISR(16, (uint64_t)&isr_16);
+	// initISR(17, (uint64_t)&isr_17);
+	// initISR(18, (uint64_t)&isr_18);
+	// initISR(19, (uint64_t)&isr_19);
+	// initISR(20, (uint64_t)&isr_20);
+	// initISR(21, (uint64_t)&isr_21);
+	// initISR(22, (uint64_t)&isr_22);
+	// initISR(23, (uint64_t)&isr_23);
+	// initISR(24, (uint64_t)&isr_24);
+	// initISR(25, (uint64_t)&isr_25);
+	// initISR(26, (uint64_t)&isr_26);
+	// initISR(27, (uint64_t)&isr_27);
+	// initISR(28, (uint64_t)&isr_28);
+	// initISR(29, (uint64_t)&isr_29);
+	// initISR(30, (uint64_t)&isr_30);
+	// initISR(31, (uint64_t)&isr_31);	
+	initISR(32, (uint64_t)&timer);
+	initISR(128, (uint64_t)&isr_128);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
 	pr.base = (uint64_t)IDTset;
 	initISR(33,(uint64_t)&kb1);
@@ -131,60 +132,6 @@ void init_idt(){
 void isr0(){
 	kprintf("This is an exception");
 	outportb(0x20,0x20);
-}
-void isr1(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr2(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr3(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr4(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr5(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr6(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr7(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr8(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr9(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr10(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr11(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr12(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr13(){
-	kprintf("This is an exception");
-	while(1);
-	outportb(0x20,0x20);
-
 }
 void isr14(){
 
@@ -248,74 +195,6 @@ void isr14(){
         while(1);
     }
 
-}
-void isr15(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr16(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr17(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr18(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr19(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr20(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr21(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr22(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr23(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr24(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr25(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr26(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr27(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr28(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr29(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr30(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
-}
-void isr31(){
-	kprintf("This is an exception");
-	outportb(0x20,0x20);
 }
 typedef struct registers_t{
 	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
