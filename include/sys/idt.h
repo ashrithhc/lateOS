@@ -1,10 +1,10 @@
 #ifndef _IDT_H_
 #define _IDT_H_
-#include<sys/defs.h>
+#include <sys/defs.h>
+
 void init_idt();
 extern void init_timer();
 void outportb(uint16_t port,uint8_t data);
-//uint8_t inportb(uint64_t port);
 extern void timer_handler();
 
 struct idt{

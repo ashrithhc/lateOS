@@ -4,62 +4,74 @@
 #include <sys/process.h>
 #include <sys/file.h>
 #include <sys/terminal.h>
+
+void isr_0();
+void isr_1();
+void isr_2();
+void isr_3();
+void isr_4();
+void isr_5();
+void isr_6();
+void isr_7();
+void isr_8();
+void isr_9();
+void isr_10();
+void isr_11();
+void isr_12();
+void isr_13();
+void isr_14();
+void isr_15();
+void isr_16();
+void isr_17();
+void isr_18();
+void isr_19();
+void isr_20();
+void isr_21();
+void isr_22();
+void isr_23();
+void isr_24();
+void isr_25();
+void isr_26();
+void isr_27();
+void isr_28();
+void isr_29();
+void isr_30();
+void isr_31();
+void isr_128();
+extern void timer();
+extern void kb1();
+
 uint16_t PIT_reload_value = 1193;
-static struct idt idt_table[256];
+static struct idt IDTset[256];
 static struct idt_ptr pr;
 
- void isr_0();
- void isr_1();
- void isr_2();
- void isr_3();
- void isr_4();
- void isr_5();
- void isr_6();
- void isr_7();
- void isr_8();
- void isr_9();
- void isr_10();
- void isr_11();
- void isr_12();
- void isr_13();
- void isr_14();
- void isr_15();
- void isr_16();
- void isr_17();
- void isr_18();
- void isr_19();
- void isr_20();
- void isr_21();
- void isr_22();
- void isr_23();
- void isr_24();
- void isr_25();
- void isr_26();
- void isr_27();
- void isr_28();
- void isr_29();
- void isr_30();
- void isr_31();
- void isr_128();
-extern void timer();
-extern  void kb1();
-// void kb();
-//uint64_t ret= 0;
-void set_value(uint16_t intNum,uint64_t handler)
+static inline uint8_t inportb(uint64_t port)
 {
-	idt_table[intNum].selector  = 0x08;
-	idt_table[intNum].lower_offset = handler & 0xFFFF ;
-	idt_table[intNum].mid_offset = (handler >> 16) & 0xFFFF;
-	idt_table[intNum].high_offset = (handler >> 32) & 0xFFFFFFFF;
-	idt_table[intNum].zero_1 = 0;
-	if(intNum == 128){
-		idt_table[intNum].type = 0xEE;
+        uint8_t retVal;
+        __asm__ volatile("inb %1, %0" : "=a"(retVal) : "Nd"(port));  
+        return retVal;
+}
+
+void outportb(uint16_t port, uint8_t data){
+	__asm__ volatile("outb %1, %0" : : "dN"(port), "a"(data));
+}
+
+void set_value(uint16_t interrupt, uint64_t function)
+{
+	IDTset[interrupt].selector  = 0x08;
+	IDTset[interrupt].lower_offset = function & 0xFFFF ;
+	IDTset[interrupt].mid_offset = (function >> 16) & 0xFFFF;
+	IDTset[interrupt].high_offset = (function >> 32) & 0xFFFFFFFF;
+	IDTset[interrupt].zero_1 = 0;
+	if(interrupt == 128){
+		IDTset[interrupt].type = 0xEE;
 	}
 	else{
-	idt_table[intNum].type = 0x8E;
+	IDTset[interrupt].type = 0x8E;
 	}
-	idt_table[intNum].zero_2 = 0;
+	IDTset[interrupt].zero_2 = 0;
 }
+
 void init_timer(){
     uint8_t lobyte = (uint8_t)(PIT_reload_value & 0xFF);
     uint8_t hibyte = (uint8_t)((PIT_reload_value >> 8) & 0xFF);
@@ -67,60 +79,44 @@ void init_timer(){
     outportb(0x40, hibyte);
 }
 
-static inline uint8_t inportb(uint64_t port)
-{
-        uint8_t r;
-        __asm__ volatile( 
-                        "inb %1, %0"
-                        : "=a"(r)
-                        : "Nd"(port)
-                        );  
-        return r;
-}
 void init_idt(){
-  //  init_timer();
-//	set_value(0,(uint64_t)&isr_0);
 	set_value(0 ,(uint64_t)&isr_0 );
-set_value(1 ,(uint64_t)&isr_1);
-set_value(2 ,(uint64_t)&isr_2);
-set_value(3 ,(uint64_t)&isr_3);
-set_value(4 ,(uint64_t)&isr_4);
-set_value(5 ,(uint64_t)&isr_5);
-set_value(6 ,(uint64_t)&isr_6);
-set_value(7 ,(uint64_t)&isr_7);
-set_value(8 ,(uint64_t)&isr_8);
-set_value(9 ,(uint64_t)&isr_9);
-set_value(10,(uint64_t)&isr_10) ;
-set_value(11,(uint64_t)&isr_11) ;
-set_value(12,(uint64_t)&isr_12) ;
-set_value(13,(uint64_t)&isr_13) ;
-set_value(14,(uint64_t)&isr_14) ;
-set_value(15,(uint64_t)&isr_15) ;
-set_value(16,(uint64_t)&isr_16) ;
-set_value(17,(uint64_t)&isr_17) ;
-set_value(18,(uint64_t)&isr_18) ;
-set_value(19,(uint64_t)&isr_19) ;
-set_value(20,(uint64_t)&isr_20) ;
-set_value(21,(uint64_t)&isr_21) ;
-set_value(22,(uint64_t)&isr_22) ;
-set_value(23,(uint64_t)&isr_23) ;
-set_value(24,(uint64_t)&isr_24) ;
-set_value(25,(uint64_t)&isr_25) ;
-set_value(26,(uint64_t)&isr_26) ;
-set_value(27,(uint64_t)&isr_27) ;
-set_value(28,(uint64_t)&isr_28) ;
-set_value(29,(uint64_t)&isr_29) ;
-set_value(30,(uint64_t)&isr_30) ;
-set_value(31,(uint64_t)&isr_31) ;	
-set_value(128,(uint64_t)&isr_128) ;
+	set_value(1 ,(uint64_t)&isr_1);
+	set_value(2 ,(uint64_t)&isr_2);
+	set_value(3 ,(uint64_t)&isr_3);
+	set_value(4 ,(uint64_t)&isr_4);
+	set_value(5 ,(uint64_t)&isr_5);
+	set_value(6 ,(uint64_t)&isr_6);
+	set_value(7 ,(uint64_t)&isr_7);
+	set_value(8 ,(uint64_t)&isr_8);
+	set_value(9 ,(uint64_t)&isr_9);
+	set_value(10,(uint64_t)&isr_10) ;
+	set_value(11,(uint64_t)&isr_11) ;
+	set_value(12,(uint64_t)&isr_12) ;
+	set_value(13,(uint64_t)&isr_13) ;
+	set_value(14,(uint64_t)&isr_14) ;
+	set_value(15,(uint64_t)&isr_15) ;
+	set_value(16,(uint64_t)&isr_16) ;
+	set_value(17,(uint64_t)&isr_17) ;
+	set_value(18,(uint64_t)&isr_18) ;
+	set_value(19,(uint64_t)&isr_19) ;
+	set_value(20,(uint64_t)&isr_20) ;
+	set_value(21,(uint64_t)&isr_21) ;
+	set_value(22,(uint64_t)&isr_22) ;
+	set_value(23,(uint64_t)&isr_23) ;
+	set_value(24,(uint64_t)&isr_24) ;
+	set_value(25,(uint64_t)&isr_25) ;
+	set_value(26,(uint64_t)&isr_26) ;
+	set_value(27,(uint64_t)&isr_27) ;
+	set_value(28,(uint64_t)&isr_28) ;
+	set_value(29,(uint64_t)&isr_29) ;
+	set_value(30,(uint64_t)&isr_30) ;
+	set_value(31,(uint64_t)&isr_31) ;	
+	set_value(128,(uint64_t)&isr_128) ;
 	set_value(32,(uint64_t)&timer);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
-	pr.base = (uint64_t)idt_table;
+	pr.base = (uint64_t)IDTset;
 	set_value(33,(uint64_t)&kb1);
-//	for(int i = 34;i<255;i++){
-//		set_value(i,(uint64_t)&isr);
-//	}
-//	set_value(0x20,(uint64_t)&timer);
 	__asm__("lidt (%0)"::"r"(&pr));
 }
 
@@ -392,8 +388,4 @@ uint64_t isr128(){
 	return ret;
 }
 
-void outportb(uint16_t port,uint8_t data){
-	__asm__ volatile("outb %1,%0"
-			:
-			:"dN"(port),"a"(data));
-}
+
