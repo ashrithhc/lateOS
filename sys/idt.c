@@ -10,6 +10,10 @@
 #define idthighMask 0xFFFFFFFF
 #define timerMask 0xFF
 
+typedef struct registers_t{
+    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
+}registers_t;
+
 void isr_0();
 void isr_14();
 void isr_128();
@@ -81,7 +85,7 @@ void isr14(){
 
 	uint64_t bb;
     int flag = 0;
-	__asm__ __volatile__("movq %%cr2,%0;":"=g"(bb)::);
+	__asm__ __volatile__("movq %%cr2, %0;" : "=g"(bb) : : );
     vmaStruct* vm = currentTask->vm;
     if(((vm->beginAddress + 4096) > bb) && (vm->lastAddress < bb)){
         flag =1;
@@ -140,114 +144,34 @@ void isr14(){
     }
 
 }
-typedef struct registers_t{
-	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
-}registers_t;
-
-/*uint64_t isr128(){
-	uint64_t cval;
-	 uint64_t as,ret = 0;
-	__asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
-	__asm__ __volatile__("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
-	registers_t *y = (registers_t *)as;
-
-    	if(cval == 0 && y->rbx == 0){
-        	read_input((char *)y->rcx);
-    	}
-    	else if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
-		kprintf("%s",y->rcx);
-	}
-	else if(cval == 57){
-		ret = (uint64_t)fork();
-        if((uint64_t)currentTask->kstack[14] == 9999){
-            ret = 0;
-            currentTask->kstack[14] = 0;
-            __asm__ __volatile__("popq %%rax":::"%rax");
-            __asm__ __volatile__("popq %%rax":::"%rax");
-        }
-	}
-	else if(cval == 59){
-		ret = execvpe((char *)y->rbx,(char **)y->rcx,(char **) y->rdx);
-	}
-	else if(cval == 0){
-		ret = read_tarfs((int) y->rbx, (char*) y->rcx, (int) y->rdx);			
-	}
-	else if(cval == 2){
-		ret = open_tarfs((char*) y->rbx, (int) y->rcx);
-	}else if(cval == 3) {
-            ret = close_tarfs((int)y->rbx);
-    }
-   else if(cval == 16){
-        ret =  open_dir((char *)y->rbx);
-    }
-   else if(cval == 78){
-		ret = readdir_tarfs((int) y->rbx, (char *) y->rcx);
-   }
-    	else if(cval == 60){
-      	 	exit();
-    	}
-    	else if(cval == 247){
-        	ret = (uint64_t)waitpid((int)y->rbx);
-    	}
-	else if(cval == 39){
-		ret = getTaskPID();
-	}
-	else if(cval == 110){
-		ret = getTaskPPID();
-	}
-    else if(cval == 7){
-            clrscr();
-    }
-    else if(cval == 62){
-       ret = kill((int)y->rbx);
-    }
-    else if(cval == 35){
-            ret = sleep((int)y->rbx);
-    }
-    else if(cval == 79){
-            getCurrentDirectory((char*)y->rbx,(int)y->rcx);
-    }
-    else if(cval == 80){
-            ret = chdir((char*)y->rbx);
-    }
-	else if(cval == 299){
-		ps();
-	}else if(cval == 9){
-            ret = (uint64_t) malloc((int)y->rbx);
-        }
-	// schedule();
-	outportb(0x20,0x20);
-	return ret;
-}*/
 
 uint64_t isr128(){
-    uint64_t cval;
-    uint64_t as, retVal = 0;
-    __asm__ __volatile__("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
-    __asm__ __volatile__("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
-    registers_t *y = (registers_t *)as;
+    uint64_t syscode, regsValue, retVal = 0;
+    __asm__ __volatile__("movq %%rax, %0;" : "=g"(syscode) : : "memory", "r15", "rax");
+    __asm__ __volatile__("movq %%rdi, %0;" : "=g"(regsValue) : : "memory", "rdi", "rax");
+    registers_t *regs = (registers_t *)regsValue;
     
-    switch (cval){
-        case 0:     if (y->rbx == 0){
-                        read_input((char *)y->rcx);
+    switch (syscode){
+        case 0:     if (regs->rbx == 0){
+                        read_input((char *)regs->rcx);
                         retVal = 0;
                     }
                     else {
-                        retVal = read_tarfs((int) y->rbx, (char*) y->rcx, (int) y->rdx);
+                        retVal = read_tarfs((int) regs->rbx, (char*) regs->rcx, (int) regs->rdx);
                     }
                     break;
-        case 1:     if (y->rbx == 1){
-                        kprintf("%s", y->rcx);
+        case 1:     if (regs->rbx == 1){
+                        kprintf("%s", regs->rcx);
                         retVal = 0;
                     }
                     break;
-        case 2:     retVal = open_tarfs((char*) y->rbx, (int) y->rcx);
+        case 2:     retVal = open_tarfs((char*) regs->rbx, (int) regs->rcx);
                     break;
-        case 3:     retVal = close_tarfs((int)y->rbx); break;
+        case 3:     retVal = close_tarfs((int)regs->rbx); break;
         case 7:     clrscr(); break;
-        case 9:     retVal = (uint64_t) malloc((int)y->rbx); break;
-        case 16:    retVal = open_dir((char *)y->rbx); break;
-        case 35:    retVal = sleep((int)y->rbx); break;
+        case 9:     retVal = (uint64_t) malloc((int)regs->rbx); break;
+        case 16:    retVal = open_dir((char *)regs->rbx); break;
+        case 35:    retVal = sleep((int)regs->rbx); break;
         case 39:    retVal = getTaskPID(); break;
         case 57:    retVal = (uint64_t)fork();
                     if((uint64_t)currentTask->kstack[14] == 9999){
@@ -257,17 +181,17 @@ uint64_t isr128(){
                         __asm__ __volatile__("popq %%rax":::"%rax");
                     }
                     break;
-        case 59:    retVal = execvpe((char *)y->rbx,(char **)y->rcx,(char **) y->rdx); break;
+        case 59:    retVal = execvpe((char *)regs->rbx,(char **)regs->rcx,(char **) regs->rdx); break;
         case 60:    exit(); break;
-        case 62:    retVal = kill((int)y->rbx); break;
-        case 78:    retVal = readdir_tarfs((int) y->rbx, (char *) y->rcx); break;
-        case 79:    getCurrentDirectory((char*)y->rbx,(int)y->rcx); break;
-        case 80:    retVal = chdir((char*)y->rbx); break;
+        case 62:    retVal = kill((int)regs->rbx); break;
+        case 78:    retVal = readdir_tarfs((int) regs->rbx, (char *) regs->rcx); break;
+        case 79:    getCurrentDirectory((char*)regs->rbx,(int)regs->rcx); break;
+        case 80:    retVal = chdir((char*)regs->rbx); break;
         case 110:   retVal = getTaskPPID(); break;
-        case 247:   retVal = (uint64_t) waitpid((int)y->rbx); break;
+        case 247:   retVal = (uint64_t) waitpid((int)regs->rbx); break;
         case 299:   ps(); break;
         default:    retVal = 0; break;
     }
-    outportb(0x20,0x20);
+    outportb(0x20, 0x20);
     return retVal;
 }
