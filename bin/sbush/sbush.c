@@ -37,9 +37,9 @@ int readstring(int fd,char* buf,int size){
     return (int)(retVal);
 }
 
-void setprompt(){
+void setprompt(char *sbush){
     getCurrentDirectory(pwd, -1);
-    strcpy(prompt, "sbush");
+    strcpy(prompt, sbush);
     strcat(prompt, ":");
     strcat(prompt, pwd);
     strcat(prompt, ">");
@@ -85,6 +85,7 @@ void parseNEWprompt(char* str, char delimiter, char* strs[]){
     }
 }
 
+/* Implemented based on : https://stackoverflow.com/questions/28931379/implementation-of-strtok-function*/
 void strtokBeta(char* str, char delimiter, char* strs[]){
     int i, j, k;
     i=j=k=0;
@@ -98,8 +99,7 @@ void strtokBeta(char* str, char delimiter, char* strs[]){
                 makeNullExecvp(strs, i, j);
                 return;
             }
-            i++;
-            j=0;
+            i++; j=0;
         }
         else{
             if(str[k] == '"' && delimiter == '='){
@@ -108,30 +108,24 @@ void strtokBeta(char* str, char delimiter, char* strs[]){
             }
             strs[i][j++]=str[k];
         }
-        ++k;
+        k++;
     }
 }
 
 void setvar(char *args[]){
-    char pul[3][1000];//={"aaaaaaaaA","aaaaaaaaA"};
+    char pul[3][1000];
     char *a[3];
     a[0]=&pul[0][0];
     a[1]=&pul[1][0];
     a[2]=&pul[2][0];
-    strtokBeta(args[1],'=',a);
-    if(strcmp("PS1",a[0])==0){
-        strcpy(prompt,a[1]);
-    }
-   /* if(strcmp("PATH",a[0])==0){
-        setenv("PATH", a[1], 1);
-        setenvs();
-    }*/
+    strtokBeta(args[1], '=', a);
+    if(strcmp("PS1",a[0])==0) strcpy(prompt,a[1]);
 }
 
 void execCommand(){
     if(strcmp(command, "cd") == 0){
         changeDirectory(args);
-        setprompt();
+        setprompt("sbush");
     }
     else if(strcmp(command,"export") == 0){
         setvar(args);
@@ -227,7 +221,7 @@ int main(int argc, char *argv[], char *envp[]) {
     for(int i=0;i<1000;i++){
         args[i] = &arg[i][0];
     }
-    setprompt();
+    setprompt("sbush");
     setenvs();
     if(argc==1){
         clrscr();
