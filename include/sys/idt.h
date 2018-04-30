@@ -3,7 +3,7 @@
 #include <sys/defs.h>
 
 void init_idt();
-extern void init_timer();
+extern void startTimer();
 void outportb(uint16_t port,uint8_t data);
 extern void timer_handler();
 

@@ -69,7 +69,7 @@ void setIDTtype(uint16_t interrupt){
 	}
 }
 
-void set_value(uint16_t interrupt, uint64_t function)
+void initISR(uint16_t interrupt, uint64_t function)
 {
 	(&(IDTset[interrupt]))->selector  = 0x08;
 	(&(IDTset[interrupt]))->lower_offset = function & idtLowerMask ;
@@ -80,51 +80,51 @@ void set_value(uint16_t interrupt, uint64_t function)
 	setIDTtype(interrupt);
 }
 
-void init_timer(){
-    uint8_t lobyte = (uint8_t)(PIT_reload_value & 0xFF);
-    uint8_t hibyte = (uint8_t)((PIT_reload_value >> 8) & 0xFF);
+void startTimer(){
+    uint8_t lobyte = (uint8_t)(0x4A9 & 0xFF);
+    uint8_t hibyte = (uint8_t)((0x4A9 >> 8) & 0xFF);
     outportb(0x40, lobyte);
     outportb(0x40, hibyte);
 }
 
 void init_idt(){
-	set_value(0 ,(uint64_t)&isr_0 );
-	set_value(1 ,(uint64_t)&isr_1);
-	set_value(2 ,(uint64_t)&isr_2);
-	set_value(3 ,(uint64_t)&isr_3);
-	set_value(4 ,(uint64_t)&isr_4);
-	set_value(5 ,(uint64_t)&isr_5);
-	set_value(6 ,(uint64_t)&isr_6);
-	set_value(7 ,(uint64_t)&isr_7);
-	set_value(8 ,(uint64_t)&isr_8);
-	set_value(9 ,(uint64_t)&isr_9);
-	set_value(10,(uint64_t)&isr_10) ;
-	set_value(11,(uint64_t)&isr_11) ;
-	set_value(12,(uint64_t)&isr_12) ;
-	set_value(13,(uint64_t)&isr_13) ;
-	set_value(14,(uint64_t)&isr_14) ;
-	set_value(15,(uint64_t)&isr_15) ;
-	set_value(16,(uint64_t)&isr_16) ;
-	set_value(17,(uint64_t)&isr_17) ;
-	set_value(18,(uint64_t)&isr_18) ;
-	set_value(19,(uint64_t)&isr_19) ;
-	set_value(20,(uint64_t)&isr_20) ;
-	set_value(21,(uint64_t)&isr_21) ;
-	set_value(22,(uint64_t)&isr_22) ;
-	set_value(23,(uint64_t)&isr_23) ;
-	set_value(24,(uint64_t)&isr_24) ;
-	set_value(25,(uint64_t)&isr_25) ;
-	set_value(26,(uint64_t)&isr_26) ;
-	set_value(27,(uint64_t)&isr_27) ;
-	set_value(28,(uint64_t)&isr_28) ;
-	set_value(29,(uint64_t)&isr_29) ;
-	set_value(30,(uint64_t)&isr_30) ;
-	set_value(31,(uint64_t)&isr_31) ;	
-	set_value(128,(uint64_t)&isr_128) ;
-	set_value(32,(uint64_t)&timer);
+	initISR(0 ,(uint64_t)&isr_0 );
+	initISR(1 ,(uint64_t)&isr_1);
+	initISR(2 ,(uint64_t)&isr_2);
+	initISR(3 ,(uint64_t)&isr_3);
+	initISR(4 ,(uint64_t)&isr_4);
+	initISR(5 ,(uint64_t)&isr_5);
+	initISR(6 ,(uint64_t)&isr_6);
+	initISR(7 ,(uint64_t)&isr_7);
+	initISR(8 ,(uint64_t)&isr_8);
+	initISR(9 ,(uint64_t)&isr_9);
+	initISR(10,(uint64_t)&isr_10) ;
+	initISR(11,(uint64_t)&isr_11) ;
+	initISR(12,(uint64_t)&isr_12) ;
+	initISR(13,(uint64_t)&isr_13) ;
+	initISR(14,(uint64_t)&isr_14) ;
+	initISR(15,(uint64_t)&isr_15) ;
+	initISR(16,(uint64_t)&isr_16) ;
+	initISR(17,(uint64_t)&isr_17) ;
+	initISR(18,(uint64_t)&isr_18) ;
+	initISR(19,(uint64_t)&isr_19) ;
+	initISR(20,(uint64_t)&isr_20) ;
+	initISR(21,(uint64_t)&isr_21) ;
+	initISR(22,(uint64_t)&isr_22) ;
+	initISR(23,(uint64_t)&isr_23) ;
+	initISR(24,(uint64_t)&isr_24) ;
+	initISR(25,(uint64_t)&isr_25) ;
+	initISR(26,(uint64_t)&isr_26) ;
+	initISR(27,(uint64_t)&isr_27) ;
+	initISR(28,(uint64_t)&isr_28) ;
+	initISR(29,(uint64_t)&isr_29) ;
+	initISR(30,(uint64_t)&isr_30) ;
+	initISR(31,(uint64_t)&isr_31) ;	
+	initISR(128,(uint64_t)&isr_128) ;
+	initISR(32,(uint64_t)&timer);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
 	pr.base = (uint64_t)IDTset;
-	set_value(33,(uint64_t)&kb1);
+	initISR(33,(uint64_t)&kb1);
 	__asm__("lidt (%0)"::"r"(&pr));
 }
 
