@@ -5,6 +5,10 @@
 #include <sys/file.h>
 #include <sys/terminal.h>
 
+#define idtLowerMask 0xFFFF
+#define idtMidMask 0xFFFF
+#define idthighMask 0xFFFFFFFF
+
 void isr_0();
 void isr_1();
 void isr_2();
@@ -56,20 +60,24 @@ void outportb(uint16_t port, uint8_t data){
 	__asm__ volatile("outb %1, %0" : : "dN"(port), "a"(data));
 }
 
+void setIDTtype(uint16_t interrupt){
+	if(interrupt == 128){
+		(&(IDTset[interrupt]))->type = 0xEE;
+	}
+	else{
+		(&(IDTset[interrupt]))->type = 0x8E;
+	}
+}
+
 void set_value(uint16_t interrupt, uint64_t function)
 {
 	(&(IDTset[interrupt]))->selector  = 0x08;
-	IDTset[interrupt].lower_offset = function & 0xFFFF ;
-	IDTset[interrupt].mid_offset = (function >> 16) & 0xFFFF;
-	IDTset[interrupt].high_offset = (function >> 32) & 0xFFFFFFFF;
-	IDTset[interrupt].zero_1 = 0;
-	if(interrupt == 128){
-		IDTset[interrupt].type = 0xEE;
-	}
-	else{
-	IDTset[interrupt].type = 0x8E;
-	}
-	IDTset[interrupt].zero_2 = 0;
+	(&(IDTset[interrupt]))->lower_offset = function & idtLowerMask ;
+	(&(IDTset[interrupt]))->mid_offset = (function >> 16) & idtMidMask;
+	(&(IDTset[interrupt]))->high_offset = (function >> 32) & idthighMask;
+	(&(IDTset[interrupt]))->zero_1 = 0;
+	(&(IDTset[interrupt]))->zero_2 = 0;
+	setIDTtype(interrupt);
 }
 
 void init_timer(){
