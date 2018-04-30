@@ -199,10 +199,10 @@ int main(int argc, char *argv[], char *envp[]) {
     }
     strcpy(prompt,"sbush");
     getCurrentDirectory(pwd,-1);
-    strcpy(prompt1,prompt);
-    strcat(prompt1,":");
-    strcat(prompt1,pwd);
-    strcat(prompt1,">");
+    // strcpy(prompt1,prompt);
+    strcat(prompt,":");
+    strcat(prompt,pwd);
+    strcat(prompt,">");
     setenvs();
     if(argc==1){
         clrscr();
