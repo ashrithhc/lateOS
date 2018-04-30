@@ -122,6 +122,19 @@ void write_terminal()
 			}
 			else
 			{
+				/*key_pressed=code_map[c][caps];
+				caps=0;
+				*reg=key_pressed;*/
+				if(ctrl==1)
+				{	
+					ctrl=0;
+					caps=1;	
+				}	
+				else
+				{
+					/*kprintf("%c",code_map[29][ctrl]);
+					*buf = code_map[29][ctrl];
+					buf++;*/
 				}
 				key_pressed=code_map[c][caps];
 				caps=0;
@@ -179,4 +192,5 @@ int getoffset(){
 void setoffset(int i){
     offset = i;
 }
+
 */
