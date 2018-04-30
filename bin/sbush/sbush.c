@@ -8,7 +8,7 @@
 void readInput();
 void parseInput();
 void execCommand();
-void chdir_1(char **args);
+void changeDirectory(char **args);
 void clearInput();
 void clearCommand();
 void clearArguments();
@@ -45,9 +45,30 @@ void setprompt(){
     strcat(prompt, ">");
 }
 
+void changeDirectory(char **args){
+    if(args[1] == NULL) puts("Usage : cd <path>\n");
+    else if(chdir(args[1]) != 0) puts("Invalid path\n");
+}
+
+void setvar(char *args[]){
+    char pul[3][1000];//={"aaaaaaaaA","aaaaaaaaA"};
+    char *a[3];
+    a[0]=&pul[0][0];
+    a[1]=&pul[1][0];
+    a[2]=&pul[2][0];
+    setStringTokens(args[1],'=',a);
+    if(strcmp("PS1",a[0])==0){
+        strcpy(prompt,a[1]);
+    }
+   /* if(strcmp("PATH",a[0])==0){
+        setenv("PATH", a[1], 1);
+        setenvs();
+    }*/
+}
+
 void execCommand(){
-    if(strcmp(command,"cd") == 0){
-        chdir_1(args);
+    if(strcmp(command, "cd") == 0){
+        changeDirectory(args);
         setprompt();
     }
     else if(strcmp(command,"export") == 0){
@@ -109,17 +130,7 @@ int getInputArgCounts(){
     }
     return i;
 }
-void chdir_1(char **args){
-    if(args[1] == NULL){
-        puts("No argument passed\n");
-        return;
-    }
-    if(chdir(args[1])!=0){
-        puts("-sbush: cd: ");
-        puts(args[1]);
-        puts(": No such directory. \n");
-    }
-}
+
 
 void clearInput(){
     for(int i =0;i<1025;i++) {
@@ -141,21 +152,7 @@ void clearArguments(){
         }
     }
 }
-void setvar(char *args[]){
-    char pul[3][1000];//={"aaaaaaaaA","aaaaaaaaA"};
-    char *a[3];
-    a[0]=&pul[0][0];
-    a[1]=&pul[1][0];
-    a[2]=&pul[2][0];
-    setStringTokens(args[1],'=',a);
-    if(strcmp("PS1",a[0])==0){
-        strcpy(prompt,a[1]);
-    }
-   /* if(strcmp("PATH",a[0])==0){
-        setenv("PATH", a[1], 1);
-        setenvs();
-    }*/
-}
+
 void setStringTokens(char* str, char delimiter, char* strs[]){
     int i=0,j=0,k=0;
     while(str[k]!='\n'){
