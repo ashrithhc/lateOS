@@ -119,7 +119,7 @@ void setvar(char *args[]){
     a[1]=&pul[1][0];
     a[2]=&pul[2][0];
     strtokBeta(args[1], '=', a);
-    if(strcmp("PS1", a[0]) == 0) strcpy(prompt,a[1]);
+    if(strcmp("PS1", a[0]) == 0) setprompt(a[1]);
 }
 
 void execCommand(){
