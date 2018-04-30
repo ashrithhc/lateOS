@@ -58,7 +58,7 @@ void outportb(uint16_t port, uint8_t data){
 
 void set_value(uint16_t interrupt, uint64_t function)
 {
-	IDTset[interrupt].selector  = 0x08;
+	(&(IDTset[interrupt]))->selector  = 0x08;
 	IDTset[interrupt].lower_offset = function & 0xFFFF ;
 	IDTset[interrupt].mid_offset = (function >> 16) & 0xFFFF;
 	IDTset[interrupt].high_offset = (function >> 32) & 0xFFFFFFFF;
