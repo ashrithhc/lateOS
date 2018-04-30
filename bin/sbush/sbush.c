@@ -6,29 +6,12 @@
 #include <syscall.h>
 #include <sys/wait.h>
 
-// void readInput();
-// void parseInput();
-// void execCommand();
-// void changeDirectory(char **args);
-// void clearInput();
-// void clearCommand();
-// void clearArguments();
-// void strtokBeta(char* string, char delimiter, char* strs[]);
-// void changeSbush(char *args[]);
-// // void execCommand(char* cmd,char* ag[]);
-// int getInputArgCounts();
-// void setenvs();
-
 static int isBackground = 0;
 static char input[1000]={'\0'};
 static char pwd[100];
 static char com[1000]={'\0'};
 static char arg[1000][1000]={'\0'};
 static char prompt[100]={'\0'};
-static char *in = &input[0] ;
-static char *args[1000] ;
-static char *command = &com[0];
-static char *envpe[100];
 
 static char cm1[20][100];
 static char *cm[20];
@@ -86,6 +69,11 @@ void parseNEWprompt(char* str, char delimiter, char* strs[]){
         ++k;
     }
 }
+
+static char *in = &input[0] ;
+static char *args[1000] ;
+static char *command = &com[0];
+static char *envpe[100];
 
 void clearArguments(){
     for(int i=0; i<1000; i++){
