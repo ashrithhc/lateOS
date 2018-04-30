@@ -24,11 +24,16 @@ int open(const char *path,int flags)
 	return 0;
 }
 int close(int fd){
-    _syscall1(int,close,fd);
+    long retVal;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (3), "g" ((long)(fd)) : "rax", "rbx");
+    return (int)(retVal);
 }
 int open_dir(const char *path)
 {
-    _syscall1(int, opendir, path);
+    // _syscall1(int, opendir, path);
+    long retVal;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (16), "g" ((long)(fd)) : "rax", "rbx");
+    return (int)(retVal);
 }
 
 DIR *opendir(const char *name){
