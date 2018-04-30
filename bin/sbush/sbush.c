@@ -33,11 +33,9 @@ static char *envpe[100];
 static char cm1[20][100];
 static char *cm[20];
 int readstring(int fd,char* buf,int size){
-    // _syscall3(int,read,int,fd,char*,buf,int,size);
     long retVal;
     __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(buf)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
     return (int)(retVal);
-    return 0;
 }
 
 void execCommand(){
@@ -189,8 +187,7 @@ void setStringTokens(char* str, char delimiter, char* strs[]){
     }
 }
 void setenvs(){
-    int i = getenvlength();
-    for(int j=0;j<i;j++)
+    for(int j=0;j<getenvlength();j++)
     {
         envpe[j] = getallenv(j);
     }
