@@ -10,9 +10,9 @@
 #define idthighMask 0xFFFFFFFF
 #define timerMask 0xFF
 
-typedef struct registers_t{
+typedef struct registersAligned{
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
-}registers_t;
+}registersAligned;
 
 void isr_0();
 void isr_14();
@@ -143,7 +143,7 @@ uint64_t isr128(){
     uint64_t syscode, regsValue, retVal = 0;
     __asm__ __volatile__("movq %%rax, %0;" : "=g"(syscode) : : "memory", "r15", "rax");
     __asm__ __volatile__("movq %%rdi, %0;" : "=g"(regsValue) : : "memory", "rdi", "rax");
-    registers_t *regs = (registers_t *)regsValue;
+    registersAligned *regs = (registersAligned *)regsValue;
     
     switch (syscode){
         case 0:     if (regs->rbx == 0){
