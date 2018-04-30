@@ -55,8 +55,4 @@ __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; movq %3, %%rcx; movq %4, %
  return (type) (__res); \
 }while(0)
 
-
-void syscall1_int_int(int constant, int arg);
-void syscall1_void(int constant, void arg);
-void syscall1_voids(int constant, void* arg);
 #endif
