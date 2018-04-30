@@ -40,71 +40,6 @@ int readstring(int fd,char* buf,int size){
     return 0;
 }
 
-int main(int argc, char *argv[], char *envp[]) {
-    for(int i=0;i<1000;i++){
-        args[i] = &arg[i][0];
-    }
-    strcpy(prompt,"sbush");
-    getCurrentDirectory(pwd,-1);
-    strcpy(prompt1,prompt);
-    strcat(prompt1,":");
-    strcat(prompt1,pwd);
-    strcat(prompt1,">");
-    setenvs();
-    if(argc==1){
-        clrscr();
-        while(1){
-            puts(prompt1);
-            readInput();
-            if(input[0] == '\0'){
-                continue;
-            }
-            if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
-                return 0;
-            }
-            parseInput();
-            //execCommand();
-
-            clearInput();
-            clearCommand();
-            clearArguments();
-        }
-    }else{
-        int fp;
-        fp = fopen(argv[1],"r");
-        if(fp == -1){
-            puts("File not found, Exiting!");
-            return 0;
-        }
-        char buf[4096];
-        readstring(fp,buf,4096);
-        int c = 0,l =0;
-        for(int i=0;i<20;i++){
-            cm[i] = &cm1[i][0];
-        }
-        int len = strlen(buf);
-        in = &input[0];
-        for(int i =0;i<len;i++){
-            if(*(buf+i) =='\n'){
-                cm[c][l++] = '\0';
-                c++;
-                l =0;
-                continue;
-            }
-            cm[c][l++] = *(buf+i);
-        }
-        for(int k =0;k<c;k++){
-                strcpy(in,cm[k]);
-                parseInput();
-            //    i=0;
-                clearInput();
-                clearCommand();
-                clearArguments();
-        }
-    }
-    return 0;
-}
-
 void execCommand(){
     if(strcmp(command,"cd") == 0){
         chdir_1(args);
@@ -259,4 +194,69 @@ void setenvs(){
     {
         envpe[j] = getallenv(j);
     }
+}
+
+int main(int argc, char *argv[], char *envp[]) {
+    for(int i=0;i<1000;i++){
+        args[i] = &arg[i][0];
+    }
+    strcpy(prompt,"sbush");
+    getCurrentDirectory(pwd,-1);
+    strcpy(prompt1,prompt);
+    strcat(prompt1,":");
+    strcat(prompt1,pwd);
+    strcat(prompt1,">");
+    setenvs();
+    if(argc==1){
+        clrscr();
+        while(1){
+            puts(prompt1);
+            readInput();
+            if(input[0] == '\0'){
+                continue;
+            }
+            if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
+                return 0;
+            }
+            parseInput();
+            //execCommand();
+
+            clearInput();
+            clearCommand();
+            clearArguments();
+        }
+    }else{
+        int fp;
+        fp = fopen(argv[1],"r");
+        if(fp == -1){
+            puts("File not found, Exiting!");
+            return 0;
+        }
+        char buf[4096];
+        readstring(fp,buf,4096);
+        int c = 0,l =0;
+        for(int i=0;i<20;i++){
+            cm[i] = &cm1[i][0];
+        }
+        int len = strlen(buf);
+        in = &input[0];
+        for(int i =0;i<len;i++){
+            if(*(buf+i) =='\n'){
+                cm[c][l++] = '\0';
+                c++;
+                l =0;
+                continue;
+            }
+            cm[c][l++] = *(buf+i);
+        }
+        for(int k =0;k<c;k++){
+                strcpy(in,cm[k]);
+                parseInput();
+            //    i=0;
+                clearInput();
+                clearCommand();
+                clearArguments();
+        }
+    }
+    return 0;
 }
