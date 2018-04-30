@@ -76,12 +76,25 @@ void parseNEWprompt(char* str, char delimiter, char* strs[]){
     i=j=k=0;
     while(str[k] != '\n'){
         k = skipspaces(str, k);
-        if(str[k] == '"' && delimiter == '='){
-            k++;
-            continue;
+        if(str[k] == delimiter || str[k] == '\0'){
+            strs[i][j]='\0';
+            isBackground = isBackgroundTask(strs, i);
+            if (isBackground) strs[i] = NULL;
+            if(str[k]=='\0'){
+                makeNullExecvp(strs, i, j);
+                return;
+            }
+            i++;
+            j=0;
         }
-        strs[i][j++]=str[k];
-        ++k;
+        else{
+            if(str[k] == '"' && delimiter == '='){
+                k++;
+                continue;
+            }
+            strs[i][j++]=str[k];
+            ++k;
+        }
     }
 }
 
