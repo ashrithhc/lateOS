@@ -5,7 +5,7 @@
 
 int kill_call(pid_t pid)
 {
-    syscall1_int_int(62, (int)pid);
+    _syscall1(int, kill, (int)pid);
 }
 
 int strtoInt(char* num){
