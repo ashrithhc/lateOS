@@ -20,7 +20,9 @@ int chdir(const char *path)
     return chdirsyscall(a);
 }
 int cwd_call(char* buf,size_t size){
-    _syscall2(int,getCurrentDirectory, char*, buf,int,size);
+    long retVal;
+    __asm__ volatile ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(79), "g"((long)(buf)), "g"((long)(size)) : "rax", "rbx", "rcx");
+    return (int)(retVal);
 }
 char *getCurrentDirectory(char *buf, size_t size){
     cwd_call(buf,size);
