@@ -2,7 +2,10 @@
 
 void ps_call()
 {
-	_syscall(void, ps);
+	// _syscall(void, ps);
+	long retVal;
+	__asm__ volatile ("int $0x80;" : "=a"(retVal) : "a"(299) : );
+	// return (type) (__res);
 }
 
 void ps()
