@@ -1,5 +1,5 @@
 .global timer
-.global kb1
+.global keyboard
 
 .global isr_0
 .global isr_14
@@ -52,7 +52,7 @@ timer:
 	pop
 	iretq
 
-kb1:
+keyboard:
 	push
 	callq write_terminal
 	pop

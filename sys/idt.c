@@ -18,7 +18,7 @@ void isr_0();
 void isr_14();
 void isr_128();
 extern void timer();
-extern void kb1();
+extern void keyboard();
 
 static struct idt IDTset[256];
 static struct idt_ptr IDTloader;
@@ -72,6 +72,16 @@ int checkForVM(vmaStruct *vm, uint64_t cr2Val){
     return flag;
 }
 
+void checkValid(){
+    int isValid = 0;
+    vmaStruct* taskVMA = currentTask->vm;
+
+    if(((taskVMA->beginAddress + 0x1000) > cr2Val) && (taskVMA->lastAddress < cr2Val)) isValid = 1;
+    else isValid = checkForVM(taskVMA, cr2Val);
+
+    if(isValid == 0) exit();
+}
+
 void startTimer(){
     uint8_t lobyte = (uint8_t)(0x4A9 & timerMask);
     uint8_t hibyte = (uint8_t)((0x4A9 >> 8) & timerMask);
@@ -83,7 +93,7 @@ void init_idt(){
 	for (int i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
 	initISR(14, (uint64_t)&isr_14);
 	initISR(32, (uint64_t)&timer);
-	initISR(33, (uint64_t)&kb1);
+	initISR(33, (uint64_t)&keyboard);
 	initISR(128, (uint64_t)&isr_128);
 	loadIDT();
 }
@@ -93,46 +103,46 @@ void isr0(){
 	outportb(0x20,0x20);
 }
 
+uint64_t getCR2(){
+    uint64_t retVal;
+    __asm__ __volatile__("movq %%cr2, %0;" : "=g"(retVal) : : );
+    return retVal;
+}
+
 void isr14(){
-	uint64_t cr2Val;
-    int isValid = 0;
-	__asm__ __volatile__("movq %%cr2, %0;" : "=g"(cr2Val) : : );
+	uint64_t vaddr = getCR2();
 
-    vmaStruct* vm = currentTask->vm;
-    if(((vm->beginAddress + 0x1000) > cr2Val) && (vm->lastAddress < cr2Val)) isValid = 1;
-    else isValid = checkForVM(vm, cr2Val);
-    if(isValid == 0) exit();
-
-    uint64_t* k = getPTE(cr2Val);
-    if( k[(cr2Val>>12)&0x1FF] & 0x0000000000000200){     //COW
+    checkValid();
+    uint64_t *taskPTE = getPTE(vaddr);
+    if( taskPTE[(vaddr>>12)&0x1FF] & 0x0000000000000200){     //COW
         uint64_t k1;
         __asm__ __volatile__("movq %%cr3,%0;":"=g"(k1)::);
-        uint64_t  add = (k[(cr2Val>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
+        uint64_t  add = (taskPTE[(vaddr>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
         int i = 2;//getrefcount(add);
         if(i == 2){
             uint64_t p_n = getFreeFrame();
-            memcpy((void*)(0xffffffff80000000 + p_n),(void *)(cr2Val&0xFFFFFFFFFFFFF000),0x1000);
+            memcpy((void*)(0xffffffff80000000 + p_n),(void *)(vaddr&0xFFFFFFFFFFFFF000),0x1000);
             switchtokern();
-            init_pages_for_process((cr2Val&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
+            init_pages_for_process((vaddr&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
             free(add);
         } else if(i == 1){
-            k[(cr2Val>>12)&0x1FF] = (k[(cr2Val>>12)&0x1FF] | 0x2) & 0xFFFFFFFFFFFFFDFF;
+            taskPTE[(vaddr>>12)&0x1FF] = (taskPTE[(vaddr>>12)&0x1FF] | 0x2) & 0xFFFFFFFFFFFFFDFF;
         } else{
             kprintf("Should never be here\n");
             while(1);
         }
         __asm__ __volatile__("movq %0,%%cr3;"::"r"(k1):);
 	}
-	else if( (currentTask->vm->beginAddress > cr2Val)  && (currentTask->vm->lastAddress < cr2Val)){   //Auto Growing stack
-        uint64_t k;
-		__asm__ __volatile__("movq %%cr3,%0;":"=g"(k)::);
+	else if( (currentTask->vm->beginAddress > vaddr)  && (currentTask->vm->lastAddress < vaddr)){   //Auto Growing stack
+        uint64_t taskPTE;
+		__asm__ __volatile__("movq %%cr3,%0;":"=g"(taskPTE)::);
 		uint64_t p_n = getFreeFrame();
 		switchtokern();
-		init_pages_for_process((cr2Val&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
-		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(k):);
+		init_pages_for_process((vaddr&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
+		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(taskPTE):);
 	}
     else{
-        kprintf("Segmentation Fault: Address:%p \n",cr2Val);
+        kprintf("Segmentation Fault: Address:%p \n",vaddr);
         exit();
         while(1);
     }
