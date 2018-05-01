@@ -7,6 +7,8 @@
 # define validatebits 0xFFFFFFFFFFFFF000
 # define pageSize 0x1000
 
+static int filecount = 0;
+
 typedef uint64_t Elf64_Addr;
 typedef uint16_t Elf64_Half;
 typedef uint64_t Elf64_Lword;
