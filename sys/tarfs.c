@@ -214,39 +214,6 @@ int close_tarfs(int fp)
 	return ft.fd;
 }
 
-uint64_t octal_to_binary(const char* octal)
-{
-	int oct=0;
-	while(*octal)
-	{
-		oct = (*octal-'0')+(oct*10);
-		octal++;
-	}
-	int octal_dict[8] = {0,1,10,11,100,101,111};
-	uint64_t bin=0;
-	int i=1;
-	int temp=0;
-	while(oct!=0)
-	{
-		temp = oct%10;
-		bin += octal_dict[temp]*i;
-		i *= 1000;
-		oct /= 10;
-	}
-	return bin;
-}
 
-//checks if string1 starts with string2
-int starts_with(char* string1, char* string2)
-{
-	int count = 0;
-	while(*string1==*string2 && *string1!='\0')
-	{
-		count++;
-		string1++;
-		string2++;
-	}
-	return count-1;
-}
 
 
