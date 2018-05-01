@@ -1,4 +1,4 @@
-/*#include <sys/kprintf.h>
+#include <sys/kprintf.h>
 #include <sys/ide.h>
 #include <sys/defs.h>
 #include <sys/string.h>
@@ -235,8 +235,8 @@ void ide_initialize(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, uns
 		if (ide_devices[i].Reserved == 1) {
 			kprintf("i:%d  Found %s Drive Size{} - %d - %s\n",
 					i,
-					(const char *[]){"ATA", "ATAPI"}[ide_devices[i].Type],         /* Type */
-					ide_devices[i].Size,               /* Size */
+					(const char *[]){"ATA", "ATAPI"}[ide_devices[i].Type],         
+					ide_devices[i].Size,               
 					ide_devices[i].Model);
 			if(i==1){
 				for(int k=0;k<100;k++){
@@ -498,4 +498,4 @@ void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int
 			err = 4; // Write-Protected.
 		}package[0] = ide_print_error(drive, err);
 	}
-}*/
+}
