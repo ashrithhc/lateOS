@@ -46,25 +46,14 @@ void init_tarfs()
     }
 }
 
-char* getTaskPath(){
-    return &(currentTask->curr_dir[1]);
-}
-
-char* getcurrentPath(char *absPath){
-    char *file_path;
-    if((*absPath) != '/') {
-        strcpy(file_path, getTaskPath());
+void setTruePath(char* absPath){
+    char file_path[50];
+    if( (*absPath) != '/') {
+        strcpy(file_path, &(currentTask->curr_dir[1]));
         strcat(file_path, absPath);
     }
     else strcpy(file_path,absPath+1);
-    return file_path;
-}
-
-void setTruePath(char* abs_path){
-    char *filePath = getcurrentPath(abs_path);
-    char file_path[50] = &filePath;
-    
-    *(abs_path) = '\0';
+    *(absPath) = '\0';
     int a=0;
     int i=0;
     while(*(file_path+i) != '\0')
@@ -72,24 +61,24 @@ void setTruePath(char* abs_path){
         if( ((*(file_path+i))=='.') && ( (*(file_path+i+1))=='.'))
         {
             a--;
-            *(abs_path+a)='\0';
-            while( (*(abs_path+a)!='/') && a>=0)
+            *(absPath+a)='\0';
+            while( (*(absPath+a)!='/') && a>=0)
             {
-                *(abs_path+a)='\0';
+                *(absPath+a)='\0';
                 a--;
             }
-            //*(abs_path+a)='\0';
+            //*(absPath+a)='\0';
             i++;
         }
         else
         {
-            *(abs_path+a) = *(file_path+i);
+            *(absPath+a) = *(file_path+i);
             a++;
         }
         i++;
     }
-    *(abs_path+a) = *(file_path+i);
-    *(abs_path+a+1) = '\0';
+    *(absPath+a) = *(file_path+i);
+    *(absPath+a+1) = '\0';
 }
 int isfileexists(char* path){
     char fi[100];
