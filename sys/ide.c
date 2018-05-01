@@ -1,4 +1,4 @@
-#include <sys/kprintf.h>
+/*#include <sys/kprintf.h>
 #include <sys/ide.h>
 #include <sys/defs.h>
 #include <sys/string.h>
@@ -12,16 +12,7 @@ void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int 
 		unsigned short es, char* buf);
 void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
 		unsigned short es, char* buf);
-/*int strcmp(char *s,char *t){
-        while(*s==*t)
-        {
-                if(*s=='\0')
-                        return 0;
-                s++;
-                t++;
-        }
-        return *s-*t;
-}*/
+
 static inline void outb(uint16_t port, uint8_t val)
 {
 	__asm__ __volatile__ ( "outb %0, %1" : : "a"(val), "Nd"(port) );
@@ -507,30 +498,4 @@ void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int
 			err = 4; // Write-Protected.
 		}package[0] = ide_print_error(drive, err);
 	}
-}
-/*int verify_read_write(hba_port_t* port){
-  int i;
-  for( i=0;i<100;i++){
-  char* buf = (char*)0x800000;
-  int j = 0;
-  for(j=0;j<4096;j++){
- *(buf+j) = (char)(i);
- }
-//              *(buf+512) = '\0';
-buf = (char)'A';
-//        readorwrite(port,8*i,0,8,(uint16_t*)buf,1);
-ide_read_sectors
-char* ss =  (char*)0x900000;
-//       readorwrite(port,8*i,0,8,(uint16_t*)ss,0);
-if(strcmp(buf,ss)==0) ;
-else {kprintf("Incorrect"); return 0;}
-//kprintf("%s",ss);
-}
-port->cmd &= ~HBA_PxCMD_ST;
-kprintf("Read Write Verified");
-return 1;
 }*/
-
-
-
-
