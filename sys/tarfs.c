@@ -10,16 +10,12 @@ static struct posix_header_ustar *headers[200];
 static int fc = 0;
 unsigned int getsize(const char *in)
 {
-
-        unsigned int size = 0;
-        unsigned int j;
-        unsigned int count = 1;
-
-        for (j = 11; j > 0; j--, count *= 8)
-                size += ((in[j - 1] - '0') * count);
-
-        return size;
-
+    int size = 0, count = 1;
+    for (int j = 11; j > 0; j--){
+        size += ((in[j - 1] - '0') * count);
+        count *= 8;
+    }
+    return (unsigned int)size;
 }
 
 void read_elf(uint64_t add){
