@@ -50,7 +50,7 @@ char* getTaskPath(){
     return &(currentTask->curr_dir[1]);
 }
 
-char[50] getcurrentPath(char *absPath){
+char* getcurrentPath(char *absPath){
     char file_path[50];
     if((*absPath) != '/') {
         strcpy(file_path, getTaskPath());
