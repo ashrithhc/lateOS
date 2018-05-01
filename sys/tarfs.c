@@ -118,8 +118,8 @@ int open_dir(char* path){
     {
 	    int fdc = currentTask->fd_c+3;
         currentTask->fd_c++;
-        currentTask->fd[fdc].entry = 0;
-        strcpy(&(currentTask->fd[fdc].file_name[0]),"/");
+        (&(currentTask->fd[fdc]))->entry = 0;
+        strcpy(&((&(currentTask->fd[fdc]))->file_name[0]),"/");
         return fdc;
     }
     int file_no = isValidDirectory(path);
@@ -129,12 +129,12 @@ int open_dir(char* path){
     h = headers[file_no];
     int fdc = currentTask->fd_c + 3;
     currentTask->fd_c++;
-    strcpy(&(currentTask->fd[fdc].file_name[0]), h->name);
-    currentTask->fd[fdc].entry = 0;
-    currentTask->fd[fdc].aval = 1;
-    currentTask->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
-    currentTask->fd[fdc].address = (uint64_t)headers[file_no];
-    currentTask->fd[fdc].fd = fdc;
+    strcpy(&((&(currentTask->fd[fdc]))->file_name[0]), h->name);
+    (&(currentTask->fd[fdc]))->entry = 0;
+    (&(currentTask->fd[fdc]))->aval = 1;
+    (&(currentTask->fd[fdc]))->size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    (&(currentTask->fd[fdc]))->address = (uint64_t)headers[file_no];
+    (&(currentTask->fd[fdc]))->fd = fdc;
     return fdc;
 }
 int open_tarfs(char* path, int flags)
@@ -147,13 +147,13 @@ int open_tarfs(char* path, int flags)
         h = headers[file_no];
 	    int fdc = currentTask->fd_c + 3;
 	    currentTask->fd_c++;
-	    strcpy(&(currentTask->fd[fdc].file_name[0]), h->name);
-        currentTask->fd[fdc].flags = flags;
-	    currentTask->fd[fdc].entry = 0;
-        currentTask->fd[fdc].aval = 1;
-    	currentTask->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
-    	currentTask->fd[fdc].address = (uint64_t)headers[file_no];
-	    currentTask->fd[fdc].fd = fdc;
+	    strcpy(&((&(currentTask->fd[fdc]))->file_name[0]), h->name);
+        (&(currentTask->fd[fdc]))->flags = flags;
+	    (&(currentTask->fd[fdc]))->entry = 0;
+        (&(currentTask->fd[fdc]))->aval = 1;
+    	(&(currentTask->fd[fdc]))->size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    	(&(currentTask->fd[fdc]))->address = (uint64_t)headers[file_no];
+	    (&(currentTask->fd[fdc]))->fd = fdc;
         return fdc;
 }
 
