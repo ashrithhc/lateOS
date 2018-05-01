@@ -16,14 +16,6 @@ http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
 
 static taskStruct *duplicateTask;
 
-void *memset(void *s, int c, size_t n)
-{
-    unsigned char* p=s;
-    while(n--)
-        *p++ = (unsigned char)c;
-    return s;
-}
-
 int stillAlive(int i){
     if((&taskQueue[i])->state == RUNNING || (&taskQueue[i])->state == SLEEP || (&taskQueue[i])->state == WAIT || (&taskQueue[i])->state == HANG) {
         return 1;
