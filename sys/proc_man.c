@@ -11,9 +11,9 @@ void init_proc(){
 	}
 }
 
-/*void loadPML4(uint64_t newPML4){
+void loadPML4E(uint64_t newPML4){
 	__asm__ __volatile__("movq %0, %%cr3;" : : "r"(newPML4) : );
-}*/
+}
 
 void schedule(){
 	taskStruct *finalTask = currentTask;
@@ -28,7 +28,7 @@ void schedule(){
 	set_tss_rsp((uint64_t*)&(currentTask->kstack[511]));
 	__asm__ __volatile__("movq %%rsp, %0;" : "=g"((&(finalTask->regs))->rsp) : : "memory");
 	__asm__ __volatile__("movq %0, %%rsp;" : : "r"((&(currentTask->regs))->rsp) : "memory");
-	loadPML4(currentTask->pml4e);
+	loadPML4E(currentTask->pml4e);
 	__asm__ __volatile__ ("movq $1f, %0" : "=g"((&(finalTask->regs))->rip) : : );
 	__asm__ __volatile__ ("pushq %0;" : : "r"((&(currentTask->regs))->rip) : );
 	__asm__ __volatile__("retq");
