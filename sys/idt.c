@@ -138,7 +138,8 @@ void isr14(){
     uint64_t pteOffset = taskPTE[(vaddr >> 12) & PTEmask];
     if (pteOffset & 512){
         uint64_t taskPML4 = getPML4();
-        int i = 2;//getrefcount(add);
+        copyNewMemory(vaddr, (pteOffset & pageMask));
+/*        int i = 2;//getrefcount(add);
         if(i == 2){
             copyNewMemory(vaddr, (pteOffset & pageMask));
         } else if(i == 1){
@@ -147,7 +148,7 @@ void isr14(){
             kprintf("Should never be here\n");
             while(1);
         }
-        loadPML4(taskPML4);
+*/        loadPML4(taskPML4);
 	}
 	else if( (currentTask->vm->beginAddress > vaddr)  && (currentTask->vm->lastAddress < vaddr)){   //Auto Growing stack
         uint64_t taskPML4 = getPML4();
