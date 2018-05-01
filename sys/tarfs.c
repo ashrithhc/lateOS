@@ -61,7 +61,8 @@ char* getcurrentPath(char *absPath){
 }
 
 void setTruePath(char* abs_path){
-    char file_path[50] = getcurrentPath(abs_path);
+    char *filePath = getcurrentPath(abs_path);
+    char file_path[50] = &filePath;
     
     *(abs_path) = '\0';
     int a=0;
