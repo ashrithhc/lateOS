@@ -19,7 +19,7 @@ void schedule(){
 	taskStruct *finalTask = currentTask;
 	int nextPID = (finalTask->pid+1) % MAX;
 	while(nextPID != finalTask->pid){         
-		if(taskQueue[i].state == RUNNING){
+		if(taskQueue[nextPID].state == RUNNING){
 			break;
 		}
 		nextPID = (nextPID+1)%MAX;
