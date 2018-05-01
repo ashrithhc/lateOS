@@ -46,16 +46,23 @@ void init_tarfs()
     }
 }
 
-void setTruePath(char* abs_path){
-    char file_path[50];
-    if( (*abs_path) != '/') {
+char* getTaskPath(){
+    return &(currentTask->curr_dir[1]);
+}
 
-        strcpy(file_path, &(currentTask->curr_dir[1]));
-        strcat(file_path, abs_path);
+char[50] getcurrentPath(char *absPath){
+    char file_path[50];
+    if((*absPath) != '/') {
+        strcpy(file_path, getTaskPath());
+        strcat(file_path, absPath);
     }
-    else{
-        strcpy(file_path,abs_path+1);
-    }
+    else strcpy(file_path,absPath+1);
+    return file_path;
+}
+
+void setTruePath(char* abs_path){
+    char file_path[50] = getcurrentPath(abs_path);
+    
     *(abs_path) = '\0';
     int a=0;
     int i=0;
@@ -165,23 +172,13 @@ ssize_t read_tarfs(int fd, char* buf, int count)
     if ((&(currentTask->fd[fd]))->aval == 0) return -1;
     if (count == 0) return 0;
 	
-	 struct file_t* fileDescr = (struct file_t*) &(currentTask->fd[fd]);
-        //size_t read;
-        struct posix_header_ustar *header;
-        header = (struct posix_header_ustar*) fileDescr->address;
-        char* start_address = (char *) (header+1);
-        //kprintf("\nSTART ADDRESS%p", start_address);
-        //char* temp = buf;
-        int i=0;
-        if((fileDescr->size)<count)
-        {
-                count = fileDescr->size;
-        }
-        for(i=0; i<count; i++)
-        {
-		    buf[i] = *(start_address+i);
-	    }
-        buf[count] = '\0';
+	struct file_t* fileDescr = (struct file_t*) &(currentTask->fd[fd]);
+    struct posix_header_ustar *header;
+    header = (struct posix_header_ustar*) fileDescr->address;
+    char* start_address = (char *) (header+1);
+    if((fileDescr->size) < count) count = fileDescr->size;
+    for(int i=0; i < count; i++) buf[i] = *(start_address+i);
+    buf[count] = '\0';
 	return count;
 }
 
