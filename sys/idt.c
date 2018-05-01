@@ -72,12 +72,12 @@ int checkForVM(vmaStruct *vm, uint64_t cr2Val){
     return flag;
 }
 
-void checkValid(){
+void checkValid(uint64_t vmem){
     int isValid = 0;
     vmaStruct* taskVMA = currentTask->vm;
 
-    if(((taskVMA->beginAddress + 0x1000) > cr2Val) && (taskVMA->lastAddress < cr2Val)) isValid = 1;
-    else isValid = checkForVM(taskVMA, cr2Val);
+    if(((taskVMA->beginAddress + 0x1000) > vmem) && (taskVMA->lastAddress < vmem)) isValid = 1;
+    else isValid = checkForVM(taskVMA, vmem);
 
     if(isValid == 0) exit();
 }
@@ -112,7 +112,7 @@ uint64_t getCR2(){
 void isr14(){
 	uint64_t vaddr = getCR2();
 
-    checkValid();
+    checkValid(vaddr);
     uint64_t *taskPTE = getPTE(vaddr);
     if( taskPTE[(vaddr>>12)&0x1FF] & 0x0000000000000200){     //COW
         uint64_t k1;
