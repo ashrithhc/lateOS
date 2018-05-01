@@ -122,13 +122,12 @@ uint64_t getPML4(){
     return retVal;
 }
 
-void copyNewMemory(uint64_t vaddr){
-    uint64_t  add = (taskPTE[(vaddr >> 12) & PTEmask] & pageMask);
+void copyNewMemory(uint64_t vaddr, uint64_t addr){
     uint64_t copyFrame = getFreeFrame();
     memcpy((void*)(kernmem + copyFrame), (void *)(vaddr & pageMask), 0x1000);
     switchtokern();
     init_pages_for_process((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
-    free(add);
+    free(addr);
 }
 
 void isr14(){
@@ -136,11 +135,12 @@ void isr14(){
     checkValid(vaddr);
     uint64_t *taskPTE = getPTE(vaddr);
 
-    if (taskPTE[(vaddr >> 12) & PTEmask] & 512){
+    uint64_t pteOffset = taskPTE[(vaddr >> 12) & PTEmask];
+    if (pteOffset & 512){
         uint64_t taskPML4 = getPML4();
         int i = 2;//getrefcount(add);
         if(i == 2){
-            copyNewMemory(vaddr);
+            copyNewMemory(vaddr, (pteOffset & pageMask));
         } else if(i == 1){
             taskPTE[(vaddr>>12)&PTEmask] = (taskPTE[(vaddr>>12)&PTEmask] | 0x2) & 0xFFFFFFFFFFFFFDFF;
         } else{
