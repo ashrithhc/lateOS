@@ -10,6 +10,8 @@
 #define idthighMask 0xFFFFFFFF
 #define timerMask 0xFF
 #define PTEmask 0x1FF
+#define kernmem 0xffffffff80000000
+#define pageMaskk 0xFFFFFFFFFFFFF000
 
 typedef struct registersAligned{
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
@@ -120,6 +122,15 @@ uint64_t getPML4(){
     return retVal;
 }
 
+void copyNewMemory(uint64_t vaddr){
+    uint64_t  add = (taskPTE[(vaddr >> 12) & PTEmask] & pageMask);
+    uint64_t copyFrame = getFreeFrame();
+    memcpy((void*)(kernmem + copyFrame), (void *)(vaddr & pageMask), 0x1000);
+    switchtokern();
+    init_pages_for_process((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
+    free(add);
+}
+
 void isr14(){
 	uint64_t vaddr = getCR2();
     checkValid(vaddr);
@@ -127,15 +138,9 @@ void isr14(){
 
     if (taskPTE[(vaddr >> 12) & PTEmask] & 512){
         uint64_t taskPML4 = getPML4();
-        // __asm__ __volatile__("movq %%cr3,%0;":"=g"(taskPML4)::);
-        uint64_t  add = (taskPTE[(vaddr>>12)&PTEmask] & 0xFFFFFFFFFFFFF000);
         int i = 2;//getrefcount(add);
         if(i == 2){
-            uint64_t p_n = getFreeFrame();
-            memcpy((void*)(0xffffffff80000000 + p_n),(void *)(vaddr&0xFFFFFFFFFFFFF000),0x1000);
-            switchtokern();
-            init_pages_for_process((vaddr&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
-            free(add);
+            copyNewMemory(vaddr);
         } else if(i == 1){
             taskPTE[(vaddr>>12)&PTEmask] = (taskPTE[(vaddr>>12)&PTEmask] | 0x2) & 0xFFFFFFFFFFFFFDFF;
         } else{
@@ -148,7 +153,7 @@ void isr14(){
         uint64_t taskPML4 = getPML4();
 		uint64_t p_n = getFreeFrame();
 		switchtokern();
-		init_pages_for_process((vaddr&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
+		init_pages_for_process((vaddr&pageMask),p_n,(uint64_t *)(currentTask->pml4e + kernmem));
 		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(taskPML4):);
 	}
     else{
