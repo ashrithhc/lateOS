@@ -162,7 +162,7 @@ int open_tarfs(char* path, int flags)
 
 ssize_t read_tarfs(int fd, char* buf, int count)
 {
-    if ((&(currentTask->fd[fd))->aval == 0) return -1;
+    if ((&(currentTask->fd[fd]))->aval == 0) return -1;
     if (count == 0) return 0;
 	
 	 struct file_t* fileDescr = (struct file_t*) &(currentTask->fd[fd]);
