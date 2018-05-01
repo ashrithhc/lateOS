@@ -1,7 +1,7 @@
-#include<sys/process.h>
-#include<sys/gdt.h>
-#include<sys/mem.h>
-#include<sys/kprintf.h>
+#include <sys/process.h>
+#include <sys/gdt.h>
+#include <sys/mem.h>
+#include <sys/kprintf.h>
 int np = 0;
 void init_proc(){
 	for(int i=0;i<MAX;i++){
@@ -11,9 +11,9 @@ void init_proc(){
 	}
 }
 
-void loadPML4(uint64_t newPML4){
+/*void loadPML4(uint64_t newPML4){
 	__asm__ __volatile__("movq %0, %%cr3;" : : "r"(newPML4) : );
-}
+}*/
 
 void schedule(){
 	taskStruct *finalTask = currentTask;
