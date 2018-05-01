@@ -11,7 +11,7 @@
 #define timerMask 0xFF
 #define PTEmask 0x1FF
 #define kernmem 0xffffffff80000000
-#define pageMaskk 0xFFFFFFFFFFFFF000
+#define pageMask 0xFFFFFFFFFFFFF000
 
 typedef struct registersAligned{
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
