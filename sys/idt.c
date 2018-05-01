@@ -126,7 +126,7 @@ void isr14(){
     uint64_t *taskPTE = getPTE(vaddr);
 
     if (taskPTE[(vaddr >> 12) & PTEmask] & 512){
-        uint64_t taskPML4 = loadPML4()
+        uint64_t taskPML4 = getPML4()
         // __asm__ __volatile__("movq %%cr3,%0;":"=g"(taskPML4)::);
         uint64_t  add = (taskPTE[(vaddr>>12)&PTEmask] & 0xFFFFFFFFFFFFF000);
         int i = 2;//getrefcount(add);
