@@ -31,6 +31,7 @@ char* moveTarfsHeader(char *tarfsAddr, struct posix_header_ustar *header){
     unsigned int size = getsize(header->size);
     tarfsAddr += ((size / 512) + 1) * 512;
     if (size % 512) tarfsAddr += 512;
+    return tarfsAddr;
 }
 
 void init_tarfs()
