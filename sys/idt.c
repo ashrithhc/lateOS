@@ -9,6 +9,7 @@
 #define idtMidMask 0xFFFF
 #define idthighMask 0xFFFFFFFF
 #define timerMask 0xFF
+#define PTEmask 0x1FF
 
 typedef struct registersAligned{
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
@@ -109,15 +110,25 @@ uint64_t getCR2(){
     return retVal;
 }
 
+void loadPML4(uint64_t addr){
+    __asm__ __volatile__ ("movq %0, %%cr3;" : : "r"(addr) : );
+}
+
+uint64_t getPML4(){
+    uint64_t retVal;
+    __asm__ __volatile__ ("movq %%cr3, %0;" : "=g"(retVal) : : );
+    return retVal;
+}
+
 void isr14(){
 	uint64_t vaddr = getCR2();
-
     checkValid(vaddr);
     uint64_t *taskPTE = getPTE(vaddr);
-    if( taskPTE[(vaddr>>12)&0x1FF] & 0x0000000000000200){     //COW
-        uint64_t k1;
-        __asm__ __volatile__("movq %%cr3,%0;":"=g"(k1)::);
-        uint64_t  add = (taskPTE[(vaddr>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
+
+    if (taskPTE[(vaddr >> 12) & PTEmask] & 512){
+        uint64_t taskPML4 = loadPML4()
+        // __asm__ __volatile__("movq %%cr3,%0;":"=g"(taskPML4)::);
+        uint64_t  add = (taskPTE[(vaddr>>12)&PTEmask] & 0xFFFFFFFFFFFFF000);
         int i = 2;//getrefcount(add);
         if(i == 2){
             uint64_t p_n = getFreeFrame();
@@ -126,20 +137,19 @@ void isr14(){
             init_pages_for_process((vaddr&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
             free(add);
         } else if(i == 1){
-            taskPTE[(vaddr>>12)&0x1FF] = (taskPTE[(vaddr>>12)&0x1FF] | 0x2) & 0xFFFFFFFFFFFFFDFF;
+            taskPTE[(vaddr>>12)&PTEmask] = (taskPTE[(vaddr>>12)&PTEmask] | 0x2) & 0xFFFFFFFFFFFFFDFF;
         } else{
             kprintf("Should never be here\n");
             while(1);
         }
-        __asm__ __volatile__("movq %0,%%cr3;"::"r"(k1):);
+        loadPML4(taskPML4);
 	}
 	else if( (currentTask->vm->beginAddress > vaddr)  && (currentTask->vm->lastAddress < vaddr)){   //Auto Growing stack
-        uint64_t taskPTE;
-		__asm__ __volatile__("movq %%cr3,%0;":"=g"(taskPTE)::);
+        uint64_t taskPML4 = getPML4();
 		uint64_t p_n = getFreeFrame();
 		switchtokern();
 		init_pages_for_process((vaddr&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(currentTask->pml4e + 0xffffffff80000000));
-		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(taskPTE):);
+		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(taskPML4):);
 	}
     else{
         kprintf("Segmentation Fault: Address:%p \n",vaddr);
