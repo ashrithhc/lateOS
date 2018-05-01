@@ -249,17 +249,4 @@ int starts_with(char* string1, char* string2)
 	return count-1;
 }
 
-char* substring(char* string, int index)
-{
-	int i = 0;
-	while(*string)
-	{	
-		if(i>index)
-		{
-			break;
-		}
-		string++;
-		i++;
-	}
-	return string;
-}
+

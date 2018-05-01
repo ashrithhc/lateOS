@@ -49,3 +49,18 @@ char* strcat(char *string1, char *string2)
 	*string1='\0';
 	return string1;
 }
+
+char* substring(char* string, int index)
+{
+	int i = 0;
+	while(*string)
+	{	
+		if(i>index)
+		{
+			break;
+		}
+		string++;
+		i++;
+	}
+	return string;
+}
