@@ -18,17 +18,6 @@ unsigned int getsize(const char *in)
     return (unsigned int)size;
 }
 
-void read_elf(uint64_t add){
-        struct Elf64_Ehdr* elf_hdr = (struct Elf64_Ehdr*)add;
-        uint64_t phdr;
-        if(elf_hdr->e_phoff > 0){
-                phdr = add + (elf_hdr->e_phoff);
-                struct Elf64_Phdr* phdr1 = (struct Elf64_Phdr*)phdr;
-                if(phdr1 != NULL){
-                        kprintf("Whatever\n");
-                }
-        }
-}
 uint64_t get_file_address(char* filename){
         for(int i=0;i<fc;i++){
                 struct posix_header_ustar *f = headers[i];
