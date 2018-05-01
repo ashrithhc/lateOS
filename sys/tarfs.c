@@ -7,39 +7,42 @@
 #include <sys/process.h>
 #include <sys/mem.h>
 static struct posix_header_ustar *headers[200];
-unsigned int getsize(const char *in)
+static int filecount = 0;
+
+unsigned int getsize(const char *headerSize)
 {
     int size = 0, count = 1;
     for (int j = 11; j > 0; j--){
-        size += ((in[j - 1] - '0') * count);
+        size += ((headerSize[j-1] - '0') * count);
         count *= 8;
     }
     return (unsigned int)size;
 }
 
 uint64_t get_file_address(char* filename){
-        for(int i=0;i<filecount;i++){
-                struct posix_header_ustar *f = headers[i];
-                if(strcmp(filename,f->name) == 0){
-                        return (uint64_t)headers[i];//((uint64_t)&_binary_tarfs_start + (sizeof(struct posix_header_ustar)*i));
-                }
-        }
-        return -1;
+    for(int i=0; i<filecount; i++){
+        struct posix_header_ustar *pheader = headers[i];
+        if(strcmp(filename, pheader->name) == 0) return (uint64_t)headers[i];
+    }
+    return -1;
 }
+
+char* moveTarfsHeader(char *tarfsAddr, struct posix_header_ustar *header){
+    unsigned int size = getsize(header->size);
+    tarfsAddr += ((size / 512) + 1) * 512;
+    if (size % 512) tarfsAddr += 512;
+}
+
 void init_tarfs()
 {
-        struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
-        char* address = &_binary_tarfs_start;
-        while(address< &_binary_tarfs_end){
-                unsigned int size = getsize(header->size);
-                headers[filecount++] = header;
-                address += ((size / 512) + 1) * 512;
-
-                if (size % 512)
-                        address += 512;
-
-                header = (struct posix_header_ustar *)address;
-        }
+    struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
+    char* tarfsAddr = &_binary_tarfs_start;
+    while(tarfsAddr < &_binary_tarfs_end){
+        headers[filecount] = header;
+        tarfsAddr = moveTarfsHeader(tarfsAddr, header);
+        header = (struct posix_header_ustar *)tarfsAddr;
+        filecount = filecount+1;
+    }
 }
 
 void setTruePath(char* abs_path){
