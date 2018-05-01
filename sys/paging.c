@@ -13,6 +13,14 @@ static uint64_t *pml4e, *pdpte, *pde, *pte;
 static uint64_t k_cr3 =0;
 uint16_t pageSize = 0x1000;
 
+void *memset(void *s, int c, size_t n)
+{
+	unsigned char* p=s;
+	while(n--)
+		*p++ = (unsigned char)c;
+	return s;
+}
+
 uint64_t *mapCurrentPageTable(uint64_t virtual, int num, uint64_t* physical){
 	virtual += num * pageSize;
 	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)physical & validatebits) | 3;

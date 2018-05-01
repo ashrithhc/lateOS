@@ -17,13 +17,7 @@ int verify_read_write(hba_port_t* port);*/
         }   
         return *s-*t;
 }*/
-void *memset(void *s, int c, size_t n)
-{
-	unsigned char* p=s;
-	while(n--)
-		*p++ = (unsigned char)c;
-	return s;
-}
+
 
 /*void probe_port(hba_mem_t *abar)
 {
