@@ -1,4 +1,4 @@
-#include <sys/kprintf.h>
+/*#include <sys/kprintf.h>
 #include <sys/ide.h>
 #include <sys/defs.h>
 #include <sys/string.h>
@@ -498,4 +498,4 @@ void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int
 			err = 4; // Write-Protected.
 		}package[0] = ide_print_error(drive, err);
 	}
-}
+}*/
