@@ -211,7 +211,7 @@ int verify_read_write(hba_port_t* port){
 			*(buf+j) = (char)(i);
 		}
 //		*(buf+512) = '\0';
-		//*buf = (char)'A';
+		*buf = (char)'A';
 		readorwrite(port,8*i,0,8,(uint16_t*)buf,1);
 		char* ss =  (char*)0xffffffff900000;
 		readorwrite(port,8*i,0,8,(uint16_t*)ss,0);
