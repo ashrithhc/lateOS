@@ -130,6 +130,14 @@ void copyNewMemory(uint64_t vaddr, uint64_t addr){
     free(addr);
 }
 
+void copyFromPML4(uint64_t vaddr){
+    uint64_t taskPML4 = getPML4();
+    uint64_t copyFrame = getFreeFrame();
+    switchtokern();
+    init_pages_for_process((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
+    loadPML4(taskPML4);
+}
+
 void isr14(){
 	uint64_t vaddr = getCR2();
     checkValid(vaddr);
@@ -139,30 +147,13 @@ void isr14(){
     if (pteOffset & 512){
         uint64_t taskPML4 = getPML4();
         copyNewMemory(vaddr, (pteOffset & pageMask));
-/*        int i = 2;//getrefcount(add);
-        if(i == 2){
-            copyNewMemory(vaddr, (pteOffset & pageMask));
-        } else if(i == 1){
-            taskPTE[(vaddr>>12)&PTEmask] = (taskPTE[(vaddr>>12)&PTEmask] | 0x2) & 0xFFFFFFFFFFFFFDFF;
-        } else{
-            kprintf("Should never be here\n");
-            while(1);
-        }
-*/        loadPML4(taskPML4);
+        loadPML4(taskPML4);
 	}
-	else if( (currentTask->vm->beginAddress > vaddr)  && (currentTask->vm->lastAddress < vaddr)){   //Auto Growing stack
-        uint64_t taskPML4 = getPML4();
-		uint64_t p_n = getFreeFrame();
-		switchtokern();
-		init_pages_for_process((vaddr&pageMask),p_n,(uint64_t *)(currentTask->pml4e + kernmem));
-		 __asm__ __volatile__("movq %0,%%cr3;"::"r"(taskPML4):);
-	}
+	else if( (currentTask->vm->beginAddress > vaddr)  && (currentTask->vm->lastAddress < vaddr)) copyFromPML4(vaddr);
     else{
-        kprintf("Segmentation Fault: Address:%p \n",vaddr);
+        kprintf("Segmentation Fault\n");
         exit();
-        while(1);
     }
-
 }
 
 uint64_t isr128(){
