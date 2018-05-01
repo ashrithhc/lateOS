@@ -162,25 +162,20 @@ int open_tarfs(char* path, int flags)
 
 ssize_t read_tarfs(int fd, char* buf, int count)
 {
-        if(currentTask->fd[fd].aval == 0){
-            return  -1;
-        }
-        if(count==0)
-        {
-                return 0;
-        }
+    if ((&(currentTask->fd[fd))->aval == 0) return -1;
+    if (count == 0) return 0;
 	
-	 struct file_t* f = (struct file_t*) &(currentTask->fd[fd]);
+	 struct file_t* fileDescr = (struct file_t*) &(currentTask->fd[fd]);
         //size_t read;
         struct posix_header_ustar *header;
-        header = (struct posix_header_ustar*) f->address;
+        header = (struct posix_header_ustar*) fileDescr->address;
         char* start_address = (char *) (header+1);
         //kprintf("\nSTART ADDRESS%p", start_address);
         //char* temp = buf;
         int i=0;
-        if((f->size)<count)
+        if((fileDescr->size)<count)
         {
-                count = f->size;
+                count = fileDescr->size;
         }
         for(i=0; i<count; i++)
         {
