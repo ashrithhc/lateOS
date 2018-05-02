@@ -8,4 +8,5 @@ int strlen(const char* s);
 char* strcat(char* s,char* t);
 int starts_with(char*, char*);
 char* substring(char*, int);
+void resetString(char *str);
 #endif

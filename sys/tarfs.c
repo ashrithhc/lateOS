@@ -46,6 +46,16 @@ void init_tarfs()
     }
 }
 
+int previousDir(char path[100], int index){
+    if ((*(path + index) == '.') && (*(path + (index+1))) == '.') return True;
+    return False;
+}
+
+int getOffset(char *path, int index){
+    if (*(path + index) != '\0') return index;
+    return -1;
+}
+
 void setTruePath(char* absPath){
     char file_path[50];
     if( (*absPath) != '/') {
