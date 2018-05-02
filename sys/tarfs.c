@@ -102,14 +102,14 @@ int isfileexists(char* path){
     return checkFile(absolutePath);
 }
 
-int setCurrentTaskVal(int setflag, struct posix_header_ustar* fileheader, int flags){
+int setCurrentTaskVal(int setflag, int fileID, int flags){
     int fileCounter = currentTask->fd_c + 3;
     currentTask->fd_c++;
-    strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), fileheader->name);
+    strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), header[fileID]->name);
     (&(currentTask->fd[fileCounter]))->entry = 0;
     (&(currentTask->fd[fileCounter]))->aval = 1;
-    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(fileheader->size)));
-    (&(currentTask->fd[fileCounter]))->address = (uint64_t)headers[file_no];
+    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(header[fileID]->size)));
+    (&(currentTask->fd[fileCounter]))->address = (uint64_t)headers[fileID];
     (&(currentTask->fd[fileCounter]))->fd = fileCounter;
     if (setflag != 10)(&(currentTask->fd[fileCounter]))->flags = flags;
     return fileCounter;
@@ -134,13 +134,13 @@ int open_dir(char* path){
     }
     int fileID = isValidDirectory(path);
     if(fileID == -1) return fileID;
-    return setCurrentTaskVal(10, headers[fileID], -1);
+    return setCurrentTaskVal(10, fileID, -1);
 }
 int open_tarfs(char* path, int flags)
 {
         int fileID = isfileexists(path);
         if(fileID == -1) return fileID;
-        return setCurrentTaskVal(2, headers[fileID], flags);
+        return setCurrentTaskVal(2, fileID, flags);
 }
 
 ssize_t read_tarfs(int fd, char* buf, int count)
