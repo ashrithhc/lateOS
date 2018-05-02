@@ -139,9 +139,9 @@ int open_dir(char* path){
 
 int open_tarfs(char* path, int flags)
 {
-        int fileID = isfileexists(path);
-        if(fileID == -1) return fileID;
-        return setCurrentTaskVal(2, fileID, flags);
+    int fileID = isfileexists(path);
+    if(fileID == -1) return fileID;
+    return setCurrentTaskVal(2, fileID, flags);
 }
 
 void setFilePath(char *path, int count, struct posix_header_ustar *header){
@@ -158,35 +158,30 @@ ssize_t read_tarfs(int fd, char* buf, int count)
 	return count;
 }
 
+int isRootDirectory(char *path){
+    if(strcmp(path, "/") == 0) return True;
+    return False;
+}
+
 int readdir_tarfs(int fd, char* buf)
 {
-    int ret = 0;
-    int i=0;
     int count = 0;
-    char* dir_name = currentTask->fd[fd].file_name;
-    for(i=0; i<32 && headers[i]!=NULL; i++)
+    char* fileName = (&(currentTask->fd[fd]))->file_name;
+    for(int i=0; i<32; i++)
     {
-        int index = starts_with(headers[i]->name,dir_name);
-        int k = strcmp(dir_name,"/");
-        if((index>0) || k==0) {
-            if(count==0)
+        if (headers[i]==NULL) break;
+        if((starts_with(headers[i]->name, fileName) > 0) || isRootDirectory(fileName)) {
+            if ((count == 0) ((&(currentTask->fd[fd]))->entry == 0)) (&(currentTask->fd[fd]))->entry++;
+            else if (count == (&(currentTask->fd[fd]))->entry)
             {
-                if(currentTask->fd[fd].entry==0)
-                {
-                    currentTask->fd[fd].entry++;
-                }
-            }
-            else if(count==currentTask->fd[fd].entry)
-            {
-                strcpy(buf,substring(headers[i]->name,index));
-                currentTask->fd[fd].entry++;
-                ret = 1;
-                break;
+                strcpy(buf,substring(headers[i]->name, starts_with(headers[i]->name, fileName)));
+                (&(currentTask->fd[fd]))->entry++;
+                return 1;
             }
             count++;
         }
     }
-	return ret;
+	return 0;
 }
 
 int close_tarfs(int fp)
