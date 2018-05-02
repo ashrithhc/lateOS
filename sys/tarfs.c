@@ -186,13 +186,12 @@ int readdir_tarfs(int fd, char* buf)
 
 int close_tarfs(int fp)
 {
-	struct file_t ft = currentTask->fd[fp];
-	ft.file_name[0] = '\0';
-	ft.offset = 0;
-	ft.size = 0;
-    ft.aval = 0;
-	//.address = NULL;
-	return ft.fd;
+	struct file_t *filedescriptor = currentTask->fd[fp];
+	filedescriptor->file_name[0] = '\0';
+	filedescriptor->offset = 0;
+	filedescriptor->size = 0;
+    filedescriptor->aval = 0;
+	return filedescriptor->fd;
 }
 
 
