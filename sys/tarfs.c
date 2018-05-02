@@ -90,7 +90,7 @@ void setTruePath(char* absPath){
         }
     }
     *(absPath+pathOffset) = *(file_path+index);
-    *(absPath+pathOffset+1) = '\0';
+    resetString(absPath+pathOffset + 1);
 }
 int isfileexists(char* path){
     char fi[100];
