@@ -69,10 +69,9 @@ void setTruePath(char* absPath){
     else strcpy(file_path,absPath+1);
     resetString(absPath);
     int pathOffset = getOffset(absPath, 0);
-    int i=0;
-    while(*(file_path+i) != '\0')
+    for(int index = 0; *(file_path+index) != '\0'; index++)
     {
-        if(previousDir(file_path, i))
+        if(previousDir(file_path, index))
         {
             pathOffset--;
             *(absPath+pathOffset)='\0';
@@ -81,14 +80,13 @@ void setTruePath(char* absPath){
                 *(absPath+pathOffset)='\0';
                 pathOffset--;
             }
-            i++;
+            index++;
         }
         else
         {
             *(absPath+pathOffset) = *(file_path+i);
             pathOffset++;
         }
-        i++;
     }
     *(absPath+pathOffset) = *(file_path+i);
     *(absPath+pathOffset+1) = '\0';
