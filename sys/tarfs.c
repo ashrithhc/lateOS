@@ -67,27 +67,18 @@ void setTruePath(char* absPath){
         strcpy(file_path, &(currentTask->curr_dir[1]));
         strcat(file_path, absPath);
     }
-    else strcpy(file_path,absPath+1);
+    else strcpy(file_path, absPath+1);
     resetString(absPath);
     int pathOffset = getOffset(absPath, 0);
     for(index = 0; *(file_path+index) != '\0'; index++)
     {
         if(previousDir(file_path, index))
         {
-            // pathOffset--;
             resetString(absPath + --pathOffset);
-            while( (*(absPath+pathOffset)!='/') && pathOffset>=0)
-            {
-                resetString(absPath + pathOffset--);
-                // pathOffset--;
-            }
+            while( (*(absPath+pathOffset)!='/') && pathOffset>=0) resetString(absPath + pathOffset--);
             index++;
         }
-        else
-        {
-            *(absPath + pathOffset++) = *(file_path + index);
-            // pathOffset++;
-        }
+        else *(absPath + pathOffset++) = *(file_path + index);
     }
     *(absPath+pathOffset) = *(file_path+index);
     resetString(absPath+pathOffset + 1);
