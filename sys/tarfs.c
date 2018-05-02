@@ -53,7 +53,7 @@ void setTruePath(char* absPath){
         strcat(file_path, absPath);
     }
     else strcpy(file_path,absPath+1);
-    *(absPath) = '\0';
+    resetString(absPath);
     int a=0;
     int i=0;
     while(*(file_path+i) != '\0')

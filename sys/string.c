@@ -99,3 +99,7 @@ int starts_with(char* string1, char* string2)
 	}
 	return count-1;
 }
+
+void resetString(char *str){
+	*str = '\0';
+}
