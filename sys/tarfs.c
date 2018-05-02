@@ -102,7 +102,7 @@ void setTruePath(char* absPath){
     int pathOffset = getOffset(absPath, 0);
     for(index = 0; *(file_path+index) != '\0'; index++)
     {
-        if(((*(file_path+i))=='.') && ( (*(file_path+i+1))=='.'))
+        if(((*(file_path+index))=='.') && ( (*(file_path+index+1))=='.'))
         {
             pathOffset--;
             resetString(absPath + pathOffset);
