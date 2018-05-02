@@ -108,10 +108,10 @@ int setCurrentTaskVal(int setflag, struct posix_header_ustar* fileheader, int fl
     strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), fileheader->name);
     (&(currentTask->fd[fileCounter]))->entry = 0;
     (&(currentTask->fd[fileCounter]))->aval = 1;
-    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(fileheader->size)));
     (&(currentTask->fd[fileCounter]))->address = (uint64_t)headers[file_no];
     (&(currentTask->fd[fileCounter]))->fd = fileCounter;
-    if (setflag != 10)(&(currentTask->fd[fdc]))->flags = flags;
+    if (setflag != 10)(&(currentTask->fd[fileCounter]))->flags = flags;
     return fileCounter;
 }
 
@@ -119,7 +119,7 @@ int isValidDirectory(char* path){
     struct posix_header_ustar* fileheader;
     if(isfileexists(path) == -1) return -1;
     fileheader = headers[isfileexists(path)];
-    if(fileheader->name[strlen(fileheader->name)-1] == '/')return n;
+    if(fileheader->name[strlen(fileheader->name)-1] == '/')return isfileexists(path;
     return Faalse;
 }
 
