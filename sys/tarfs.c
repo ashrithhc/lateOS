@@ -77,7 +77,6 @@ int getOffset(char *path, int index){
                 *(absPath+a)='\0';
                 a--;
             }
-            //*(absPath+a)='\0';
             i++;
         }
         else
