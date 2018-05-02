@@ -69,7 +69,7 @@ void setTruePath(char* absPath){
     }
     else strcpy(file_path,absPath+1);
     resetString(absPath);
-    int pathOffset = ]getOffset(absPath, 0);
+    int pathOffset = getOffset(absPath, 0);
     for(index = 0; *(file_path+index) != '\0'; index++)
     {
         if(previousDir(file_path, index))
