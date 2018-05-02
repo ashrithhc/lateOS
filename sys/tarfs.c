@@ -50,44 +50,48 @@ void init_tarfs()
     }
 }
 
-int relativeDir(char path[100], int index){
+int previousDir(char path[100], int index){
     if ((*(path + index) == '.') && (*(path + (index+1))) == '.') return True;
     return False;
 }
 
+int getOffset(char *path, int index){
+    if (*(path + index) != '\0') return index;
+    return -1;
+}
+
 void setTruePath(char* absPath){
-    char file_path[50];
+    char file_path[100];
     if( (*absPath) != '/') {
         strcpy(file_path, &(currentTask->curr_dir[1]));
         strcat(file_path, absPath);
     }
     else strcpy(file_path,absPath+1);
     resetString(absPath);
-    int a=0;
+    int pathOffset = getOffset(absPath, 0);
     int i=0;
     while(*(file_path+i) != '\0')
     {
-        if(relativeDir(file_path, i))
+        if(previousDir(file_path, i))
         {
-            a--;
-            *(absPath+a)='\0';
-            while( (*(absPath+a)!='/') && a>=0)
+            pathOffset--;
+            *(absPath+pathOffset)='\0';
+            while( (*(absPath+pathOffset)!='/') && pathOffset>=0)
             {
-                *(absPath+a)='\0';
-                a--;
+                *(absPath+pathOffset)='\0';
+                pathOffset--;
             }
-            //*(absPath+a)='\0';
             i++;
         }
         else
         {
-            *(absPath+a) = *(file_path+i);
-            a++;
+            *(absPath+pathOffset) = *(file_path+i);
+            pathOffset++;
         }
         i++;
     }
-    *(absPath+a) = *(file_path+i);
-    *(absPath+a+1) = '\0';
+    *(absPath+pathOffset) = *(file_path+i);
+    *(absPath+pathOffset+1) = '\0';
 }
 int isfileexists(char* path){
     char fi[100];
