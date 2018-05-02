@@ -6,6 +6,10 @@
 #include <sys/tarfs.h>
 #include <sys/process.h>
 #include <sys/mem.h>
+
+#define True 1
+#define False 0
+
 static struct posix_header_ustar *headers[200];
 static int filecount = 0;
 
@@ -46,6 +50,11 @@ void init_tarfs()
     }
 }
 
+int relativeDir(char path, int index){
+    if ((*(path + index) == '.') && (*(file_path + (index+1))) == '.') return True;
+    return False;
+}
+
 void setTruePath(char* absPath){
     char file_path[50];
     if( (*absPath) != '/') {
@@ -58,7 +67,7 @@ void setTruePath(char* absPath){
     int i=0;
     while(*(file_path+i) != '\0')
     {
-        if( ((*(file_path+i))=='.') && ( (*(file_path+i+1))=='.'))
+        if(relativeDir(file_path, i))
         {
             a--;
             *(absPath+a)='\0';
