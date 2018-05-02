@@ -56,7 +56,7 @@ int getOffset(char *path, int index){
     return -1;
 }
 
-void setTruePath(char* absPath){
+/*void setTruePath(char* absPath){
     char file_path[50];
     if( (*absPath) != '/') {
         strcpy(file_path, &(currentTask->curr_dir[1]));
@@ -89,7 +89,41 @@ void setTruePath(char* absPath){
     }
     *(absPath+a) = *(file_path+i);
     *(absPath+a+1) = '\0';
+}*/
+
+void setTruePath(char* absPath){
+    int index;
+    char file_path[100];
+    if( (*absPath) != '/') {
+        strcpy(file_path, &(currentTask->curr_dir[1]));
+        strcat(file_path, absPath);
+    }
+    else strcpy(file_path,absPath+1);
+    resetString(absPath);
+    int pathOffset = getOffset(absPath, 0);
+    for(index = 0; *(file_path+index) != '\0'; index++)
+    {
+        if(previousDir(file_path, index))
+        {
+            pathOffset--;
+            resetString(absPath + pathOffset);
+            while( (*(absPath+pathOffset)!='/') && pathOffset>=0)
+            {
+                resetString(absPath + pathOffset);
+                pathOffset--;
+            }
+            index++;
+        }
+        else
+        {
+            *(absPath + pathOffset) = *(file_path + index);
+            pathOffset++;
+        }
+    }
+    *(absPath+pathOffset) = *(file_path+index);
+    resetString(absPath+pathOffset + 1);
 }
+
 int isfileexists(char* path){
     char fi[100];
     strcpy(fi,path);
