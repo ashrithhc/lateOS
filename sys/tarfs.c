@@ -136,6 +136,7 @@ int open_dir(char* path){
     if(fileID == -1) return fileID;
     return setCurrentTaskVal(10, fileID, -1);
 }
+
 int open_tarfs(char* path, int flags)
 {
         int fileID = isfileexists(path);
@@ -143,18 +144,22 @@ int open_tarfs(char* path, int flags)
         return setCurrentTaskVal(2, fileID, flags);
 }
 
+void setFilePath(char *path, int count, struct posix_header_ustar *header){
+    for(int i=0; i<count; i++) path[i] = *(header + 1 + i);
+    path[count] = '\0';
+}
+
 ssize_t read_tarfs(int fd, char* buf, int count)
 {
     if ((&(currentTask->fd[fd]))->aval == 0) return -1;
     if (count == 0) return 0;
 	
-	struct file_t* fileDescr = (struct file_t*) &(currentTask->fd[fd]);
-    struct posix_header_ustar *header;
-    header = (struct posix_header_ustar*) fileDescr->address;
-    char* start_address = (char *) (header+1);
-    if((fileDescr->size) < count) count = fileDescr->size;
-    for(int i=0; i < count; i++) buf[i] = *(start_address+i);
-    buf[count] = '\0';
+	struct file_t* filedescriptor = (struct file_t*) &(currentTask->fd[fd]);
+    struct posix_header_ustar *header = (struct posix_header_ustar*) filedescriptor->address;;
+    // header = 
+    // char* start_address = (char *) (header+1);
+    if((filedescriptor->size) < count) count = filedescriptor->size;
+    setFilePath(buf, count, header);
 	return count;
 }
 
