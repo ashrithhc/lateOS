@@ -145,7 +145,7 @@ int open_tarfs(char* path, int flags)
 }
 
 void setFilePath(char *path, int count, struct posix_header_ustar *header){
-    for(int i=0; i<count; i++) path[i] = *(header + 1 + i);
+    for(int i=0; i<count; i++) path[i] = *((char *)header + 1 + i);
     path[count] = '\0';
 }
 
