@@ -226,7 +226,7 @@ void kprintf(const char *fmt, ...)
 	va_list valist;
 	va_start(valist, fmt);
 
-	temp2 = (char *)(0xb8000);
+	temp2 = (char *)(0xb8000 + (uint64_t)&kernmem);
 
 	for(int move = 0; move < usedSpace; move++){
 		temp2+=2;
