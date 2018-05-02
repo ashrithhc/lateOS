@@ -4,6 +4,9 @@ va_list list;
 static char *p_reg = (char*) 0xffffffff800b8000;
 static int h_offset=0,v_offset=0;
 
+static int usedSpace=0;
+extern char kernmem, physbase;
+
 void parse_str(const char* fmt);
 void kprintf(const char* fm, ...);
 void print_int(int i);
