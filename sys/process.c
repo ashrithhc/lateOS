@@ -588,7 +588,7 @@ int chdir(char* path){
     if(strcmp("../",path) == 0){
         char k[100];
         strcpy(k,path);
-        setTruePath(k);
+        deriveRelative(k);
         if(strcmp(k,"")==0){
             strcpy(currentTask->curr_dir,"/");
             return 0;
@@ -597,7 +597,7 @@ int chdir(char* path){
     if((isValidDirectory(path)) > -1){
         char k[100];
         strcpy(k,path);
-        setTruePath(k);
+        deriveRelative(k);
         char l[100];
         l[0] = '/';
         l[1] = '\0';

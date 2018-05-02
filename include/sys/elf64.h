@@ -73,7 +73,7 @@ uint64_t get_file_address(char* filename);
 
 int isfileexists(char* path);
 
-void setTruePath(char* abs_path);
+void deriveRelative(char* absolutePath);
 
 int isValidDirectory(char* path);
 

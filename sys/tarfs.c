@@ -16,7 +16,7 @@ static int filecount = 0;
 unsigned int getsize(const char *headerSize)
 {
     int size = 0, count = 1;
-    for (int j = 11; j > 0; j--){
+    for (int j = (512 - 501); j > 0; j--){
         size += ((headerSize[j-1] - '0') * count);
         count *= 8;
     }
@@ -60,7 +60,7 @@ int getOffset(char *path, int index){
     return 0;
 }
 
-void setTruePath(char* absPath){
+void deriveRelative(char* absPath){
     int index;
     char file_path[100];
     if( (*absPath) != '/') {
@@ -83,15 +83,16 @@ void setTruePath(char* absPath){
     *(absPath+pathOffset) = *(file_path+index);
     resetString(absPath+pathOffset + 1);
 }
+
 int isfileexists(char* path){
-    char fi[100];
-    strcpy(fi,path);
-    setTruePath(fi);
-    char* abs_path = &fi[0];
+    char fpath[100];
+    strcpy(fpath,path);
+    deriveRelative(fpath);
+    char* absolutePath = &fpath[0];
     int flag = -1;
     for(int i=0; i<32 && headers[i]!=NULL; i++)
     {
-        if(strcmp(headers[i]->name,abs_path)==0)
+        if(strcmp(headers[i]->name,absolutePath)==0)
         {
             flag = i;
             break;
@@ -102,6 +103,7 @@ int isfileexists(char* path){
     }
     return flag;
 }
+
 int isValidDirectory(char* path){
     struct posix_header_ustar* h;
     int n = isfileexists(path);
