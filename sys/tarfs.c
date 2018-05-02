@@ -84,7 +84,7 @@ void setTruePath(char* absPath){
         }
         else
         {
-            *(absPath+pathOffset) = *(file_path+i);
+            *(absPath + pathOffset) = *(file_path + index);
             pathOffset++;
         }
     }
