@@ -61,6 +61,7 @@ int getOffset(char *path, int index){
 }
 
 void setTruePath(char* absPath){
+    int index;
     char file_path[100];
     if( (*absPath) != '/') {
         strcpy(file_path, &(currentTask->curr_dir[1]));
@@ -69,7 +70,7 @@ void setTruePath(char* absPath){
     else strcpy(file_path,absPath+1);
     resetString(absPath);
     int pathOffset = getOffset(absPath, 0);
-    for(int index = 0; *(file_path+index) != '\0'; index++)
+    for(index = 0; *(file_path+index) != '\0'; index++)
     {
         if(previousDir(file_path, index))
         {
