@@ -1,5 +1,7 @@
 //#include <sys/kprintf.h>
 #include <stdarg.h>
+#include <sys/defs.h>
+
 va_list list;
 static char *p_reg = (char*) 0xffffffff800b8000;
 static int h_offset=0,v_offset=0;
