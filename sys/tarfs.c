@@ -98,17 +98,20 @@ void setTruePath(char* absPath){
         strcat(file_path, absPath);
     }
     else strcpy(file_path,absPath+1);
-    resetString(absPath);
+    // resetString(absPath);
+    *(absPath) = '\0';
     int pathOffset = getOffset(absPath, 0);
     for(index = 0; *(file_path+index) != '\0'; index++)
     {
-        if(((*(file_path+index))=='.') && ( (*(file_path+index+1))=='.'))
+        if(previousDir(file_path, index))
         {
             pathOffset--;
-            resetString(absPath + pathOffset);
+            // resetString(absPath + pathOffset);
+            *(absPath+pathOffset)='\0';
             while( (*(absPath+pathOffset)!='/') && pathOffset>=0)
             {
-                resetString(absPath + pathOffset);
+                // resetString(absPath + pathOffset);
+                *(absPath+pathOffset) = *(file_path+i);
                 pathOffset--;
             }
             index++;
@@ -120,7 +123,8 @@ void setTruePath(char* absPath){
         }
     }
     *(absPath+pathOffset) = *(file_path+index);
-    resetString(absPath+pathOffset + 1);
+    // resetString(absPath+pathOffset + 1);
+    *(absPath+a+1) = '\0';
 }
 
 int isfileexists(char* path){
