@@ -111,7 +111,7 @@ void setTruePath(char* absPath){
             while( (*(absPath+pathOffset)!='/') && pathOffset>=0)
             {
                 // resetString(absPath + pathOffset);
-                *(absPath+pathOffset) = *(file_path+i);
+                *(absPath+pathOffset) = *(file_path+index);
                 pathOffset--;
             }
             index++;
@@ -124,7 +124,7 @@ void setTruePath(char* absPath){
     }
     *(absPath+pathOffset) = *(file_path+index);
     // resetString(absPath+pathOffset + 1);
-    *(absPath+a+1) = '\0';
+    *(absPath+pathOffset+1) = '\0';
 }
 
 int isfileexists(char* path){
