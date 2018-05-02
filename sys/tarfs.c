@@ -9,6 +9,7 @@
 
 #define True 1
 #define False 0
+#define Faalse -1
 
 static struct posix_header_ustar *headers[200];
 static int filecount = 0;
@@ -85,12 +86,12 @@ void deriveRelative(char* absPath){
 }
 
 int checkFile(char *path){
-    for(int fileID=0; fileID<32; fileID++)
+    for(int fileID=0; fileID < 32; fileID++)
     {
         if (headers[fileID] == NULL) break;
         if(strcmp(headers[fileID]->name, path) == 0) return fileID;
     }
-    return -1;
+    return Faalse;
 }
 
 int isfileexists(char* path){
@@ -101,22 +102,30 @@ int isfileexists(char* path){
     return checkFile(absolutePath);
 }
 
-int isValidDirectory(char* path){
-    struct posix_header_ustar* h;
-    int n = isfileexists(path);
-    if(n < 0){
-        return -1;
-    }
-    h = headers[n];
-    int l = strlen(h->name);
-    if(h->name[l-1] == '/'){
-        return n;
-    }
-    return -1;
+int setCurrentTaskVal(int setflag){
+    int fileCounter = currentTask->fd_c + 3;
+    currentTask->fd_c++;
+    strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), h->name);
+    (&(currentTask->fd[fileCounter]))->entry = 0;
+    (&(currentTask->fd[fileCounter]))->aval = 1;
+    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    (&(currentTask->fd[fileCounter]))->address = (uint64_t)headers[file_no];
+    (&(currentTask->fd[fileCounter]))->fd = fileCounter;
+    if (setflag != 10)(&(currentTask->fd[fdc]))->flags = flags;
+    return fileCounter;
 }
+
+int isValidDirectory(char* path){
+    struct posix_header_ustar* fileheader;
+    if(isfileexists(path) == -1) return -1;
+    fileheader = headers[isfileexists(path)];
+    if(fileheader->name[strlen(fileheader->name)-1] == '/')return n;
+    return Faalse;
+}
+
 int open_dir(char* path){
-    struct posix_header_ustar* h;
-    if(strcmp(path,"/")==0)
+    struct posix_header_ustar* fileheader;
+    if(strcmp(path, "/")==0)
     {
 	    int fdc = currentTask->fd_c+3;
         currentTask->fd_c++;
@@ -124,39 +133,18 @@ int open_dir(char* path){
         strcpy(&((&(currentTask->fd[fdc]))->file_name[0]),"/");
         return fdc;
     }
-    int file_no = isValidDirectory(path);
-    if(file_no == -1){
-        return  -1;
-    }
-    h = headers[file_no];
-    int fdc = currentTask->fd_c + 3;
-    currentTask->fd_c++;
-    strcpy(&((&(currentTask->fd[fdc]))->file_name[0]), h->name);
-    (&(currentTask->fd[fdc]))->entry = 0;
-    (&(currentTask->fd[fdc]))->aval = 1;
-    (&(currentTask->fd[fdc]))->size = (uint64_t)(octal_to_binary((char*)(h->size)));
-    (&(currentTask->fd[fdc]))->address = (uint64_t)headers[file_no];
-    (&(currentTask->fd[fdc]))->fd = fdc;
-    return fdc;
+    int fileID = isValidDirectory(path);
+    if(fileID == -1) return fileID;
+    // h = headers[fileID];
+    return setCurrentTaskVal(10);
 }
 int open_tarfs(char* path, int flags)
 {
-        struct posix_header_ustar* h;
-        int file_no = isfileexists(path);
-        if(file_no == -1){
-            return  -1;
-        }
-        h = headers[file_no];
-	    int fdc = currentTask->fd_c + 3;
-	    currentTask->fd_c++;
-	    strcpy(&((&(currentTask->fd[fdc]))->file_name[0]), h->name);
-        (&(currentTask->fd[fdc]))->flags = flags;
-	    (&(currentTask->fd[fdc]))->entry = 0;
-        (&(currentTask->fd[fdc]))->aval = 1;
-    	(&(currentTask->fd[fdc]))->size = (uint64_t)(octal_to_binary((char*)(h->size)));
-    	(&(currentTask->fd[fdc]))->address = (uint64_t)headers[file_no];
-	    (&(currentTask->fd[fdc]))->fd = fdc;
-        return fdc;
+        struct posix_header_ustar* fileheader;
+        int fileID = isfileexists(path);
+        if(fileID == -1) return fileID;
+        // h = headers[fileID];
+        return setCurrentTaskVal(2);
 }
 
 ssize_t read_tarfs(int fd, char* buf, int count)
