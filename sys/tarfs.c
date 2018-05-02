@@ -84,11 +84,11 @@ void deriveRelative(char* absPath){
     resetString(absPath+pathOffset + 1);
 }
 
-int checkFile(){
+int checkFile(char *path){
     for(int fileID=0; fileID<32; fileID++)
     {
         if (headers[fileID] == NULL) break;
-        if(strcmp(headers[fileID]->name, absolutePath) == 0) return fileID;
+        if(strcmp(headers[fileID]->name, path) == 0) return fileID;
     }
     return -1;
 }
@@ -98,7 +98,7 @@ int isfileexists(char* path){
     strcpy(fpath,path);
     deriveRelative(fpath);
     char* absolutePath = &fpath[0];
-    return checkFile();
+    return checkFile(absolutePath);
 }
 
 int isValidDirectory(char* path){
