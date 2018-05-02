@@ -105,10 +105,10 @@ int isfileexists(char* path){
 int setCurrentTaskVal(int setflag, int fileID, int flags){
     int fileCounter = currentTask->fd_c + 3;
     currentTask->fd_c++;
-    strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), header[fileID]->name);
+    strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), headers[fileID]->name);
     (&(currentTask->fd[fileCounter]))->entry = 0;
     (&(currentTask->fd[fileCounter]))->aval = 1;
-    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(header[fileID]->size)));
+    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(headers[fileID]->size)));
     (&(currentTask->fd[fileCounter]))->address = (uint64_t)headers[fileID];
     (&(currentTask->fd[fileCounter]))->fd = fileCounter;
     if (setflag != 10)(&(currentTask->fd[fileCounter]))->flags = flags;
@@ -119,7 +119,7 @@ int isValidDirectory(char* path){
     struct posix_header_ustar* fileheader;
     if(isfileexists(path) == -1) return -1;
     fileheader = headers[isfileexists(path)];
-    if(fileheader->name[strlen(fileheader->name)-1] == '/')return isfileexists(path;
+    if(fileheader->name[strlen(fileheader->name)-1] == '/')return isfileexists(path);
     return Faalse;
 }
 
