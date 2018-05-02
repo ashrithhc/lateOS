@@ -10,81 +10,7 @@
 #define True 1
 #define False 0
 
-static struct posix_header_ustar *headers[200];
-static int filecount = 0;
-
-unsigned int getsize(const char *headerSize)
-{
-    int size = 0, count = 1;
-    for (int j = (512 - 501); j > 0; j--){
-        size += ((headerSize[j-1] - '0') * count);
-        count *= 8;
-    }
-    return (unsigned int)size;
-}
-
-uint64_t get_file_address(char* filename){
-    for(int i=0; i<filecount; i++){
-        struct posix_header_ustar *pheader = headers[i];
-        if(strcmp(filename, pheader->name) == 0) return (uint64_t)headers[i];
-    }
-    return -1;
-}
-
-char* moveTarfsHeader(char *tarfsAddr, struct posix_header_ustar *header){
-    unsigned int size = getsize(header->size);
-    tarfsAddr += ((size / 512) + 1) * 512;
-    if (size % 512) tarfsAddr += 512;
-    return tarfsAddr;
-}
-
-void init_tarfs()
-{
-    struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
-    char* tarfsAddr = &_binary_tarfs_start;
-    while(tarfsAddr < &_binary_tarfs_end){
-        headers[filecount] = header;
-        tarfsAddr = moveTarfsHeader(tarfsAddr, header);
-        header = (struct posix_header_ustar *)tarfsAddr;
-        filecount = filecount+1;
-    }
-}
-
-int previousDir(char path[100], int index){
-    if ((*(path + index) == '.') && (*(path + (index+1))) == '.') return True;
-    return False;
-}
-
-int getOffset(char *path, int index){
-    if (*(path + index) != '\0') return 0;
-    return 0;
-}
-
-void deriveRelative(char* absPath){
-    int index;
-    char file_path[100];
-    if( (*absPath) != '/') {
-        strcpy(file_path, &(currentTask->curr_dir[1]));
-        strcat(file_path, absPath);
-    }
-    else strcpy(file_path, absPath+1);
-    resetString(absPath);
-    int pathOffset = getOffset(absPath, 0);
-    for(index = 0; *(file_path+index) != '\0'; index++)
-    {
-        if(previousDir(file_path, index))
-        {
-            resetString(absPath + --pathOffset);
-            while( (*(absPath+pathOffset)!='/') && pathOffset>=0) resetString(absPath + pathOffset--);
-            index++;
-        }
-        else *(absPath + pathOffset++) = *(file_path + index);
-    }
-    *(absPath+pathOffset) = *(file_path+index);
-    resetString(absPath+pathOffset + 1);
-}
-
-/*int isfileexists(char* path){
+int isfileexists(char* path){
     char fpath[100];
     strcpy(fpath,path);
     deriveRelative(fpath);
@@ -217,7 +143,7 @@ int close_tarfs(int fp)
     ft.aval = 0;
 	//.address = NULL;
 	return ft.fd;
-}*/
+}
 
 
 

@@ -69,12 +69,12 @@ struct posix_header_ustar {
 
 void init_tarfs();
 
-uint64_t get_file_address(char* filename);
+uint64_t get_file_address(char*);
 
-int isfileexists(char* path);
+int isfileexists(char*);
 
-void deriveRelative(char* absolutePath);
+void deriveRelative(char*);
 
-int isValidDirectory(char* path);
+int isValidDirectory(char*);
 
 #endif
