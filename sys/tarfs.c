@@ -50,8 +50,8 @@ void init_tarfs()
     }
 }
 
-int relativeDir(char path, int index){
-    if ((*(path + index) == '.') && (*(file_path + (index+1))) == '.') return True;
+int relativeDir(char path[100], int index){
+    if ((*(path + index) == '.') && (*(path + (index+1))) == '.') return True;
     return False;
 }
 
