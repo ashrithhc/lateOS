@@ -75,10 +75,10 @@ void setTruePath(char* absPath){
         if(previousDir(file_path, index))
         {
             pathOffset--;
-            *(absPath+pathOffset)='\0';
+            resetString(absPath + pathOffset);
             while( (*(absPath+pathOffset)!='/') && pathOffset>=0)
             {
-                *(absPath+pathOffset)='\0';
+                resetString(absPath + pathOffset);
                 pathOffset--;
             }
             index++;
