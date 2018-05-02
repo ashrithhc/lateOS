@@ -56,8 +56,8 @@ int previousDir(char path[100], int index){
 }
 
 int getOffset(char *path, int index){
-    if (*(path + index) != '\0') return index;
-    return -1;
+    if (*(path + index) != '\0') return 0;
+    return 0;
 }
 
 void setTruePath(char* absPath){
@@ -69,7 +69,7 @@ void setTruePath(char* absPath){
     }
     else strcpy(file_path,absPath+1);
     resetString(absPath);
-    int pathOffset = 0;//getOffset(absPath, 0);
+    int pathOffset = ]getOffset(absPath, 0);
     for(index = 0; *(file_path+index) != '\0'; index++)
     {
         if(previousDir(file_path, index))
