@@ -171,7 +171,7 @@ int readdir_tarfs(int fd, char* buf)
     {
         if (headers[i]==NULL) break;
         if((starts_with(headers[i]->name, fileName) > 0) || isRootDirectory(fileName)) {
-            if ((count == 0) ((&(currentTask->fd[fd]))->entry == 0)) (&(currentTask->fd[fd]))->entry++;
+            if ((count == 0) && ((&(currentTask->fd[fd]))->entry == 0)) (&(currentTask->fd[fd]))->entry++;
             else if (count == (&(currentTask->fd[fd]))->entry)
             {
                 strcpy(buf,substring(headers[i]->name, starts_with(headers[i]->name, fileName)));
