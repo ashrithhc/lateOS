@@ -138,18 +138,15 @@ void kprintf(const char *fmt, ...)
 	va_list valist;
 	va_start(valist, fmt);
 
-	// temp2 = (char *)(0xffffffff80000000+0xb8000);
-
 	for (temp1 = fmt; *temp1; /*temp1+=1*/){
-	// while(*temp1!='\0'){
 		if((*temp1 == '\\') && (*(temp1+1) == 'n')){
-					put_to_screen('\n');
-					temp1+=2;
-				}
+			put_to_screen('\n');
+			temp1+=2;
+		}
 		else if((*temp1 == '\\') && (*(temp1+1) == 'r')){
-					put_to_screen('\r');
-					temp1+=2;
-				}				
+			put_to_screen('\r');
+			temp1+=2;
+		}				
 		else if(*temp1 != '%'){
 			put_to_screen(*temp1);
 			temp1++;
@@ -157,43 +154,36 @@ void kprintf(const char *fmt, ...)
 		else {
 			temp1++;
 			if (*(temp1) == 'd'){
-// print_int();
-				int i = va_arg(valist,int);
-int j = 1000000000;
-	int lead_zero = 1;
-	if(i==0){
-		put_to_screen('0');
-	}
-	if(i<0){
-		put_to_screen('-');
-		i = i* -1;
-	}
-	while(j!=0){
-		if(lead_zero == 1 && (i/j == 0)){
-			j = j/10;
-			continue;
-		}
-		if(lead_zero == 1 && (i/j != 0)){
-			lead_zero = 0;	
-		}
-		put_to_screen('0'+(i/j));
-		i = i % j;
-		j = j/10;
-	}
-					temp1++;
+				int intVal = va_arg(valist, int);
+				int offset = 10*5;
+				int zeroes = 1;
+				if(intVal == 0) put_to_screen('0');
+				if(intVal < 0){
+					put_to_screen('-');
+					intVal = intVal * -1;
+				}
+				while(offset != 0){
+					int modVal = intVal/offset;
+					if((zeroes == 1) && (modVal == 0)){offset = offset/10; continue;}
+					else if(zeroes == 1 && (modVal != 0)) zeroes = 0;
+					put_to_screen('0' + modVal);
+					intVal = intVal % offset;
+					offset = offset/10;
+				}
+				temp1++;
 			}
 			else if (*(temp1) == 'c'){
-				put_to_screen(va_arg(valist,int));
-					temp1++;
+				put_to_screen(va_arg(valist, int));
+				temp1++;
 			}
 			else if (*(temp1) == 's'){
-				char* a;
-					a = va_arg(valist,char *);
-					while(*a!='\0'){
-						put_to_screen(*a);
-						a++;
-					}
-					temp1++;
+				char* allChars;
+				allChars = va_arg(valist, char *);
+				while(*allChars != '\0'){
+					put_to_screen(*allChars);
+					allChars++;
+				}
+				temp1++;
 			}
 			else if (*(temp1) == 'x'){
 				print_hex(va_arg(valist,int));
