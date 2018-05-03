@@ -1,11 +1,13 @@
 #include <sys/idt.h>
 #include <sys/kprintf.h>
-//Reference://scancode array:http://www.cs.umd.edu/~hollings/cs412/s98/project/proj1/scancode
 
+static char *RREG = (char*)0xffffffff800B8F90;
+static char *PREG = (char*)0xffffffff800B8F8E;
+static int caps=0, controlValue=0;
 static char code_map[58][2] =
      {
        {   0,0   } ,
-       {   0,0   } ,//ESC
+       {   0,0   } ,
        { '1','!' } ,
        { '2','@' } ,
        { '3','#' } ,
@@ -64,59 +66,44 @@ static char code_map[58][2] =
        { ' ',' ' } ,
    };
 
-static char *reg = (char*)0xffffffff800B8F90;
-static char *preg = (char*)0xffffffff800B8F8E;
-static int caps=0, ctrl=0;
-
 static inline uint8_t inb(uint64_t port)
 {
        uint8_t retVal;
-       __asm__ __volatile__("inb %1, %0" : "=a"(retVal) : "Nd"(port));
+       __asm__ __volatile__ ("inb %1, %0" : "=a"(retVal) : "Nd"(port));
        return retVal;
+}
+
+void setPREG(int code, int index){
+       *PREG = code_map[code][index];
+}
+
+void setRREG(int code, int index){
+       *RREG = code_map[code][index];
 }
 
 void kb()
 {
-	char key_pressed;
-	int c=0;
-		if(inb(0x60)!=0)
-			c=inb(0x60);
-		if(c>0)
-		{
-			if(c>128) ;
-			else if(c==28)
-			{
-				*preg=code_map[c][0];
-				*reg=code_map[c][1];
-			}
-			else if(c==29)
-			{
-				ctrl=1;
-				*preg=code_map[c][ctrl];
-			}
-			else if(c==42||c==54)
-			//else if(c==32)
-			{
-				caps=1;
-			}
-			else
-			{
-				/*key_pressed=code_map[c][caps];
-				caps=0;
-				*reg=key_pressed;*/
-				if(ctrl==1)
-				{	
-					ctrl=0;
-					caps=1;	
-				}	
-				else
-				{
-					*preg=code_map[29][ctrl];
-				}
-				key_pressed=code_map[c][caps];
-				caps=0;
-				*reg=key_pressed;				
-			}	
-		}		
+	char character;
+	int code = inb(0x60);
+	if(code==28){
+              setPREG(code, 0);
+              setRREG(code, 1);
+	}
+	else if(code==29){
+		controlValue = 1;
+              setPREG(code, controlValue);
+		*PREG = code_map[code][controlValue];
+	}
+	else if ((code == 42) || (code == 54)) caps = 1;
+	else if(code > 0){
+		if(controlValue==1)
+		{	
+			controlValue=0;
+			caps=1;	
+		}	
+		else setPREG(29, controlValue);
+              setRREG(code, caps);
+		caps = 0;
+	}	
 	outportb(0x20,0x20);	
 }
