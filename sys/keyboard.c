@@ -136,7 +136,7 @@ static int strOffset = 0;
 int lineCount;
 char inpStr[4096];
 
-void write_terminal()
+void intWrite()
 {
        char key_pressed;
        int code = inb(0x60);

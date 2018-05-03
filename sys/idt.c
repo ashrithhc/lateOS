@@ -17,9 +17,9 @@ typedef struct registersAligned{
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
 }registersAligned;
 
-void ISR0();
-void isr_14();
-void isr_128();
+void int0();
+void int14();
+void ISR128();
 extern void timer();
 extern void keyboard();
 
@@ -93,15 +93,15 @@ void startTimer(){
 }
 
 void init_idt(){
-	for (int i=0; i<32; i++) initISR(i, (uint64_t)&ISR0);
-	initISR(14, (uint64_t)&isr_14);
+	for (int i=0; i<32; i++) initISR(i, (uint64_t)&int0);
+	initISR(14, (uint64_t)&int14);
 	initISR(32, (uint64_t)&timer);
 	initISR(33, (uint64_t)&keyboard);
-	initISR(128, (uint64_t)&isr_128);
+	initISR(128, (uint64_t)&ISR128);
 	loadIDT();
 }
 
-void isr0(){
+void int0(){
 	kprintf("Invalid Interrupt received");
 	outportb(0x20,0x20);
 }
@@ -138,7 +138,7 @@ void copyFromPML4(uint64_t vaddr){
     loadPML4(taskPML4);
 }
 
-void isr14(){
+void int14(){
 	uint64_t vaddr = getCR2();
     checkValid(vaddr);
     uint64_t *taskPTE = getPTE(vaddr);

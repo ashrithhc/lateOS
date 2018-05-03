@@ -1,16 +1,16 @@
 .global timer
 .global keyboard
 
-.global ISR0
-.global isr_14
-.global isr_128
+.global int0
+.global int14
+.global ISR128
 
-.extern timer_handler
-.extern write_terminal
-.extern isr0
-.extern isr14
+.extern intTimer
+.extern intWrite
+.extern int0
+.extern int14
 
-.macro pop
+.macro popRegs
 popq %r15
 popq %r14
 popq %r13
@@ -28,7 +28,7 @@ popq %rbx
 popq %rax 
 .endm
 
-.macro push
+.macro pushRegs
 pushq %rax 
 pushq %rbx 
 pushq %rcx 
@@ -47,31 +47,31 @@ pushq %r15
 .endm
 
 timer:
-	push
-	callq timer_handler
-	pop
+	pushRegs
+	callq intTimer
+	popRegs
 	iretq
 
 keyboard:
-	push
-	callq write_terminal
-	pop
+	pushRegs
+	callq intWrite
+	popRegs
 	iretq
 
-ISR0:
-	push
-	callq isr0
-	pop
+int0:
+	pushRegs
+	callq int0
+	popRegs
 	iretq
 
-isr_14:
-	push
-	callq isr14
-	pop
+int14:
+	pushRegs
+	callq int14
+	popRegs
 	add $8, %rsp
 	iretq
 
-isr_128:
+ISR128:
 	cli
 	pushq %rbx
 	pushq %rcx

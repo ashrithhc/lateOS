@@ -5,7 +5,7 @@
 void init_idt();
 extern void startTimer();
 void outportb(uint16_t, uint8_t);
-extern void timer_handler();
+extern void intTimer();
 
 struct idt{
 	uint16_t lower_offset;

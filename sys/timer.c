@@ -5,7 +5,7 @@ static int count = 0,sec=0;
 //char* reg = (char*)0xB8F9E;
 //uint16_t PIT_reload_value = 1193;
 //static char *reg = (char*)0xB8F9E;
-void timer_handler(){
+void intTimer(){
     __asm__ __volatile__("cli");
 	outportb(0x20,0x20);
 	count++;
