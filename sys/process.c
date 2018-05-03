@@ -151,12 +151,9 @@ uint64_t* readELFandFork(uint64_t fileAddress, taskStruct *ts){
             k+=pageSize;
         }
         uint64_t currentCR3 = getCurrentCR3();
-        // uint64_t* pl =;
         loadCR3(((uint64_t)pml4 - (uint64_t)kernbase));
-        // __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pl));
         memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
         memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
-        // __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(currentCR3));
         loadCR3(currentCR3);
     }
     return pml4;
@@ -240,11 +237,6 @@ void setStackTask(taskStruct *task){
 
 void createNewTask(char* filename){
 	uint64_t fileAddress = get_file_address(filename) + 512;
-/*	if(fileAddress < 512){
-		kprintf("No such file\n");
-		return;
-	}
-*/
     char tempFilename[100];
     strcpy(tempFilename,filename);
     taskStruct *newTask = initTaskVariables(filename);
@@ -260,11 +252,7 @@ void createNewTask(char* filename){
 
     setTaskRSP(tempFilename, newTask);
 
-	__asm__ __volatile__("\
-        pushq $0x23;\
-        pushq %0;\
-        pushf;\
-        pushq $0x2B;" : : "r"(newTask->rsp) : "%rax", "%rsp");
+	__asm__ __volatile__("pushq $0x23; pushq %0; pushf; pushq $0x2B;" : : "r"(newTask->rsp) : "%rax", "%rsp");
 	__asm__ __volatile__("pushq %0" : : "r"((&(newTask->regs))->rip) : "memory");
 	__asm__ __volatile__("iretq");
 }
@@ -425,12 +413,7 @@ void setRSPandExec(taskStruct *ts, int envl, int argc, char envs[100][100], char
     (ts->rsp)-=1;
     *(ts->rsp) = argc;
     set_tss_rsp(&(ts->kstack[511]));
-    __asm__ __volatile__("\
-    push $0x23;\
-    push %0;\
-    pushf;\
-    push $0x2B;\
-    push %1"::"g"(ts->rsp),"g"(ts->regs.rip):"memory");
+    __asm__ __volatile__("push $0x23; push %0; pushf; push $0x2B; push %1" : : "g"(ts->rsp), "g"((&(ts->regs))->rip) : "memory");
     __asm__ __volatile__("iretq;");
 }
 
