@@ -1,97 +1,81 @@
-//#include <sys/kprintf.h>
 #include <stdarg.h>
-static char *p_reg = (char*) (0xffffffff80000000 + 0xb8000);
-static int h_offset=0,v_offset=0;
+#define kernbase 0xffffffff80000000
+#define videomem 0xb8000
+#define maxwidth 80
+#define maxheight 24
 
-void kprintf(const char* fm, ...);
-void print_int(int i);
+static int toLeft = 0, numLines = 0;
+static char *temp2 = (char*) (kernbase + videomem);
+
 void put_to_screen(char a);
 void scroll();
 
 void clrscr()
 {
-    p_reg = (char*) (0xffffffff80000000 + 0xb8000);
+    temp2 = (char*) (kernbase + videomem);
     for(int i=0;i<25;i++){
-        for(int j=0; j<80; j++){
-            *p_reg = ' ';
-            *(p_reg-1) = 0x07;
-            p_reg+=2;
+        for(int j=0; j<maxwidth; j++){
+            *temp2 = ' ';
+            *(temp2-1) = 0x07;
+            temp2+=2;
         }
     }
-    p_reg = (char*) (0xffffffff80000000 + 0xb8000);
-    h_offset=0;v_offset=0;
+    temp2 = (char*) (kernbase + videomem);
+    toLeft=0; numLines=0;
 }
+
 void scroll(){
-	char* p  = (char*)(0xffffffff80000000 + 0xb8000);
-	for(int i=0;i<24;i++){
-		for(int j=0;j<160;j=j+2){
-			int prev = (i*160)+j;
-			int next = (i+1)*160 + j;
-			*(p+prev) = *(p+next);
+	char* temp2  = (char*)(kernbase + videomem);
+	for(int i=0; i<maxheight; i++){
+		for(int j=0; j<(maxwidth*2); j=j+2){
+			int prev = (i*(maxwidth*2))+j;
+			int next = (i+1)*(maxwidth*2) + j;
+			*(temp2+prev) = *(temp2+next);
 		}
 	}
-	p_reg = (char*)((0xffffffff80000000 + 0xb8000));
-	p_reg = p_reg+(160*23);
-	for(int i=0;i<160;i=i+2){
-		*(p_reg+i) = '\0';
-	}
-	p_reg = (char*)((0xffffffff80000000 + 0xb8000))+(160*23);
+	temp2 = (char*)((kernbase + videomem));
+	temp2 = temp2 + ((maxwidth*2)*(maxheight-1));
+	for(int i=0; i<(maxwidth*2); i=i+2) *(temp2+i) = '\0';
+	temp2 = (char*)((kernbase + videomem)) + ((maxwidth*2)*(maxheight-1));
 }
+
 void backspace(){
-    if(h_offset == 0){
-        return;
-    }
-    h_offset--;
-    p_reg-=2;
+    if(toLeft == 0) return;
+    toLeft--; temp2-=2;
     put_to_screen(' ');
-    h_offset--;
-    p_reg-=2;
+    toLeft--; temp2-=2;
 }
-void put_to_screen(char a){
-	if(a == '\n'){
-		p_reg =(char*)((0xffffffff80000000 + 0xb8000));
-		int k = 80*(v_offset+1);
-		for(int i=0;i<k;i++){
-			p_reg+=2;
-		}
-		if(v_offset == 23){
-			scroll();	
-		}
-		else{
-			v_offset++;
-		}
-		h_offset = 0;
+
+void put_to_screen(char ch){
+	if(ch == '\n'){
+		temp2 =(char *)((kernbase + videomem));
+		for(int i=0; i < maxwidth*(numLines + 1); i++) temp2 += 2;
+		if(numLines == (maxheight-1)) scroll();
+		else numLines++;
+		toLeft = 0;
 		return;
 	}
-	else if(a == '\r'){
-		p_reg = (char*)((0xffffffff80000000 + 0xb8000));
-		int k = 80*(v_offset);
-		for(int i=0;i<k;i++){
-			p_reg+=2;
-		}
-		h_offset=0;
+	else if(ch == '\r'){
+		temp2 = (char *)((kernbase + videomem));
+		for(int i=0; i<maxwidth*(numLines); i++) temp2 += 2;
+		toLeft=0;
 	}
 	else{
-		*p_reg = (char)a;
-		p_reg+=2;
+		*temp2 = (char)ch;
+		temp2 += 2;
 	}
-	if(h_offset == 79){
-		if(v_offset == 23){
-			//scroll
-			scroll();
-			p_reg = (char*)(0xffffffff80000000 + 0xb8000);
-			p_reg = p_reg + 160*22;
-			h_offset = 0;
-			return;
-		}
-		else{
-			v_offset++;
-			h_offset = 0;
-			return;
-		}
-	}
-	h_offset++;
 
+	if ((toLeft == 79) && (numLines == (maxheight-1))){
+		scroll();
+		temp2 = (char*)(kernbase + videomem);
+		temp2 = temp2 + (maxwidth*2)*22;
+		toLeft = 0;
+	}
+	else if((toLeft == 79) && (numLines != (maxheight-1))){
+		numLines++;
+		toLeft = 0;
+	}
+	else toLeft++;
 }
 
 void kprintf(const char *fmt, ...)
