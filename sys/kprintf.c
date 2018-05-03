@@ -156,16 +156,16 @@ void print_hex(int i){
 void kprintf(const char *fmt, ...)
 {
 	va_start(list,fmt);
-	while(*s!='\0'){
-		if(*s == '%'){
-			switch(*(s+1)){
+	while(*fmt!='\0'){
+		if(*fmt == '%'){
+			switch(*(fmt+1)){
 				case 'd':
 					print_int(va_arg(list,int));
-					s = s+2;
+					fmt = fmt+2;
 					break;
 				case 'c':
 					put_to_screen(va_arg(list,int));
-					s = s+2;
+					fmt = fmt+2;
 					break;
 				case 's':
 					;
@@ -175,11 +175,11 @@ void kprintf(const char *fmt, ...)
 						put_to_screen(*a);
 						a++;
 					}
-					s+=2;
+					fmt+=2;
 					break;
 				case 'x':
 					print_hex(va_arg(list,int));
-					s = s+2;
+					fmt = fmt+2;
 					break;
 				case 'p':
 					put_to_screen('0');
@@ -187,27 +187,27 @@ void kprintf(const char *fmt, ...)
 					unsigned long p  = va_arg(list,unsigned long);	
 					//print_hex(p);
 					print_pointer(p);
-					s+=2;
+					fmt+=2;
 					break;
 				default:
 					break;	
 			}
 		}
-		else if(*s == '\\'){
-			switch(*(s+1)){
+		else if(*fmt == '\\'){
+			switch(*(fmt+1)){
 				case 'n':
 					put_to_screen('\n');
-					s+=2;
+					fmt+=2;
 					break;
 				case 'r':
 					put_to_screen('\r');
-					s+=2;
+					fmt+=2;
 					break;
 			}
 		}
 		else{
-			put_to_screen(*s);
-			s++;
+			put_to_screen(*fmt);
+			fmt++;
 		}
 	}
 }
