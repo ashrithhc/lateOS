@@ -4,7 +4,7 @@
 static char **adr2;
 static char* argv[20],*env[100];
 */
-void _start(void) {
+void _start(int argc, char *argv[]) {
   /*__asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
 	 :"=m" (adr),"=m" (adr2)
 	 :
