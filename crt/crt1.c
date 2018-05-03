@@ -1,9 +1,11 @@
 #include <stdlib.h>
-static int *adr;
+
+/*static int *adr;
 static char **adr2;
 static char* argv[20],*env[100];
+*/
 void _start(void) {
-  __asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
+  /*__asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
 	 :"=m" (adr),"=m" (adr2)
 	 :
 	 :"rsp"	
@@ -24,5 +26,8 @@ void _start(void) {
   pushenvs(env);
   int i = main(*(adr+2),argv,env);
   // call main() and exit() here
-  exit(i);
+  exit(i);*/
+  int retVal;
+  retVal = main(argc, argv);
+  exit(retVal);
 }
