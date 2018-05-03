@@ -37,13 +37,6 @@ void rollUP(){
 	temp2 = (char*)((kernbase + videomem)) + ((maxwidth*2)*(maxheight-1));
 }
 
-void backspace(){
-    if(toLeft == 0) return;
-    toLeft--; temp2-=2;
-    writeToSbush(' ');
-    toLeft--; temp2-=2;
-}
-
 void writeToSbush(char ch){
 	if(ch == '\n'){
 		temp2 =(char *)((kernbase + videomem));
@@ -74,6 +67,13 @@ void writeToSbush(char ch){
 		toLeft = 0;
 	}
 	else toLeft++;
+}
+
+void backspace(){
+    if(toLeft == 0) return;
+    toLeft--; temp2-=2;
+    writeToSbush(' ');
+    toLeft--; temp2-=2;
 }
 
 void kprintf(const char *fmt, ...)
