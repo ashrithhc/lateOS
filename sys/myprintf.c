@@ -11,7 +11,7 @@ void kprintf(const char *fmt, ...)
 	va_list valist;
 	va_start(valist, fmt);
 
-	temp2 = (char *)(0xb8000);
+	temp2 = (char *)(0xffffffff80000000+0xb8000);
 
 	for(int move = 0; move < usedSpace; move++){
 		temp2+=2;
