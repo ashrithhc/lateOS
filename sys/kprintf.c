@@ -162,11 +162,11 @@ void kprintf(const char *fmt, ...)
 
 	for (temp1 = fmt; *temp1; /*temp1+=1*/){
 	// while(*temp1!='\0'){
-		if((*temp1 == '\\') && (*(temp1+1) == 'n'){
+		if((*temp1 == '\\') && (*(temp1+1) == 'n')){
 					put_to_screen('\n');
 					temp1+=2;
 				}
-		else if((*temp1 == '\\') && (*(temp1+1) == 'r'){
+		else if((*temp1 == '\\') && (*(temp1+1) == 'r')){
 					put_to_screen('\r');
 					temp1+=2;
 				}				
