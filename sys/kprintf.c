@@ -162,7 +162,23 @@ void kprintf(const char *fmt, ...)
 
 	for (temp1 = fmt; *temp1; /*temp1+=1*/){
 	// while(*temp1!='\0'){
-		if(*temp1 == '%'){
+		if(*temp1 == '\\'){
+			switch(*(temp1+1)){
+				case 'n':
+					put_to_screen('\n');
+					temp1+=2;
+					break;
+				case 'r':
+					put_to_screen('\r');
+					temp1+=2;
+					break;
+			}
+		}
+		else if{
+			put_to_screen(*temp1);
+			temp1++;
+		}
+		else(*temp1 == '%'){
 			switch(*(temp1+1)){
 				case 'd':
 					print_int(va_arg(valist,int));
@@ -198,7 +214,7 @@ void kprintf(const char *fmt, ...)
 					break;	
 			}
 		}
-		else if(*temp1 == '\\'){
+		/*else if(*temp1 == '\\'){
 			switch(*(temp1+1)){
 				case 'n':
 					put_to_screen('\n');
@@ -209,11 +225,11 @@ void kprintf(const char *fmt, ...)
 					temp1+=2;
 					break;
 			}
-		}
-		else{
+		}*/
+		/*else{
 			put_to_screen(*temp1);
 			temp1++;
-		}
+		}*/
 	}
 }
 
