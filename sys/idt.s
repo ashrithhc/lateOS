@@ -1,7 +1,7 @@
 .global timer
 .global keyboard
 
-.global isr_0
+.global ISR0
 .global isr_14
 .global isr_128
 
@@ -58,7 +58,7 @@ keyboard:
 	pop
 	iretq
 
-isr_0:
+ISR0:
 	push
 	callq isr0
 	pop

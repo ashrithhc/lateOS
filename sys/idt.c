@@ -17,7 +17,7 @@ typedef struct registersAligned{
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
 }registersAligned;
 
-void isr_0();
+void ISR0();
 void isr_14();
 void isr_128();
 extern void timer();
@@ -93,7 +93,7 @@ void startTimer(){
 }
 
 void init_idt(){
-	for (int i=0; i<32; i++) initISR(i, (uint64_t)&isr_0);
+	for (int i=0; i<32; i++) initISR(i, (uint64_t)&ISR0);
 	initISR(14, (uint64_t)&isr_14);
 	initISR(32, (uint64_t)&timer);
 	initISR(33, (uint64_t)&keyboard);
