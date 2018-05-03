@@ -147,10 +147,11 @@ void kprintf(const char *fmt, ...)
 				}
 				temp1++;
 			}
+			int index;
 			else if (*(temp1) == 'x'){
 				int intVal = va_arg(valist, int);
 				char outList[100];
-				for(int index = 0; intVal != 0; index++){
+				for(index = 0; intVal != 0; index++){
 					if(intVal%16 <= 9) outList[index] = '0' + intVal%16;
 					else outList[index] = 'A' + (intVal%16 - 10);
 					intVal = intVal/16;
@@ -163,7 +164,7 @@ void kprintf(const char *fmt, ...)
 				put_to_screen('x');
 				unsigned long intVal = va_arg(valist, unsigned long);
 				char outList[100];
-		        for(int index = 0; intVal != 0; index++){
+		        for(index = 0; intVal != 0; index++){
 	                if(intVal%16 < 10) outList[index] = '0' + intVal%16;
 	                else outList[index] = 'A' + (intVal%16 - 10);
 	                intVal = intVal/16;
