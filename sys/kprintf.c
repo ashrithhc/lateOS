@@ -176,40 +176,55 @@ void kprintf(const char *fmt, ...)
 		}
 		else {
 			temp1++;
-			switch(*(temp1)){
-				case 'd':
-					print_int(va_arg(valist,int));
+			if (*(temp1) == 'd'){
+print_int(va_arg(valist,int));
 					temp1++;
-					break;
-				case 'c':
-					put_to_screen(va_arg(valist,int));
+			}
+			else if (*(temp1) == 'c'){
+				put_to_screen(va_arg(valist,int));
 					temp1++;
-					break;
-				case 's':
-					;
-					char* a;
+			}
+			else if (*(temp1) == 's'){
+				char* a;
 					a = va_arg(valist,char *);
 					while(*a!='\0'){
 						put_to_screen(*a);
 						a++;
 					}
 					temp1++;
-					break;
-				case 'x':
-					print_hex(va_arg(valist,int));
+			}
+			else if (*(temp1) == 'x'){
+				print_hex(va_arg(valist,int));
 					temp1++;
-					break;
-				case 'p':
-					put_to_screen('0');
+			}
+			else if (*(temp1) == 'p'){
+				put_to_screen('0');
 					put_to_screen('x');
 					unsigned long p  = va_arg(valist,unsigned long);	
 					//print_hex(p);
 					print_pointer(p);
 					temp1++;
+			}
+			/*switch(){
+				case 'd':
+					
+					break;
+				case 'c':
+					
+					break;
+				case 's':
+					;
+					
+					break;
+				case 'x':
+					
+					break;
+				case 'p':
+					
 					break;
 				default:
 					break;	
-			}
+			}*/
 		}
 		/*else if(*temp1 == '\\'){
 			switch(*(temp1+1)){
