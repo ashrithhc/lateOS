@@ -111,10 +111,10 @@ void kb()
 }
 
 static int offset = 0;
-static int caps=0;
-static int controlValue=0;
+// static int caps=0;
+// static int controlValue=0;
 static int i=0;
-static uint8_t inb(uint64_t port);
+// static uint8_t inb(uint64_t port);
 int no_lines;
 char buf[4096];
 
@@ -211,16 +211,6 @@ void read_input(char* b){
     }
 }
 
-static inline uint8_t inb(uint64_t port)
-{
-        uint8_t r;
-        __asm__ __volatile__(
-                        "inb %1, %0"
-                        : "=a"(r)
-                        : "Nd"(port)
-                        );
-        return r;
-}
 void wake_process(){
     for(int i=0;i<MAX;++i){
         if(taskQueue[i].state == SLEEP){
