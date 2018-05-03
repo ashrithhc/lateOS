@@ -99,7 +99,6 @@ void setupTask(char *name, uint64_t function){
 }
 
 uint64_t setupVMA(vmaStruct* vm, Elf64_Phdr* ep){
-    // vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
     vm->beginAddress = ep->p_vaddr;
     vm->lastAddress = ep->p_vaddr+ep->p_memsz;
     uint64_t memCount = vm->beginAddress;
@@ -152,11 +151,12 @@ uint64_t* readELFandFork(uint64_t fileAddress, taskStruct *ts){
             k+=pageSize;
         }
         uint64_t currentCR3 = getCurrentCR3();
-        uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)kernbase);
-        __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pl));
+        // uint64_t* pl =;
+        loadCR3((uint64_t *)((uint64_t)pml4 - (uint64_t)kernbase));
+        // __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pl));
         memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
         memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
-        __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(currentCR3));
+        // __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(currentCR3));
     }
     return pml4;
 }

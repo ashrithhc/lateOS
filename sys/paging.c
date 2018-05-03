@@ -57,22 +57,6 @@ void setupPageTables(uint64_t physbase, uint64_t physfree){
 	pde = mapCurrentPageTable(virtual, 3, pde);
 	pte = mapCurrentPageTable(virtual, 4, pte);
 
-	/*virtual += pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pml4e & validatebits) | 3;
-	pml4e = (uint64_t*)virtual;
-
-	virtual += pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pdpte & validatebits) | 3;
-	pdpte = (uint64_t*)virtual;
-
-	virtual += pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pde & validatebits) | 3;
-	pde = (uint64_t*)virtual;
-
-	virtual+=pageSize;
-	*(pte + ((virtual >> 12 ) & 511)) = ((uint64_t)pte & validatebits) | 3;
-	pte = (uint64_t*)virtual;*/
-
 	__asm__ __volatile__("movq %0,%%cr3"::"r"(k_cr3));	
 }
 
@@ -133,15 +117,7 @@ uint64_t getNewPage(){
 }
 
 void free(uint64_t add){
-        /*int index = ((uint64_t)add)/pageSize;
-        if((&pagelist[index])->address == add && ((&pagelist[index])->ref_count >1)){
-            (&pagelist[index])->ref_count--;
-            return;
-        }
-        if((&pagelist[index])->address == add){
-            (&pagelist[index])->next = head;
-            head = &pagelist[i];
-        }*/
+	return;
 }
 
 void switchtokern(){
@@ -345,7 +321,6 @@ void dealloc_pml4(uint64_t pm4){
                             pte = (uint64_t*)((uint64_t) kernbase + (uint64_t) pte);
                             for (int l = 0; l < 512; ++l) {
                                 if (pte[l] & 1) {
-                                    //  memset((uint64_t*)((pte[l] & validatebits)+kernbase),0,pageSize);
                                     free(((uint64_t) pte[l] & validatebits));
                                 }
                                 pte[l] = 0;
@@ -363,5 +338,4 @@ void dealloc_pml4(uint64_t pm4){
         }
         pml4eParent[i]=0;
     }
-  //  free(pm4);
 }
