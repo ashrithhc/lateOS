@@ -208,6 +208,10 @@ uint64_t isr128(){
     return retVal;
 }
 
+void resetTimer(){
+    timerCount = 0;
+}
+
 void taskTimer(){
     for(int i=0;i<MAX;i++){
         if( ((&(taskQueue[i]))->state == HANG) && ((&(taskQueue[i]))->time > 0)) (&(taskQueue[i]))->time--;
@@ -227,10 +231,10 @@ void intTimer(){
         while(temp>0)
         {
             *reg = '0' + temp%10; 
-            temp = temp/10;
-            reg -= 2;         
+            temp /= 10;
+            reg = reg - 2;         
         }
-        timerCount = 0;
+        resetTimer();
         taskTimer();
     }
 }
