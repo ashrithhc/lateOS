@@ -68,12 +68,12 @@ static char *reg = (char*)0xffffffff800B8F90;
 static char *preg = (char*)0xffffffff800B8F8E;
 static int caps=0, ctrl=0;
 
-/*static inline uint8_t inb(uint64_t port)
+static inline uint8_t inb(uint64_t port)
 {
        uint8_t retVal;
        __asm__ __volatile__("inb %1, %0" : "=a"(retVal) : "Nd"(port));
        return retVal;
-}*/
+}
 
 void kb()
 {
