@@ -1,15 +1,11 @@
 #include <stdlib.h>
 
-/*static int *adr;
-static char **adr2;
-static char* argv[20],*env[100];
-*/
-void _start(int argc, char *argv[]) {
-  /*__asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
-	 :"=m" (adr),"=m" (adr2)
-	 :
-	 :"rsp"	
-	);
+ int *adr;
+ char **adr2;
+ char* argv[20],*env[100];
+
+void _start(void) {
+  __asm__ __volatile__ ("movq %%rsp, %0; movq %%rsp, %1" : "=m"(adr), "=m"(adr2) : :"rsp");
   int k=0;
   adr2 = adr2 + 2;
   //adr2 = adr+3;
@@ -26,8 +22,5 @@ void _start(int argc, char *argv[]) {
   pushenvs(env);
   int i = main(*(adr+2),argv,env);
   // call main() and exit() here
-  exit(i);*/
-  int retVal;
-  retVal = main(argc, argv, NULL);
-  exit(retVal);
+  exit(i);
 }
