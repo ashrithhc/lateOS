@@ -152,7 +152,7 @@ uint64_t* readELFandFork(uint64_t fileAddress, taskStruct *ts){
         }
         uint64_t currentCR3 = getCurrentCR3();
         // uint64_t* pl =;
-        loadCR3((uint64_t *)((uint64_t)pml4 - (uint64_t)kernbase));
+        loadCR3(((uint64_t)pml4 - (uint64_t)kernbase));
         // __asm__ __volatile__ ("movq %0, %%cr3;" :: "r"(pl));
         memcpy((void*)vm->beginAddress,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
         memset((void*)(vm->beginAddress + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
