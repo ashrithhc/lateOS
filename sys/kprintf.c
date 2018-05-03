@@ -212,7 +212,7 @@ void kprintf(const char *fmt, ...)
 		}
 		else{
 			put_to_screen(*temp1);
-			temp1++;
+			// temp1++;
 		}
 	}
 }
