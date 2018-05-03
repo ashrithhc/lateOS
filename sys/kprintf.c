@@ -174,11 +174,11 @@ void kprintf(const char *fmt, ...)
 					break;
 			}
 		}
-		else if{
+		else if(*temp1 != '%'){
 			put_to_screen(*temp1);
 			temp1++;
 		}
-		else(*temp1 == '%'){
+		else {
 			switch(*(temp1+1)){
 				case 'd':
 					print_int(va_arg(valist,int));
