@@ -46,18 +46,6 @@ pushq %r14
 pushq %r15
 .endm
 
-timer:
-	pushRegs
-	callq intTimer
-	popRegs
-	iretq
-
-keyboard:
-	pushRegs
-	callq intWrite
-	popRegs
-	iretq
-
 ISR0:
 	pushRegs
 	callq isr0
@@ -104,4 +92,16 @@ ISR128:
 	popq %rcx 
 	popq %rbx 
 	sti	
+	iretq
+
+timer:
+	pushRegs
+	callq intTimer
+	popRegs
+	iretq
+
+keyboard:
+	pushRegs
+	callq intWrite
+	popRegs
 	iretq
