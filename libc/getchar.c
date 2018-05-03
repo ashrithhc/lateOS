@@ -1,4 +1,4 @@
-#include "../include/syscall.h"
+/*#include "../include/syscall.h"
 #include "../include/sys/defs.h"
 int readCall();
 int c;
@@ -15,3 +15,4 @@ int readCall(){
     return (int)(retVal);
 	return 0;
 }
+*/

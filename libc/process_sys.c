@@ -14,7 +14,7 @@ unsigned int sleep(unsigned int seconds)
     return sleep_call(seconds);
 }
 
-/*void ps_call()
+void ps_call()
 {
 	// _syscall(void, ps);
 	long retVal;
@@ -25,7 +25,7 @@ unsigned int sleep(unsigned int seconds)
 void ps()
 {
 	ps_call();
-}*/
+}
 
 pid_t getpid_call(){
     // _syscall(pid_t, getTaskPID);

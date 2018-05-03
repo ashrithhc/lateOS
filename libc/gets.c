@@ -1,4 +1,4 @@
-#include "../include/syscall.h"
+/*#include "../include/syscall.h"
 #include <sys/defs.h>
 #include <stdio.h>
 #include "getchar.c"
@@ -16,3 +16,4 @@ char* gets(char *string)
 }
 
 
+*/
