@@ -5,7 +5,7 @@
 static int usedSpace=0;
 extern char kernmem, physbase;
 
-void kprintf(const char *fmt, ...)
+void k1printf(const char *fmt, ...)
 {
 	const char *temp1; register char *temp2;
 	va_list valist;

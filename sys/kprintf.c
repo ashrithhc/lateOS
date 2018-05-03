@@ -4,7 +4,6 @@ va_list list;
 static char *p_reg = (char*) (0xffffffff80000000 + 0xb8000);
 static int h_offset=0,v_offset=0;
 
-void parse_str(const char* fmt);
 void kprintf(const char* fm, ...);
 void print_int(int i);
 void put_to_screen(char a);
@@ -154,13 +153,9 @@ void print_hex(int i){
 	}
 
 }
-void k1printf(const char *fmt, ...)
+void kprintf(const char *fmt, ...)
 {
 	va_start(list,fmt);
-	parse_str(fmt);
-}
-
-void parse_str(const char* s){
 	while(*s!='\0'){
 		if(*s == '%'){
 			switch(*(s+1)){
@@ -216,3 +211,4 @@ void parse_str(const char* s){
 		}
 	}
 }
+
