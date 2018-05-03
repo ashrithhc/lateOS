@@ -1,4 +1,4 @@
-//
+/*//
 // Created by Naga Srinikhil Reddy on 12/4/17.
 //
 
@@ -14,4 +14,4 @@ unsigned int sleep_call(unsigned int seconds)
 unsigned int sleep(unsigned int seconds)
 {
     return sleep_call(seconds);
-}
+}*/
