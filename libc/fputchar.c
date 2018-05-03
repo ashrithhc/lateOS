@@ -1,7 +1,7 @@
 #include <syscall.h>
 #include <stdio.h>
 
-int fputchar(int c,int fd)
+/*int fputchar(int c,int fd)
 {
         int size = 1;
         long retVal;
@@ -9,3 +9,4 @@ int fputchar(int c,int fd)
 	    return (int)(retVal);
 	return 0;
 }
+*/

@@ -1,7 +1,7 @@
 #include "../include/syscall.h"
 #include <stdio.h>
 #include "fgetchar.c"
-char* fgets(char* string,int n,int f)
+/*char* fgets(char* string,int n,int f)
 {
 	
 	char *s=string;
@@ -12,4 +12,4 @@ char* fgets(char* string,int n,int f)
 	}while((n!='\n')&&(n!=EOF));
 	*s='\n';
 	return string;
-}
+}*/

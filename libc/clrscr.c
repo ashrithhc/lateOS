@@ -1,6 +1,6 @@
 #include "../include/syscall.h"
 #include <stdio.h>
-int clrscr_call()
+/*int clrscr_call()
 {
     // _syscall(int, clearScreen);
     long retVal;
@@ -11,4 +11,4 @@ void clearScreen()
 {
     clrscr_call();
     return;
-}
+}*/
