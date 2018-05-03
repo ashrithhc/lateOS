@@ -93,17 +93,7 @@ void put_to_screen(char a){
 	h_offset++;
 
 }
-// void print_int(int i){
-	
-// }
-// void print_pointer(){
-// 	//	put_to_screen('w');	
-	   	
-// }
-// void print_hex(int i){
-	
 
-// }
 void kprintf(const char *fmt, ...)
 {
 	const char *temp1;
@@ -160,10 +150,9 @@ void kprintf(const char *fmt, ...)
 			else if (*(temp1) == 'x'){
 				int intVal = va_arg(valist, int);
 				char outList[100];
-				int index = 0;
-				while(intVal != 0){
-					if(intVal%16 <= 9) outList[index++] = '0' + intVal%16;
-					else outList[index++] = 'A' + (intVal%16 - 10);
+				for(int index = 0; intVal != 0; index++){
+					if(intVal%16 <= 9) outList[index] = '0' + intVal%16;
+					else outList[index] = 'A' + (intVal%16 - 10);
 					intVal = intVal/16;
 				}
 				for(int revIndex = index-1; revIndex >= 0; revIndex--) put_to_screen(outList[revIndex]);
@@ -174,10 +163,9 @@ void kprintf(const char *fmt, ...)
 				put_to_screen('x');
 				unsigned long intVal = va_arg(valist, unsigned long);
 				char outList[100];
-		        int index = 0;
-		        while(intVal != 0){
-	                if(intVal%16 < 10) outList[index++] = '0' + intVal%16;
-	                else outList[index++] = 'A' + (intVal%16 - 10);
+		        for(int index = 0; intVal != 0; index++){
+	                if(intVal%16 < 10) outList[index] = '0' + intVal%16;
+	                else outList[index] = 'A' + (intVal%16 - 10);
 	                intVal = intVal/16;
 		        }   
 		        for(int revIndex = index-1; revIndex >= 0; revIndex--) put_to_screen(outList[revIndex]);
