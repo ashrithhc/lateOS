@@ -28,6 +28,6 @@ void _start(int argc, char *argv[]) {
   // call main() and exit() here
   exit(i);*/
   int retVal;
-  retVal = main(argc, argv);
+  retVal = main(argc, argv, NULL);
   exit(retVal);
 }
