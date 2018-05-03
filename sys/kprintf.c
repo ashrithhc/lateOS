@@ -13,13 +13,14 @@ void scroll();
 void clrscr()
 {
     temp2 = (char*) (kernbase + videomem);
-    for(int i=0;i<25;i++){
+    for(int i=0; i<=maxheight; i++){
         for(int j=0; j<maxwidth; j++){
             *temp2 = ' ';
             *(temp2-1) = 0x07;
-            temp2+=2;
+            temp2 += 2;
         }
     }
+
     temp2 = (char*) (kernbase + videomem);
     toLeft=0; numLines=0;
 }

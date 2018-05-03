@@ -4,7 +4,8 @@
 
 void init_idt();
 extern void startTimer();
-void outportb(uint16_t port,uint8_t data);
+static inline uint8_t inportb(uint64_t);
+void outportb(uint16_t, uint8_t);
 extern void timer_handler();
 
 struct idt{
