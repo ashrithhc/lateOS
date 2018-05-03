@@ -1,7 +1,7 @@
 //#include <sys/kprintf.h>
 #include <stdarg.h>
 va_list list;
-static char *p_reg = (char*) 0xffffffff800b8000;
+static char *p_reg = (char*) (0xffffffff80000000 + 0xb8000);
 static int h_offset=0,v_offset=0;
 
 void parse_str(const char* fmt);
@@ -12,7 +12,7 @@ void scroll();
 
 void clrscr()
 {
-    p_reg = (char*) 0xffffffff800b8000;
+    p_reg = (char*) (0xffffffff80000000 + 0xb8000);
     for(int i=0;i<25;i++){
         for(int j=0; j<80; j++){
             *p_reg = ' ';
@@ -20,11 +20,11 @@ void clrscr()
             p_reg+=2;
         }
     }
-    p_reg = (char*) 0xffffffff800b8000;
+    p_reg = (char*) (0xffffffff80000000 + 0xb8000);
     h_offset=0;v_offset=0;
 }
 void scroll(){
-	char* p  = (char*)0xffffffff800b8000;
+	char* p  = (char*)(0xffffffff80000000 + 0xb8000);
 	for(int i=0;i<24;i++){
 		for(int j=0;j<160;j=j+2){
 			int prev = (i*160)+j;
@@ -32,12 +32,12 @@ void scroll(){
 			*(p+prev) = *(p+next);
 		}
 	}
-	p_reg = (char*)(0xffffffff800b8000);
+	p_reg = (char*)((0xffffffff80000000 + 0xb8000));
 	p_reg = p_reg+(160*23);
 	for(int i=0;i<160;i=i+2){
 		*(p_reg+i) = '\0';
 	}
-	p_reg = (char*)(0xffffffff800b8000)+(160*23);
+	p_reg = (char*)((0xffffffff80000000 + 0xb8000))+(160*23);
 }
 void backspace(){
     if(h_offset == 0){
@@ -51,7 +51,7 @@ void backspace(){
 }
 void put_to_screen(char a){
 	if(a == '\n'){
-		p_reg =(char*)(0xffffffff800b8000);
+		p_reg =(char*)((0xffffffff80000000 + 0xb8000));
 		int k = 80*(v_offset+1);
 		for(int i=0;i<k;i++){
 			p_reg+=2;
@@ -66,7 +66,7 @@ void put_to_screen(char a){
 		return;
 	}
 	else if(a == '\r'){
-		p_reg = (char*)(0xffffffff800b8000);
+		p_reg = (char*)((0xffffffff80000000 + 0xb8000));
 		int k = 80*(v_offset);
 		for(int i=0;i<k;i++){
 			p_reg+=2;
@@ -81,7 +81,7 @@ void put_to_screen(char a){
 		if(v_offset == 23){
 			//scroll
 			scroll();
-			p_reg = (char*)0xffffffff800b8000;
+			p_reg = (char*)(0xffffffff80000000 + 0xb8000);
 			p_reg = p_reg + 160*22;
 			h_offset = 0;
 			return;
@@ -154,7 +154,7 @@ void print_hex(int i){
 	}
 
 }
-void kprintf(const char *fmt, ...)
+void k1printf(const char *fmt, ...)
 {
 	va_start(list,fmt);
 	parse_str(fmt);
