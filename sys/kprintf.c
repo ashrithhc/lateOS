@@ -1,6 +1,5 @@
 //#include <sys/kprintf.h>
 #include <stdarg.h>
-va_list list;
 static char *p_reg = (char*) (0xffffffff80000000 + 0xb8000);
 static int h_offset=0,v_offset=0;
 
@@ -155,59 +154,65 @@ void print_hex(int i){
 }
 void kprintf(const char *fmt, ...)
 {
-	va_start(list,fmt);
-	while(*fmt!='\0'){
-		if(*fmt == '%'){
-			switch(*(fmt+1)){
+	const char *temp1; register char *temp2;
+	va_list valist;
+	va_start(valist, fmt);
+
+	temp2 = (char *)(0xffffffff80000000+0xb8000);
+
+	for (temp1 = fmt; *temp1; temp1+=1){
+	// while(*temp1!='\0'){
+		if(*temp1 == '%'){
+			switch(*(temp1+1)){
 				case 'd':
-					print_int(va_arg(list,int));
-					fmt = fmt+2;
+					print_int(va_arg(valist,int));
+					temp1 = temp1+2;
 					break;
 				case 'c':
-					put_to_screen(va_arg(list,int));
-					fmt = fmt+2;
+					put_to_screen(va_arg(valist,int));
+					temp1 = temp1+2;
 					break;
 				case 's':
 					;
 					char* a;
-					a = va_arg(list,char *);
+					a = va_arg(valist,char *);
 					while(*a!='\0'){
 						put_to_screen(*a);
 						a++;
 					}
-					fmt+=2;
+					temp1+=2;
 					break;
 				case 'x':
-					print_hex(va_arg(list,int));
-					fmt = fmt+2;
+					print_hex(va_arg(valist,int));
+					temp1 = temp1+2;
 					break;
 				case 'p':
 					put_to_screen('0');
 					put_to_screen('x');
-					unsigned long p  = va_arg(list,unsigned long);	
+					unsigned long p  = va_arg(valist,unsigned long);	
 					//print_hex(p);
 					print_pointer(p);
-					fmt+=2;
+					temp1+=2;
 					break;
 				default:
 					break;	
 			}
 		}
-		else if(*fmt == '\\'){
-			switch(*(fmt+1)){
+		else if(*temp1 == '\\'){
+			switch(*(temp1+1)){
 				case 'n':
 					put_to_screen('\n');
-					fmt+=2;
+					temp1+=2;
 					break;
 				case 'r':
 					put_to_screen('\r');
-					fmt+=2;
+					temp1+=2;
 					break;
 			}
 		}
 		else{
-			put_to_screen(*fmt);
-			fmt++;
+			put_to_screen(*temp1);
+			temp1++;
 		}
 	}
 }
