@@ -93,29 +93,9 @@ void put_to_screen(char a){
 	h_offset++;
 
 }
-void print_int(int i){
-	int j = 1000000000;
-	int lead_zero = 1;
-	if(i==0){
-		put_to_screen('0');
-	}
-	if(i<0){
-		put_to_screen('-');
-		i = i* -1;
-	}
-	while(j!=0){
-		if(lead_zero == 1 && (i/j == 0)){
-			j = j/10;
-			continue;
-		}
-		if(lead_zero == 1 && (i/j != 0)){
-			lead_zero = 0;	
-		}
-		put_to_screen('0'+(i/j));
-		i = i % j;
-		j = j/10;
-	}
-}
+// void print_int(int i){
+	
+// }
 void print_pointer(unsigned long i){
 	//	put_to_screen('w');	
 	char a[32];
@@ -177,7 +157,29 @@ void kprintf(const char *fmt, ...)
 		else {
 			temp1++;
 			if (*(temp1) == 'd'){
-print_int(va_arg(valist,int));
+// print_int();
+				int i = va_arg(valist,int);
+int j = 1000000000;
+	int lead_zero = 1;
+	if(i==0){
+		put_to_screen('0');
+	}
+	if(i<0){
+		put_to_screen('-');
+		i = i* -1;
+	}
+	while(j!=0){
+		if(lead_zero == 1 && (i/j == 0)){
+			j = j/10;
+			continue;
+		}
+		if(lead_zero == 1 && (i/j != 0)){
+			lead_zero = 0;	
+		}
+		put_to_screen('0'+(i/j));
+		i = i % j;
+		j = j/10;
+	}
 					temp1++;
 			}
 			else if (*(temp1) == 'c'){
@@ -205,43 +207,7 @@ print_int(va_arg(valist,int));
 					print_pointer(p);
 					temp1++;
 			}
-			/*switch(){
-				case 'd':
-					
-					break;
-				case 'c':
-					
-					break;
-				case 's':
-					;
-					
-					break;
-				case 'x':
-					
-					break;
-				case 'p':
-					
-					break;
-				default:
-					break;	
-			}*/
 		}
-		/*else if(*temp1 == '\\'){
-			switch(*(temp1+1)){
-				case 'n':
-					put_to_screen('\n');
-					temp1+=2;
-					break;
-				case 'r':
-					put_to_screen('\r');
-					temp1+=2;
-					break;
-			}
-		}*/
-		/*else{
-			put_to_screen(*temp1);
-			temp1++;
-		}*/
 	}
 }
 
