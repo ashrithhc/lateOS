@@ -1,6 +1,7 @@
 #include <syscall.h>
 #include <sys/defs.h>
 #include <string.h>
+#include <stdio.h>
 
 int chdirsyscall(char inp[40])
 {
@@ -29,51 +30,14 @@ char *getCurrentDirectory(char *buf, size_t size){
     return buf;
 }
 
-int strcmp(char *s,char *t){
-	while(*s==*t)
-	{
-		if(*s=='\0')
-			return 0;
-		s++;
-		t++;
-	}
-	return *s-*t;
-}
-
-void strcpy(char *string2, char *string1){
-
-	while(*string1)
-	{
-		*string2=*string1;
-		string1++;
-		string2++;
-	}
-	*string2='\0';
-}
-
-int strlen(const char *string)
+int closecall(int inp)
 {
-	int length=0;
-	while(*string)
-	{
-		length++;
-		string++;
-	}
-	return length;
+    long retVal;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (3), "g" ((long)(inp)) : "rax", "rbx");
+    return (int)(retVal);
 }
 
-char* strcat(char *string1, char *string2)
+int fclose(int fd)
 {
-	while(*string1!='\0')
-	{
-		string1++;
-	}
-	while(*string2!='\0')
-	{
-		*string1=*string2;
-		string1++;
-		string2++;
-	}
-	*string1='\0';
-	return string1;
+    return closecall(fd);
 }
