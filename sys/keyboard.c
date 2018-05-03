@@ -1,5 +1,8 @@
 #include <sys/idt.h>
 #include <sys/kprintf.h>
+#include <sys/defs.h>
+#include <sys/process.h>
+#include <sys/terminal.h>
 
 static char *RREG = (char*)0xffffffff800B8F90;
 static char *PREG = (char*)0xffffffff800B8F8E;
@@ -105,4 +108,132 @@ void kb()
 		caps = 0;
 	}	
 	outportb(0x20,0x20);	
+}
+
+static int offset = 0;
+static int caps=0;
+static int controlValue=0;
+static int i=0;
+static uint8_t inb(uint64_t port);
+int no_lines;
+char buf[4096];
+
+void write_terminal()
+{
+       char key_pressed;
+       int c=0;
+       //while(1)
+       //{
+              if(inb(0x60)!=0){
+                     c=inb(0x60);
+              }
+              if(c>0)
+              {
+                     if(c>58)
+                     {
+                            outportb(0x20, 0x20);
+                            return;
+                     }
+                     if(c==14)//Backspace
+                     {
+                if(offset != i) {
+                    *(buf + i - 1) = '\0';
+                    i--;
+                    backspace();
+                }
+            }
+                     else if(c==28)
+                     {
+                            kprintf("\n");
+                buf[i] = '\n';
+                no_lines++;
+                i++;
+                wake_process();
+                            outportb(0x20, 0x20);
+                            return;
+                     }
+                     else if(c==29)
+                     {
+                            controlValue=1;
+                            kprintf("%c",code_map[c][controlValue]);
+                            *(buf+i) = code_map[c][controlValue];
+                            i++;
+                     }
+                     else if(c==42||c==54)
+                     //else if(c==32)
+                     {
+                            caps=1;
+                     }
+                     else
+                     {
+                            /*key_pressed=code_map[c][caps];
+                            caps=0;
+                            *reg=key_pressed;*/
+                            if(controlValue==1)
+                            {      
+                                   controlValue=0;
+                                   caps=1;       
+                            }      
+                            else
+                            {
+                                   /*kprintf("%c",code_map[29][controlValue]);
+                                   *buf = code_map[29][controlValue];
+                                   buf++;*/
+                            }
+                            key_pressed=code_map[c][caps];
+                            caps=0;
+                            kprintf("%c",key_pressed);
+                            *(buf+i) = key_pressed;
+                            i++;                 
+                     }      
+              }             
+       //}
+       outportb(0x20,0x20); 
+}
+void read_input(char* b){
+    while(1){
+        if(no_lines>0){
+            int j=0;
+            for(int i = getoffset();i<4096;i++,j++){
+                if( buf[i] == '\n'){
+                    setoffset(i+1);
+                    no_lines--;
+                    currentTask->state = RUNNING;
+                    return;
+                }
+                *(b+j) = buf[i];
+                buf[i] = '\0';
+            }
+        } else{
+            currentTask->state = SLEEP;
+        }
+        schedule();
+    }
+}
+
+static inline uint8_t inb(uint64_t port)
+{
+        uint8_t r;
+        __asm__ __volatile__(
+                        "inb %1, %0"
+                        : "=a"(r)
+                        : "Nd"(port)
+                        );
+        return r;
+}
+void wake_process(){
+    for(int i=0;i<MAX;++i){
+        if(taskQueue[i].state == SLEEP){
+            taskQueue[i].state = RUNNING;
+            //      schedule();
+            return;
+        }
+    }
+}
+
+int getoffset(){
+    return offset;
+}
+void setoffset(int i){
+    offset = i;
 }
