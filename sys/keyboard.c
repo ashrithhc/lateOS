@@ -4,8 +4,11 @@
 #include <sys/process.h>
 #include <sys/terminal.h>
 
-static char *RREG = (char*)0xffffffff800B8F90;
-static char *PREG = (char*)0xffffffff800B8F8E;
+#define True 1
+#define False 0
+
+static char *RREG = (char *)0xffffffff800B8F90;
+static char *PREG = (char *)0xffffffff800B8F8E;
 static int caps=0, controlValue=0;
 static char code_map[58][2] =
      {
@@ -84,6 +87,15 @@ void setRREG(int code, int index){
        *RREG = code_map[code][index];
 }
 
+
+void wokeUP(int index){
+       (&(taskQueue[index]))->state = RUNNING;
+}
+
+void wake_process(){
+    for(int i=0; i<MAX; i++) if((&(taskQueue[i]))->state == SLEEP) {wokeUP(i); break;}
+}
+
 void kb()
 {
 	int code = inb(0x60);
@@ -98,8 +110,7 @@ void kb()
 	}
 	else if ((code == 42) || (code == 54)) caps = 1;
 	else if(code > 0){
-		if(controlValue==1)
-		{	
+		if(controlValue==1){	
 			controlValue=0;
 			caps=1;	
 		}	
@@ -111,119 +122,82 @@ void kb()
 }
 
 static int offset = 0;
-// static int caps=0;
-// static int controlValue=0;
-static int i=0;
-// static uint8_t inb(uint64_t port);
-int no_lines;
-char buf[4096];
+
+int getoffset(){
+    return offset;
+}
+
+void setoffset(int i){
+    offset = i;
+}
+
+
+static int strOffset = 0;
+int lineCount;
+char inpStr[4096];
 
 void write_terminal()
 {
        char key_pressed;
-       int c=0;
-       //while(1)
-       //{
-              if(inb(0x60)!=0){
-                     c=inb(0x60);
+       int code = inb(0x60);
+       if(code > 58) {
+              outportb(0x20, 0x20);
+              return;
+       }
+       if(code == 14){
+              if(offset != strOffset){
+                     *(inpStr + strOffset - 1) = '\0';
+                     strOffset--;
+                     backspace();
               }
-              if(c>0)
-              {
-                     if(c>58)
-                     {
-                            outportb(0x20, 0x20);
-                            return;
-                     }
-                     if(c==14)//Backspace
-                     {
-                if(offset != i) {
-                    *(buf + i - 1) = '\0';
-                    i--;
-                    backspace();
-                }
-            }
-                     else if(c==28)
-                     {
-                            kprintf("\n");
-                buf[i] = '\n';
-                no_lines++;
-                i++;
-                wake_process();
-                            outportb(0x20, 0x20);
-                            return;
-                     }
-                     else if(c==29)
-                     {
-                            controlValue=1;
-                            kprintf("%c",code_map[c][controlValue]);
-                            *(buf+i) = code_map[c][controlValue];
-                            i++;
-                     }
-                     else if(c==42||c==54)
-                     //else if(c==32)
-                     {
-                            caps=1;
-                     }
-                     else
-                     {
-                            /*key_pressed=code_map[c][caps];
-                            caps=0;
-                            *reg=key_pressed;*/
-                            if(controlValue==1)
-                            {      
-                                   controlValue=0;
-                                   caps=1;       
-                            }      
-                            else
-                            {
-                                   /*kprintf("%c",code_map[29][controlValue]);
-                                   *buf = code_map[29][controlValue];
-                                   buf++;*/
-                            }
-                            key_pressed=code_map[c][caps];
-                            caps=0;
-                            kprintf("%c",key_pressed);
-                            *(buf+i) = key_pressed;
-                            i++;                 
-                     }      
-              }             
-       //}
-       outportb(0x20,0x20); 
+       }
+       else if(code == 28){
+              kprintf("\n");
+              inpStr[strOffset] = '\n';
+              lineCount++;
+              strOffset++;
+              wake_process();
+              outportb(0x20, 0x20);
+              return;
+       }
+       else if(code == 29){
+              controlValue = 1;
+              kprintf("%c", code_map[code][controlValue]);
+              *(inpStr+strOffset) = code_map[code][controlValue];
+              strOffset++;
+       }
+       else if ((code == 42) || (code == 54)) caps=1;
+       else if (code > 0){
+              if(controlValue==1){      
+                     controlValue=0;
+                     caps=1;       
+              }
+              key_pressed = code_map[code][caps];
+              caps=0;
+              kprintf("%c", key_pressed);
+              *(inpStr + strOffset) = key_pressed;
+              strOffset++;                 
+       }      
+       outportb(0x20, 0x20); 
 }
+
 void read_input(char* b){
-    while(1){
-        if(no_lines>0){
+    while(True){
+        if(lineCount>0){
             int j=0;
-            for(int i = getoffset();i<4096;i++,j++){
-                if( buf[i] == '\n'){
-                    setoffset(i+1);
-                    no_lines--;
+            for(int strOffset = getoffset();strOffset<4096;strOffset++,j++){
+                if( inpStr[strOffset] == '\n'){
+                    setoffset(strOffset+1);
+                    lineCount--;
                     currentTask->state = RUNNING;
                     return;
                 }
-                *(b+j) = buf[i];
-                buf[i] = '\0';
+                *(b+j) = inpStr[strOffset];
+                inpStr[strOffset] = '\0';
             }
         } else{
             currentTask->state = SLEEP;
         }
         schedule();
     }
-}
-
-void wake_process(){
-    for(int i=0;i<MAX;++i){
-        if(taskQueue[i].state == SLEEP){
-            taskQueue[i].state = RUNNING;
-            //      schedule();
-            return;
-        }
-    }
-}
-
-int getoffset(){
-    return offset;
-}
-void setoffset(int i){
-    offset = i;
 }
