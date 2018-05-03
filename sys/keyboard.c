@@ -181,23 +181,23 @@ void write_terminal()
        outportb(0x20, 0x20); 
 }
 
-void read_input(char* b){
+void read_input(char* inpString){
     while(True){
-        if(lineCount>0){
-            int j=0;
-            for(int strOffset = getoffset();strOffset<4096;strOffset++,j++){
-                if( inpStr[strOffset] == '\n'){
-                    setoffset(strOffset+1);
-                    lineCount--;
-                    currentTask->state = RUNNING;
-                    return;
-                }
-                *(b+j) = inpStr[strOffset];
-                inpStr[strOffset] = '\0';
-            }
-        } else{
-            currentTask->state = SLEEP;
+       int stringOffset = 0;
+       if(lineCount>0){
+              for(int strOffset = getoffset(); strOffset<4096; strOffset++){
+                     if( inpStr[strOffset] == '\n'){
+                            setoffset(strOffset+1);
+                            lineCount--;
+                            currentTask->state = RUNNING;
+                            return;
+                     }
+                     *(inpString+stringOffset) = inpStr[strOffset];
+                     inpStr[strOffset] = '\0';
+                     stringOffset++;
+              }
         }
+        else currentTask->state = SLEEP;
         schedule();
     }
 }
