@@ -41,7 +41,7 @@ pid_t getppid_call(){
 	return (pid_t)retVal;
 }
 
-int kill_call(pid_t pid)
+/*int kill_call(pid_t pid)
 {
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (62), "g" ((long)(pid)) : "rax", "rbx");
@@ -51,7 +51,7 @@ int kill_call(pid_t pid)
 void kill(pid_t pid)
 {
     kill_call(pid);
-}
+}*/
 
 pid_t forkcall()
 {
