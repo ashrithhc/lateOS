@@ -1,14 +1,14 @@
 .global timer
 .global keyboard
 
-.global int0
-.global int14
+.global ISR0
+.global ISR14
 .global ISR128
 
 .extern intTimer
 .extern intWrite
-.extern int0
-.extern int14
+.extern isr0
+.extern isr14
 
 .macro popRegs
 popq %r15
@@ -58,15 +58,15 @@ keyboard:
 	popRegs
 	iretq
 
-int0:
+ISR0:
 	pushRegs
-	callq int0
+	callq isr0
 	popRegs
 	iretq
 
-int14:
+ISR14:
 	pushRegs
-	callq int14
+	callq isr14
 	popRegs
 	add $8, %rsp
 	iretq
