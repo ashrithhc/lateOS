@@ -175,14 +175,15 @@ void kprintf(const char *fmt, ...)
 			temp1++;
 		}
 		else {
-			switch(*(temp1+1)){
+			temp1++;
+			switch(*(temp1)){
 				case 'd':
 					print_int(va_arg(valist,int));
-					temp1 = temp1+2;
+					temp1 = temp1++;
 					break;
 				case 'c':
 					put_to_screen(va_arg(valist,int));
-					temp1 = temp1+2;
+					temp1 = temp1++;
 					break;
 				case 's':
 					;
@@ -192,11 +193,11 @@ void kprintf(const char *fmt, ...)
 						put_to_screen(*a);
 						a++;
 					}
-					temp1+=2;
+					temp1+=+;
 					break;
 				case 'x':
 					print_hex(va_arg(valist,int));
-					temp1 = temp1+2;
+					temp1 = temp1++;
 					break;
 				case 'p':
 					put_to_screen('0');
@@ -204,7 +205,7 @@ void kprintf(const char *fmt, ...)
 					unsigned long p  = va_arg(valist,unsigned long);	
 					//print_hex(p);
 					print_pointer(p);
-					temp1+=2;
+					temp1++;
 					break;
 				default:
 					break;	
