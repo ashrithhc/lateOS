@@ -160,7 +160,7 @@ void kprintf(const char *fmt, ...)
 
 	// temp2 = (char *)(0xffffffff80000000+0xb8000);
 
-	for (temp1 = fmt; *temp1; temp1+=1){
+	for (temp1 = fmt; *temp1; /*temp1+=1*/){
 	// while(*temp1!='\0'){
 		if(*temp1 == '%'){
 			switch(*(temp1+1)){
@@ -212,7 +212,7 @@ void kprintf(const char *fmt, ...)
 		}
 		else{
 			put_to_screen(*temp1);
-			// temp1++;
+			temp1++;
 		}
 	}
 }
