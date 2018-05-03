@@ -1,4 +1,4 @@
-int strcmp(char *s,char *t){
+/*int strcmp(char *s,char *t){
 	while(*s==*t)
 	{
 		if(*s=='\0')
@@ -46,3 +46,4 @@ char* strcat(char *string1, char *string2)
 	*string1='\0';
 	return string1;
 }
+*/

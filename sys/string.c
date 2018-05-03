@@ -1,5 +1,5 @@
-#include<sys/defs.h>
-#include<sys/string.h>
+#include <sys/defs.h>
+#include <sys/string.h>
 
 int strcmp(char *s,char *t){
 	while(*s==*t)
