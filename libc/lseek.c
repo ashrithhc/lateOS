@@ -1,4 +1,4 @@
-#include<syscall.h>
+/*#include<syscall.h>
 #include<sys/defs.h>
 off_t lseek(int fd, off_t offset, int p)
 {
@@ -8,3 +8,4 @@ off_t lseek(int fd, off_t offset, int p)
 	return (off_t)(retVal);
 	return 0;
 }
+*/

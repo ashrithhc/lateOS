@@ -1,4 +1,4 @@
-#include "../include/syscall.h"
+/*#include "../include/syscall.h"
 
 int dup2(int fd1, int fd2)
 {
@@ -8,3 +8,4 @@ int dup2(int fd1, int fd2)
     return (int)(retVal);
 }
 
+*/

@@ -4,11 +4,11 @@
 #include <dirent.h>
 #include <string.h>
 
-static DIR dir[100];
+/*static DIR dir[100];
 static struct dirent d[100];
-int open(const char *path,int flags);
+int open(const char *path,int flags);*/
 //FILE filepointer;
-int fopen(char *name, char *mode)
+/*int fopen(char *name, char *mode)
 {
 
     int flag;
@@ -63,4 +63,4 @@ struct dirent *readdir(DIR *dirp){
 }
 int closedir(DIR *dirp){
     return close(dirp->fd);
-}
+}*/
