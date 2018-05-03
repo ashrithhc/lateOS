@@ -1,4 +1,4 @@
-#include <syscall.h>
+/*#include <syscall.h>
 #include <sys/defs.h>
 #include <string.h>
 
@@ -27,4 +27,4 @@ int cwd_call(char* buf,size_t size){
 char *getCurrentDirectory(char *buf, size_t size){
     cwd_call(buf,size);
     return buf;
-}
+}*/
