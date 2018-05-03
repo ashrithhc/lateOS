@@ -147,8 +147,8 @@ void kprintf(const char *fmt, ...)
 				}
 				temp1++;
 			}
-			int index;
 			else if (*(temp1) == 'x'){
+				int index;
 				int intVal = va_arg(valist, int);
 				char outList[100];
 				for(index = 0; intVal != 0; index++){
@@ -160,6 +160,7 @@ void kprintf(const char *fmt, ...)
 				temp1++;
 			}
 			else if (*(temp1) == 'p'){
+				int index;
 				put_to_screen('0');
 				put_to_screen('x');
 				unsigned long intVal = va_arg(valist, unsigned long);
