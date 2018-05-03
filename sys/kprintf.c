@@ -154,11 +154,11 @@ void print_hex(int i){
 }
 void kprintf(const char *fmt, ...)
 {
-	const char *temp1; register char *temp2;
+	const char *temp1;// register char *temp2;
 	va_list valist;
 	va_start(valist, fmt);
 
-	temp2 = (char *)(0xffffffff80000000+0xb8000);
+	// temp2 = (char *)(0xffffffff80000000+0xb8000);
 
 	for (temp1 = fmt; *temp1; temp1+=1){
 	// while(*temp1!='\0'){
