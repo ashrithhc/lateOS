@@ -181,7 +181,7 @@ void intWrite()
        outportb(0x20, 0x20); 
 }
 
-void read_input(char* inpString){
+void intRead(char* inpString){
     while(True){
        int stringOffset = 0;
        if(lineCount>0){

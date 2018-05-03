@@ -164,7 +164,7 @@ uint64_t isr128(){
     
     switch (syscode){
         case 0:     if (regs->rbx == 0){
-                        read_input((char *)regs->rcx);
+                        intRead((char *)regs->rcx);
                         retVal = 0;
                     }
                     else {
@@ -179,7 +179,7 @@ uint64_t isr128(){
         case 2:     retVal = open_tarfs((char*) regs->rbx, (int) regs->rcx);
                     break;
         case 3:     retVal = close_tarfs((int)regs->rbx); break;
-        case 7:     clrscr(); break;
+        case 7:     clearScreen(); break;
         case 9:     retVal = (uint64_t) malloc((int)regs->rbx); break;
         case 16:    retVal = open_dir((char *)regs->rbx); break;
         case 35:    retVal = sleep((int)regs->rbx); break;

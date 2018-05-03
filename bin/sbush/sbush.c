@@ -158,7 +158,7 @@ void parseInput(){
     command = args[0];
     if(strcmp(command, "cd") == 0) changeDirectory(args);
     else if(strcmp(command, "export") == 0) changeSbush(args);
-    else if(strcmp(command, "clear") == 0) clrscr();
+    else if(strcmp(command, "clear") == 0) clearScreen();
     else if(strcmp(command, "pwd") == 0) getPWD();
     else execCommand(command,args);
 }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[], char *envp[]) {
     setprompt("sbush");
     setenvs();
     if(argc==1){
-        clrscr();
+        clearScreen();
         while(1){
             puts(prompt);
             readInput();
