@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 static char env_var[1000][1000];
@@ -52,3 +52,4 @@ char* getvar(char* name){
 	temp[i] = '\0';
 	return &temp[0];
 }
+*/
