@@ -162,15 +162,7 @@ void kprintf(const char *fmt, ...)
 
 	for (temp1 = fmt; *temp1; /*temp1+=1*/){
 	// while(*temp1!='\0'){
-		if(*temp1 == '\n'){
-			put_to_screen('\n');
-			temp1+=2;
-		}
-		else if(*temp1 == '\r'){
-			put_to_screen('\r');
-			temp1+=2;
-		}
-		/*if(*temp1 == '\\'){
+		if(*temp1 == '\\'){
 			switch(*(temp1+1)){
 				case 'n':
 					put_to_screen('\n');
@@ -181,7 +173,7 @@ void kprintf(const char *fmt, ...)
 					temp1+=2;
 					break;
 			}
-		}*/
+		}
 		else if(*temp1 != '%'){
 			put_to_screen(*temp1);
 			temp1++;
