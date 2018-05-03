@@ -193,7 +193,3 @@ int close_tarfs(int fp)
     filedescriptor->aval = 0;
 	return filedescriptor->fd;
 }
-
-
-
-

@@ -25,6 +25,7 @@ extern void keyboard();
 
 static struct idt IDTset[256];
 static struct idt_ptr IDTloader;
+static int timerCount = 0, totalSecs = 0;
 
 static inline uint8_t inportb(uint64_t port)
 {
@@ -205,4 +206,31 @@ uint64_t isr128(){
     }
     outportb(0x20, 0x20);
     return retVal;
+}
+
+void intTimer(){
+    __asm__ __volatile__("cli");
+    outportb(0x20, 0x20);
+    timerCount++;
+    if(timerCount == 5){
+        schedule();
+        totalSecs++;
+        int temp = totalSecs;
+        char *reg = (char*)0xffffffff800B8F9E;
+        while(temp>0)
+        {
+            *reg = '0'+temp%10; 
+            temp = temp/10;
+            reg-=2;         
+        }
+        timerCount = 0;
+        for(int i=0;i<MAX;i++){
+            if(taskQueue[i].state == HANG && taskQueue[i].time >0){
+                taskQueue[i].time--;
+            }
+            if(taskQueue[i].time == 0 && taskQueue[i].state == HANG){
+                taskQueue[i].state = RUNNING;
+            }
+        }
+    }
 }
