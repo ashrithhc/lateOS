@@ -1,4 +1,4 @@
-#include <sys/kprintf.h>
+/*#include <sys/kprintf.h>
 #include <sys/defs.h>
 #include <sys/process.h>
 #include <sys/idt.h>
@@ -68,3 +68,4 @@ static char code_map[58][2] =
    };
 
 
+*/
