@@ -1,6 +1,6 @@
 #include "../include/syscall.h"
 
-/*void ps_call()
+void ps_call()
 {
 	// _syscall(void, ps);
 	long retVal;
@@ -12,4 +12,3 @@ void ps()
 {
 	ps_call();
 }
-*/
