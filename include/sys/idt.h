@@ -2,7 +2,7 @@
 #define _IDT_H_
 #include <sys/defs.h>
 
-void init_idt();
+void IDTinitialise();
 extern void startTimer();
 void outportb(uint16_t, uint8_t);
 extern void intTimer();

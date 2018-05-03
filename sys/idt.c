@@ -92,7 +92,7 @@ void startTimer(){
     outportb(0x40, hibyte);
 }
 
-void init_idt(){
+void IDTinitialise(){
 	for (int i=0; i<32; i++) initISR(i, (uint64_t)&ISR0);
 	initISR(14, (uint64_t)&ISR14);
 	initISR(32, (uint64_t)&timer);

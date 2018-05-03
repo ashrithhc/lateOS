@@ -29,7 +29,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     setupPageTables((uint64_t)0, max);*/
   initializeFreelist(modulep, physbase, physfree);
 	init_tarfs();
-	init_idt();
+	IDTinitialise();
 
     init_proc();
     initTask();
