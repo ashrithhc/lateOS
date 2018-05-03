@@ -83,7 +83,6 @@ void setRREG(int code, int index){
 
 void kb()
 {
-	char character;
 	int code = inb(0x60);
 	if(code==28){
               setPREG(code, 0);
