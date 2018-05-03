@@ -172,22 +172,15 @@ void kprintf(const char *fmt, ...)
 			else if (*(temp1) == 'p'){
 				put_to_screen('0');
 				put_to_screen('x');
-				unsigned long i = va_arg(valist,unsigned long);
-				char a[32];
-		        int l=0;
-		        while(i!=0){
-		                int k = i%16;
-		                if(k<10){
-		                        a[l++] = '0'+k;
-		                }   
-		                else{
-		                        a[l++] = 'A'+(k-10);
-		                }   
-		                i = i/16;
+				unsigned long intVal = va_arg(valist, unsigned long);
+				char outList[100];
+		        int index = 0;
+		        while(intVal != 0){
+	                if(intVal%16 < 10) outList[index++] = '0' + intVal%16;
+	                else outList[index++] = 'A' + (intVal%16 - 10);
+	                intVal = intVal/16;
 		        }   
-		        for(int k=l-1;k>=0;k--){
-		                put_to_screen(a[k]);
-		        }
+		        for(int revIndex = index-1; revIndex >= 0; revIndex--) put_to_screen(outList[revIndex]);
 				temp1++;
 			}
 		}
