@@ -208,6 +208,13 @@ uint64_t isr128(){
     return retVal;
 }
 
+void taskTimer(){
+    for(int i=0;i<MAX;i++){
+        if( ((&(taskQueue[i]))->state == HANG) && ((&(taskQueue[i]))->time > 0)) (&(taskQueue[i]))->time--;
+        if( (((&(taskQueue[i]))->state == HANG) && (&(taskQueue[i]))->time == 0)) (&(taskQueue[i]))->state = RUNNING;
+    }
+}
+
 void intTimer(){
     __asm__ __volatile__("cli");
     outportb(0x20, 0x20);
@@ -219,18 +226,11 @@ void intTimer(){
         char *reg = (char*)0xffffffff800B8F9E;
         while(temp>0)
         {
-            *reg = '0'+temp%10; 
+            *reg = '0' + temp%10; 
             temp = temp/10;
-            reg-=2;         
+            reg -= 2;         
         }
         timerCount = 0;
-        for(int i=0;i<MAX;i++){
-            if(taskQueue[i].state == HANG && taskQueue[i].time >0){
-                taskQueue[i].time--;
-            }
-            if(taskQueue[i].time == 0 && taskQueue[i].state == HANG){
-                taskQueue[i].state = RUNNING;
-            }
-        }
+        taskTimer();
     }
 }
