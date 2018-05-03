@@ -96,49 +96,21 @@ void put_to_screen(char a){
 // void print_int(int i){
 	
 // }
-void print_pointer(unsigned long i){
-	//	put_to_screen('w');	
-	char a[32];
-        int l=0;
-        while(i!=0){
-                int k = i%16;
-                if(k<10){
-                        a[l++] = '0'+k;
-                }   
-                else{
-                        a[l++] = 'A'+(k-10);
-                }   
-                i = i/16;
-        }   
-        for(int k=l-1;k>=0;k--){
-                put_to_screen(a[k]);
-        }   	
-}
-void print_hex(int i){
-	char a[11];
-	int l=0;
-	while(i!=0){
-		int k = i%16;
-		if(k<=9){
-			a[l++] = '0'+k;
-		}
-		else{
-			a[l++] = 'A'+(k-10);
-		}
-		i = i/16;
-	}
-	for(int k=l-1;k>=0;k--){
-		put_to_screen(a[k]);	
-	}
+// void print_pointer(){
+// 	//	put_to_screen('w');	
+	   	
+// }
+// void print_hex(int i){
+	
 
-}
+// }
 void kprintf(const char *fmt, ...)
 {
-	const char *temp1;// register char *temp2;
+	const char *temp1;
 	va_list valist;
 	va_start(valist, fmt);
 
-	for (temp1 = fmt; *temp1; /*temp1+=1*/){
+	for (temp1 = fmt; *temp1; ){
 		if((*temp1 == '\\') && (*(temp1+1) == 'n')){
 			put_to_screen('\n');
 			temp1+=2;
@@ -186,16 +158,37 @@ void kprintf(const char *fmt, ...)
 				temp1++;
 			}
 			else if (*(temp1) == 'x'){
-				print_hex(va_arg(valist,int));
-					temp1++;
+				int intVal = va_arg(valist, int);
+				char outList[100];
+				int index = 0;
+				while(intVal != 0){
+					if(intVal%16 <= 9) outList[index++] = '0' + intVal%16;
+					else outList[index++] = 'A' + (intVal%16 - 10);
+					intVal = intVal/16;
+				}
+				for(int revIndex = index-1; revIndex >= 0; revIndex--) put_to_screen(outList[revIndex]);
+				temp1++;
 			}
 			else if (*(temp1) == 'p'){
 				put_to_screen('0');
-					put_to_screen('x');
-					unsigned long p  = va_arg(valist,unsigned long);	
-					//print_hex(p);
-					print_pointer(p);
-					temp1++;
+				put_to_screen('x');
+				unsigned long i = va_arg(valist,unsigned long);
+				char a[32];
+		        int l=0;
+		        while(i!=0){
+		                int k = i%16;
+		                if(k<10){
+		                        a[l++] = '0'+k;
+		                }   
+		                else{
+		                        a[l++] = 'A'+(k-10);
+		                }   
+		                i = i/16;
+		        }   
+		        for(int k=l-1;k>=0;k--){
+		                put_to_screen(a[k]);
+		        }
+				temp1++;
 			}
 		}
 	}
