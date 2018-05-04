@@ -13,7 +13,7 @@ uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
 
-uint64_t max;
+// uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
     initializeFreelist(modulep, physbase, physfree);
