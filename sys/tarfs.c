@@ -3,7 +3,6 @@
 #include <sys/elf64.h>
 #include <sys/file.h>
 #include <sys/string.h>
-#include <sys/tarfs.h>
 #include <sys/process.h>
 #include <sys/mem.h>
 

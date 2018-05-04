@@ -4,7 +4,6 @@
 #include <sys/kprintf.h>
 #include <sys/gdt.h>
 #include <sys/string.h>
-#include <sys/tarfs.h>
 #include <sys/elf64.h>
 
 static taskStruct *duplicateTask;

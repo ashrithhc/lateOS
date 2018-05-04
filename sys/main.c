@@ -1,7 +1,6 @@
 #include <sys/defs.h>
 #include <sys/gdt.h>
 #include <sys/kprintf.h>
-#include <sys/tarfs.h>
 #include <sys/ahci.h>
 #include <sys/idt.h>
 #include <sys/process.h>
