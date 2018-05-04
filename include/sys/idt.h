@@ -12,6 +12,7 @@ void IDTinitialise();
 extern void startTimer();
 void outportb(uint16_t, uint8_t);
 extern void intTimer();
+pid_t wait(int *status);
 
 struct idt{
 	uint16_t lower_offset;
