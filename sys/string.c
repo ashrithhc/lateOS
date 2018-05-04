@@ -75,7 +75,7 @@ char* substring(char* string, int index)
 	return string;
 }
 
-uint64_t octal_to_binary(const char* octal)
+uint64_t toBinaryForFile(const char* octal)
 {
 	int oct=0;
 	while(*octal)

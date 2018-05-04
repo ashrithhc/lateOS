@@ -147,7 +147,7 @@ uint64_t* readELFandFork(uint64_t fileAddress, taskStruct *ts){
         ts->vm = vm;
         while(k<(vm->lastAddress)){
             uint64_t yy = getFreeFrame();
-            init_pages_for_process(k,yy, pml4);
+            initTaskPagetables(k,yy, pml4);
             k+=pageSize;
         }
         uint64_t currentCR3 = getCurrentCR3();
@@ -163,7 +163,7 @@ uint64_t* readELFandExec(uint64_t fileAddress, taskStruct *ts){
     Elf64_Ehdr* eh = (Elf64_Ehdr*)(fileAddress);
     ts->regs.rip = eh->e_entry;
     uint64_t* pml4 = (uint64_t *)(ts->pml4e + kernbase);
-    dealloc_pml4((ts->pml4e));
+    deallocTask((ts->pml4e));
 
     for(int i=eh->e_phnum;i>0;i--){
         Elf64_Phdr* ep = (Elf64_Phdr*)(fileAddress + (eh->e_phoff));
@@ -175,7 +175,7 @@ uint64_t* readELFandExec(uint64_t fileAddress, taskStruct *ts){
         ts->vm = vm;
         for(;k<( vm->lastAddress);k+=pageSize){
             uint64_t yy = getFreeFrame();
-            init_pages_for_process(k,yy, pml4);
+            initTaskPagetables(k,yy, pml4);
         }
 
         uint64_t pcr3;
@@ -206,7 +206,7 @@ void shiftTaskVMA(taskStruct *ts, uint64_t from, uint64_t toend){
 }
 
 void setNewVMA(taskStruct *ts, uint64_t* pml4, uint64_t from, uint64_t toend){
-    init_pages_for_process(from,getFreeFrame(),pml4);
+    initTaskPagetables(from,getFreeFrame(),pml4);
     ts->ustack = (uint64_t*)from;
     ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
     vmaStruct* vm = (vmaStruct *)kmalloc(sizeof(struct vmaStruct));
@@ -243,7 +243,7 @@ void createNewTask(char* filename){
 
     uint64_t* pml4 = readELFandFork(fileAddress, newTask);
     setMyVMA(newTask, 0x4B0FFFFF0000, 0x4B0FFFFF0000);
-	init_pages_for_process(STACK_S, (uint64_t)getFreeFrame(), pml4);
+	initTaskPagetables(STACK_S, (uint64_t)getFreeFrame(), pml4);
 	newTask->ustack = (uint64_t*)STACK_S;
 	newTask->rsp = (uint64_t *)((uint64_t)newTask->ustack + (510 * 8));
     setMyVMA(newTask, STACK_S, 0x100FFEFF0000);
@@ -469,7 +469,7 @@ void removeProcess(int i){
         vm = vm->next;
         free(k-kernbase);
     }
-    dealloc_pml4((taskQueue + i)->pml4e);
+    deallocTask((taskQueue + i)->pml4e);
     free((taskQueue + i)->pml4e);
 }
 int wait(){
@@ -604,7 +604,7 @@ void* malloc(int no_of_bytes){
     uint64_t ret = vm->lastAddress;
     for(int i =0;i<((no_of_bytes/pageSize))+1;i++){
         uint64_t s_add = getFreeFrame();
-        init_pages_for_process(vm->lastAddress,s_add,(uint64_t *)(currentTask->pml4e+kernbase));
+        initTaskPagetables(vm->lastAddress,s_add,(uint64_t *)(currentTask->pml4e+kernbase));
         vm->lastAddress = vm->lastAddress + pageSize;
     }
     return (uint64_t*)ret;
