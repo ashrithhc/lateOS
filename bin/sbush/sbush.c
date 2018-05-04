@@ -29,7 +29,7 @@ void setprompt(char *sbush){
 
 void makeNullExecvp(char* strs[], int index, int j){
     if(j == 0) strs[index] = NULL;
-    strs[index+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+    strs[index+1] = NULL;
 }
 
 void changeDirectory(char **args){
@@ -191,8 +191,25 @@ void setenvs(){
     for(int i=0; i < getenvlength(); i++) envpe[i] = getallenv(i);
 }
 
-static char commandSet[20][100];
-static char *commandList[20];
+static char commandSet[100][100];
+static char *commandList[100];
+int cmdNum = 0, cmdOffset = 0;
+
+void initCommandList(){
+    for(int i=0; i<100; i++) commandList[i] = &commandSet[i][0];
+}
+
+void makeCommandList(char inpString[4096]){
+    for(int i=0; i<len; i++){
+        if(*(inpString + i) =='\n'){
+            commandList[cmdNum][cmdOffset++] = '\0';
+            cmdNum++;
+            cmdOffset = 0;
+            continue;
+        }
+        commandList[cmdNum][cmdOffset++] = *(inpString+i);
+    }
+}
 
 int main(int argc, char *argv[], char *envp[]) {
     initArgs();
@@ -211,6 +228,7 @@ int main(int argc, char *argv[], char *envp[]) {
             clearArguments();
         }
     }else{
+        cmdNum = 0; cmdOffset = 0;
         int filePointer = fopen(argv[1], "r");
         if (filePointer == -1){
             puts("File not found, Exiting!");
@@ -219,21 +237,12 @@ int main(int argc, char *argv[], char *envp[]) {
         char inpString[4096];
         readStr_sys(filePointer, inpString, 4096);
 
-        int c = 0,l =0;
-        for(int i=0; i<20; i++) commandList[i] = &commandSet[i][0];
+        initCommandList();
         int len = strlen(inpString);
         in = &input[0];
-        for(int i =0;i<len;i++){
-            if(*(inpString+i) =='\n'){
-                commandList[c][l++] = '\0';
-                c++;
-                l =0;
-                continue;
-            }
-            commandList[c][l++] = *(inpString+i);
-        }
-        for(int k =0;k<c;k++){
-                strcpy(in,commandList[k]);
+        makeCommandList(inpString);
+        for(int k=0; k<cmdNum; k++){
+                strcpy(in, commandList[k]);
                 parseInput();
                 clearInput();
                 clearCommand();
