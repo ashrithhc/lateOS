@@ -46,7 +46,7 @@ typedef struct taskStruct {
 taskStruct *currentTask;
 
 void schedule();
-int execvpe(char*, char* argv[], char*);
+int execvpe(char*, char* argv[], char* env[]);
 void *memcpy(void *,const void *, int);
 int fork();
 void createNewTask(char*);
