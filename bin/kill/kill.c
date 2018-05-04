@@ -11,14 +11,22 @@ int kill_syscall(pid_t pid)
     return (int)(retVal);
 }
 
-int main(int argc, char* argv[], char* envp[])
-{
-   if(argc<3){
+int validateARGS(int argc){
+    if (argc < 3){
        puts("Must use : kill -9 PID\n");
-   }
+       return -1;
+    }
     int pid = strtoInt(argv[2]);
     if(pid < 0){
         puts("Incorrect PID\n");
+        return -1;
     }
-    kill_syscall((pid_t)pid);
+    return 0;
+}
+
+int main(int argc, char* argv[], char* envp[])
+{
+    if (validateARGS(argc) == -1) return -1;
+    kill_syscall((pid_t) strtoInt(argv[2]));
+    return 0;
 }
