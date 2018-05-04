@@ -46,7 +46,7 @@ typedef struct taskStruct {
 taskStruct *currentTask;
 
 void schedule();
-int execvpe(char*, char*, char*);
+int execvpe(char*, char* argv[], char*);
 void *memcpy(void *,const void *, int);
 int fork();
 void createNewTask(char*);
@@ -59,7 +59,7 @@ int waitpid(int);
 pid_t getTaskPID(void);
 pid_t getTaskPPID(void);
 int kill(int);
-void getCurrentDirectory(char, int);
+void getCurrentDirectory(char*, int);
 int chdir(char*);
 unsigned int sleep(unsigned int);
 void ps();
