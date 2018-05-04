@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <syscall.h>
 #include <unistd.h>
+#include <string.h>
 
 int validateARGS(char *str){
 	if (str == NULL){
