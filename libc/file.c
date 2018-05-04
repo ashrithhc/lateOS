@@ -102,29 +102,12 @@ int direccall(int fd,char* buff,int size){
     return (int)retVal;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-struct dirent *readdir(DIR *dirp){
-    int i = direccall(dirp->fd,d[dirp->fd].d_name,4096);
-    if(i == 0){
-        return NULL;
-    }
-    return &d[dirp->fd];
+struct dirent *readdir(DIR *DIRpointer){
+    int retVal = direccall(DIRpointer->fd, (&(d[DIRpointer->fd]))->d_name, 4096);
+    if(retVal == 0) return NULL;
+    return &d[DIRpointer->fd];
 }
-int closedir(DIR *dirp){
-    return close(dirp->fd);
+
+int closedir(DIR *DIRpointer){
+    return close(DIRpointer->fd);
 }
