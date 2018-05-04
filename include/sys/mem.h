@@ -19,11 +19,9 @@ uint64_t getFreeFrame();
 
 uint64_t getNewPage();
 
-void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree);
-
 void setupPageTables();
 
-void init_pages_for_process(uint64_t vaddr_s,uint64_t vaddr_e,uint64_t* pml4);
+void initTaskPagetables(uint64_t vaddr_s,uint64_t vaddr_e,uint64_t* pml4);
 
 uint64_t kmalloc(int size);
 
@@ -35,7 +33,7 @@ void switchtokern();
 
 void free(uint64_t add);
 
-void dealloc_pml4(uint64_t pm4);
+void deallocTask(uint64_t pm4);
 
 void initializeFreelist(uint32_t *modulep, void *physbase, void *physfree);
 

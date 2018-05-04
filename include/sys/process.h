@@ -4,10 +4,6 @@
 #include <sys/defs.h>
 #include <sys/file.h>
 
-#define MAX 1100
-#define STACK_S 0x100FFFFF0000
-#define VADDR_MASK 0xFFFFFFFFFFFFF000
-
 #define True 1
 #define False 0
 #define posInfinity 9999
@@ -43,31 +39,29 @@ typedef struct taskStruct {
 	struct Register regs;
 }taskStruct;
 
+#define MAX 1100
+#define STACK_S 0x100FFFFF0000
+#define VADDR_MASK 0xFFFFFFFFFFFFF000
+
 taskStruct *currentTask;
 
-void switch_task(reg*, reg*);
-void init_task();
-void create_task(taskStruct*,uint64_t main, uint64_t flags, uint64_t pagedir);
 void schedule();
-void switchtor3();
-int execvpe(char* file, char *argv[],char* env[]);
-void *memcpy(void *dst,const void *src, int count);
+int execvpe(char*, char*, char*);
+void *memcpy(void *,const void *, int);
 int fork();
-void createNewTask(char* filename);
-void addToQ(taskStruct *q);
-int get_fd(struct taskStruct*);
+void createNewTask(char*);
 struct taskStruct taskQueue[MAX];
 void initFirstTask();
 void exit();
 void initTask();
 int wait();
-int waitpid(int pid);
+int waitpid(int);
 pid_t getTaskPID(void);
 pid_t getTaskPPID(void);
-int kill(int pid);
-void getCurrentDirectory(char *buf, int size);
-int chdir(char* path);
-unsigned int sleep(unsigned int seconds);
+int kill(int);
+void getCurrentDirectory(char, int);
+int chdir(char*);
+unsigned int sleep(unsigned int);
 void ps();
-void* malloc(int no_of_bytes);
+void* malloc(int);
 #endif

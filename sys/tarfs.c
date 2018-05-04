@@ -108,7 +108,7 @@ int setCurrentTaskVal(int setflag, int fileID, int flags){
     strcpy(&((&(currentTask->fd[fileCounter]))->file_name[0]), headers[fileID]->name);
     (&(currentTask->fd[fileCounter]))->entry = 0;
     (&(currentTask->fd[fileCounter]))->aval = 1;
-    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(octal_to_binary((char*)(headers[fileID]->size)));
+    (&(currentTask->fd[fileCounter]))->size = (uint64_t)(toBinaryFile((char*)(headers[fileID]->size)));
     (&(currentTask->fd[fileCounter]))->address = (uint64_t)headers[fileID];
     (&(currentTask->fd[fileCounter]))->fd = fileCounter;
     if (setflag != 10)(&(currentTask->fd[fileCounter]))->flags = flags;
@@ -123,7 +123,7 @@ int isValidDirectory(char* path){
     return Faalse;
 }
 
-int open_dir(char* path){
+int openDirFile(char* path){
     if(strcmp(path, "/")==0)
     {
 	    int fdc = currentTask->fd_c+3;
@@ -137,7 +137,7 @@ int open_dir(char* path){
     return setCurrentTaskVal(10, fileID, -1);
 }
 
-int open_tarfs(char* path, int flags)
+int openTarfsFile(char* path, int flags)
 {
     int fileID = isfileexists(path);
     if(fileID == -1) return fileID;
@@ -149,7 +149,7 @@ void setFilePath(char *path, int count, struct posix_header_ustar *header){
     path[count] = '\0';
 }
 
-ssize_t read_tarfs(int fd, char* buf, int count)
+ssize_t readTarfsFile(int fd, char* buf, int count)
 {
 	struct file_t* filedescriptor = (struct file_t*) &(currentTask->fd[fd]);
     struct posix_header_ustar *header = (struct posix_header_ustar*) filedescriptor->address;;
@@ -163,7 +163,7 @@ int isRootDirectory(char *path){
     return False;
 }
 
-int readdir_tarfs(int fd, char* buf)
+int readDirTarfsFile(int fd, char* buf)
 {
     int count = 0;
     char* fileName = (&(currentTask->fd[fd]))->file_name;
@@ -184,7 +184,7 @@ int readdir_tarfs(int fd, char* buf)
 	return 0;
 }
 
-int close_tarfs(int fp)
+int closeTarfsFile(int fp)
 {
 	struct file_t *filedescriptor = &currentTask->fd[fp];
 	filedescriptor->file_name[0] = '\0';

@@ -79,7 +79,7 @@ int close(int fd){
     return (int)retVal;
 }
 
-int open_dir(const char *path)
+int openDirFile(const char *path)
 {
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (16), "g" ((long)(path)) : "rax", "rbx");
@@ -87,7 +87,7 @@ int open_dir(const char *path)
 }
 
 DIR *opendir(const char *name){
-    int glDirVar = open_dir(name);
+    int glDirVar = openDirFile(name);
     int index;
     if (glDirVar == -1) index = 0;
     else index = glDirVar;

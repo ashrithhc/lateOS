@@ -31,11 +31,11 @@ typedef struct {
 	uint64_t block_count;
 } inode;
 
-int open_dir(char* path);
-int open_tarfs(char* file_path, int flags);
-ssize_t read_tarfs(int fd, char* buf, int count);
-uint64_t octal_to_binary(const char* octal);
-int readdir_tarfs(int fd, char* buf);
-int close_tarfs(int fp);
+int openDirFile(char* path);
+int openTarfsFile(char* file_path, int flags);
+ssize_t readTarfsFile(int fd, char* buf, int count);
+uint64_t toBinaryFile(const char* octal);
+int readDirTarfsFile(int fd, char* buf);
+int closeTarfsFile(int fp);
 
 #endif
