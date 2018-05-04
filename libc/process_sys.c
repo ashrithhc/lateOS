@@ -1,5 +1,4 @@
 #include <sys/defs.h>
-#include <syscall.h>
 #include <unistd.h>
 #include <stdio.h>
 
