@@ -23,6 +23,16 @@ void strcpy(char *string2, char *string1){
 	*string2='\0';
 }
 
+
+int strtoInt(char* num){
+    int dec = 0, i, len;
+    len = strlen(num);
+    for(i=0; i<len; i++){
+        dec = dec * 10 + ( num[i] - '0' );
+    }
+    return dec;
+}
+
 int strlen(const char *string)
 {
 	int length=0;
