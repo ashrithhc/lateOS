@@ -2,7 +2,12 @@
 #define _IDT_H_
 #include <sys/defs.h>
 
-struct IDTtable{
+void IDTinitialise();
+extern void startTimer();
+void outportb(uint16_t, uint8_t);
+extern void intTimer();
+
+struct idt{
 	uint16_t lower_offset;
 	uint16_t selector;
 	uint8_t zero_1;
@@ -12,14 +17,9 @@ struct IDTtable{
 	uint32_t zero_2;
 }__attribute__((packed));
 
-struct IDTaddr{
+struct idt_ptr{
 	uint16_t size;
 	uint64_t base;
 }__attribute__((packed));
-
-void IDTinitialise();
-extern void startTimer();
-void outportb(uint16_t, uint8_t);
-extern void intTimer();
 
 #endif

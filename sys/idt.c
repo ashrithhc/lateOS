@@ -23,8 +23,8 @@ void ISR128();
 extern void timer();
 extern void keyboard();
 
-static struct IDTtable IDTset[256];
-static struct IDTaddr IDTloader;
+static struct idt IDTset[256];
+static struct idt_ptr IDTloader;
 static int timerCount = 0, totalSecs = 0;
 
 static inline uint8_t inportb(uint64_t port)
@@ -59,7 +59,7 @@ void initISR(uint16_t interrupt, uint64_t function)
 }
 
 void loadIDT(){
-	(&IDTloader)->size = (sizeof(struct IDTtable) * 256) - 1 ;
+	(&IDTloader)->size = (sizeof(struct idt) * 256) - 1 ;
 	(&IDTloader)->base = (uint64_t)IDTset;
 	__asm__ __volatile__ ("lidt (%0)" : : "r"(&IDTloader));
 }
@@ -127,7 +127,7 @@ void copyNewMemory(uint64_t vaddr, uint64_t addr){
     uint64_t copyFrame = getFreeFrame();
     memcpy((void*)(kernmem + copyFrame), (void *)(vaddr & pageMask), 0x1000);
     switchtokern();
-    initTaskPagetables((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
+    init_pages_for_process((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
     free(addr);
 }
 
@@ -135,7 +135,7 @@ void copyFromPML4(uint64_t vaddr){
     uint64_t taskPML4 = getPML4();
     uint64_t copyFrame = getFreeFrame();
     switchtokern();
-    initTaskPagetables((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
+    init_pages_for_process((vaddr & pageMask), copyFrame, (uint64_t *)(currentTask->pml4e + kernmem));
     loadPML4(taskPML4);
 }
 
@@ -169,7 +169,7 @@ uint64_t isr128(){
                         retVal = 0;
                     }
                     else {
-                        retVal = readTarfs((int) regs->rbx, (char*) regs->rcx, (int) regs->rdx);
+                        retVal = read_tarfs((int) regs->rbx, (char*) regs->rcx, (int) regs->rdx);
                     }
                     break;
         case 1:     if (regs->rbx == 1){
@@ -177,12 +177,12 @@ uint64_t isr128(){
                         retVal = 0;
                     }
                     break;
-        case 2:     retVal = openTarfs((char*) regs->rbx, (int) regs->rcx);
+        case 2:     retVal = open_tarfs((char*) regs->rbx, (int) regs->rcx);
                     break;
-        case 3:     retVal = closeTarfs((int)regs->rbx); break;
+        case 3:     retVal = close_tarfs((int)regs->rbx); break;
         case 7:     clearScreen(); break;
         case 9:     retVal = (uint64_t) malloc((int)regs->rbx); break;
-        case 16:    retVal = openDirectory((char *)regs->rbx); break;
+        case 16:    retVal = open_dir((char *)regs->rbx); break;
         case 35:    retVal = sleep((int)regs->rbx); break;
         case 39:    retVal = getTaskPID(); break;
         case 57:    retVal = (uint64_t)fork();
@@ -196,7 +196,7 @@ uint64_t isr128(){
         case 59:    retVal = execvpe((char *)regs->rbx,(char **)regs->rcx,(char **) regs->rdx); break;
         case 60:    exit(); break;
         case 62:    retVal = kill((int)regs->rbx); break;
-        case 78:    retVal = readTarfsDirectory((int) regs->rbx, (char *) regs->rcx); break;
+        case 78:    retVal = readdir_tarfs((int) regs->rbx, (char *) regs->rcx); break;
         case 79:    getCurrentDirectory((char*)regs->rbx,(int)regs->rcx); break;
         case 80:    retVal = chdir((char*)regs->rbx); break;
         case 110:   retVal = getTaskPPID(); break;

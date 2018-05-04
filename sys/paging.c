@@ -259,7 +259,7 @@ void setExistingPagePDPTE(uint64_t virtual, uint64_t physical, uint64_t* pml4){
 	else setExistingPagePDPE(virtual, physical, pml4, pdpte);
 }
 
-void initTaskPagetables(uint64_t virtual, uint64_t physical, uint64_t* pml4){
+void init_pages_for_process(uint64_t virtual, uint64_t physical, uint64_t* pml4){
 	*(pml4 + 511) = (*(pml4e + 511) & validatebits) | 7;
 	if(!(*(pml4 + ((virtual >> (12+9+9+9) ) & 511)) & 1)) setNewPagePDPTE(virtual, physical, pml4);
 	else setExistingPagePDPTE(virtual, physical, pml4);
@@ -305,7 +305,7 @@ void copytables(taskStruct *p, taskStruct *c){
 	}
 }
 
-void deallocTask(uint64_t pm4){
+void dealloc_pml4(uint64_t pm4){
     uint64_t* pml4eParent = (uint64_t *)(pm4 + kernbase);
     for(int i=0;i<511;i++){
         if(pml4eParent[i]&1){

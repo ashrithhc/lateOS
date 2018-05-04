@@ -1,6 +1,6 @@
 #ifndef _FILE_H
 #define _FILE_H
-#include <sys/defs.h>
+#include<sys/defs.h>
 
 typedef struct file_t {
 	int fd;
@@ -31,11 +31,11 @@ typedef struct {
 	uint64_t block_count;
 } inode;
 
-int openDirectory(char*);
-int openTarfs(char*, int);
-ssize_t readTarfs(int, char*, int);
-uint64_t toBinaryForFile(const char*);
-int readTarfsDirectory(int fd, char*);
-int closeTarfs(int);
+int open_dir(char* path);
+int open_tarfs(char* file_path, int flags);
+ssize_t read_tarfs(int fd, char* buf, int count);
+uint64_t octal_to_binary(const char* octal);
+int readdir_tarfs(int fd, char* buf);
+int close_tarfs(int fp);
 
 #endif
