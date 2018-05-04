@@ -179,6 +179,10 @@ void clearInput(){
     }
 }
 
+void initArgs(){
+    for(int i=0; i<1000; i++) args[i] = &arg[i][0];
+}
+
 void clearCommand(){
     for(int i=0;i<sizeof(com)/sizeof(char);i++){
         com[i] = '\0';
@@ -190,9 +194,7 @@ void setenvs(){
 }
 
 int main(int argc, char *argv[], char *envp[]) {
-    for(int i=0;i<1000;i++){
-        args[i] = &arg[i][0];
-    }
+    initArgs();
     setprompt("sbush");
     setenvs();
     if(argc==1){
@@ -200,47 +202,39 @@ int main(int argc, char *argv[], char *envp[]) {
         while(1){
             puts(prompt);
             readInput();
-            if(input[0] == '\0'){
-                continue;
-            }
-            if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
-                return 0;
-            }
+            if(input[0] == '\0') continue;
+            if((strcmp(in, "exit") == 0) || (strcmp(in, "quit") == 0)) return 0;
             parseInput();
-            //execCommand();
-
             clearInput();
             clearCommand();
             clearArguments();
         }
     }else{
-        int fp;
-        fp = fopen(argv[1],"r");
-        if(fp == -1){
+        int filePointer = fopen(argv[1], "r");
+        if (filePointer == -1){
             puts("File not found, Exiting!");
             return 0;
         }
-        char buf[4096];
-        readStr_sys(fp,buf,4096);
+        char inpString[4096];
+        readStr_sys(filePointer, inpString, 4096);
         int c = 0,l =0;
         for(int i=0;i<20;i++){
             cm[i] = &cm1[i][0];
         }
-        int len = strlen(buf);
+        int len = strlen(inpString);
         in = &input[0];
         for(int i =0;i<len;i++){
-            if(*(buf+i) =='\n'){
+            if(*(inpString+i) =='\n'){
                 cm[c][l++] = '\0';
                 c++;
                 l =0;
                 continue;
             }
-            cm[c][l++] = *(buf+i);
+            cm[c][l++] = *(inpString+i);
         }
         for(int k =0;k<c;k++){
                 strcpy(in,cm[k]);
                 parseInput();
-            //    i=0;
                 clearInput();
                 clearCommand();
                 clearArguments();
