@@ -86,6 +86,16 @@ int open_dir(const char *path)
     return (int)retVal;
 }
 
+DIR *opendir(const char *name){
+    int glDirVar = open_dir(name);
+    int index;
+    if (glDirVar == -1) index = 0;
+    else index = glDirVar;
+    (&(dir[index]))->fd = glDirVar;
+    strcpy((&((&(dir[index]))->d_ent))->d_name, (char *)name);
+    return &dir[index];
+}
+
 int direccall(int fd,char* buff,int size){
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(78), "r"((long)(fd)), "r"((long)(buff)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
@@ -105,17 +115,7 @@ int direccall(int fd,char* buff,int size){
 
 
 
-DIR *opendir(const char *name){
-    int glDirVar = open_dir(name);
-    int index;
-    if (glDirVar == -1){
-        index = 0;
-    }
-    else index = glDirVar;
-    dir[index].fd = glDirVar;
-    strcpy(dir[index].d_ent.d_name,(char *)name);
-    return &dir[index];
-}
+
 
 
 struct dirent *readdir(DIR *dirp){
