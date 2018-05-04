@@ -8,6 +8,10 @@
 #define False 0
 #define posInfinity 9999
 
+#define MAX 1100
+#define STACK_S 0x100FFFFF0000
+#define VADDR_MASK 0xFFFFFFFFFFFFF000
+
 int pid[MAX];
 
 typedef struct vmaStruct {
@@ -38,10 +42,6 @@ typedef struct taskStruct {
 	int fd_c;
 	struct Register regs;
 }taskStruct;
-
-#define MAX 1100
-#define STACK_S 0x100FFFFF0000
-#define VADDR_MASK 0xFFFFFFFFFFFFF000
 
 taskStruct *currentTask;
 
