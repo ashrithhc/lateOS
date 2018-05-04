@@ -10,26 +10,10 @@ int checkforENV(){
 
 void initEnvironment(){
   globalENV = checkforENV();
-  __asm__ __volatile__ ("movq %%rsp, %0; movq %%rsp, %1" : "=m"(setENVvalue), "=m"(getENVvalue) : :"rsp");
-  getENVvalue = getENVvalue + 2;
-  for(iter = 0; iter < *(setENVvalue + 2); iter++){
-    argv[iter] = (*(getENVvalue++));  
-  }
-  globalENV++;
-  iter=0;
-  getENVvalue++;
-
-  while( (*getENVvalue) != NULL){
-    env[iter++] = (*(getENVvalue++));
-  }
-  globalENV--;
-  pushenvs(env);
-  int retVal = main( *(setENVvalue + 2), argv, env);
-  exit(retVal);
 }
 
 void _start(void) {
-  // initEnvironment();
+  initEnvironment();
   globalENV = checkforENV();
   __asm__ __volatile__ ("movq %%rsp, %0; movq %%rsp, %1" : "=m"(setENVvalue), "=m"(getENVvalue) : :"rsp");
   getENVvalue = getENVvalue + 2;
@@ -37,7 +21,7 @@ void _start(void) {
     argv[iter] = (*(getENVvalue++));  
   }
   globalENV++;
-  iter=0;
+  iter=0;  globalENV = checkforENV();
   getENVvalue++;
 
   while( (*getENVvalue) != NULL){
