@@ -13,7 +13,6 @@ uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
 
-// uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
     initializeFreelist(modulep, physbase, physfree);
@@ -27,9 +26,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 void boot(void)
 {
-  // note: function changes rsp, local stack variables can't be practically used
-// register char /* *temp1, */ *temp2;
-// for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
   __asm__ __volatile__ (
     "cli;"
     "movq %%rsp, %0;"
