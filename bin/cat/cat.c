@@ -3,7 +3,7 @@
 #include <syscall.h>
 #include <unistd.h>
 
-char buf[4096];
+char inpString[4096];
 
 int validateARGS(int argc, char *filename){
     if(argc < 2){
@@ -20,9 +20,9 @@ int validateARGS(int argc, char *filename){
 }
 
 
-int readStr_sys(int fd, char* buf, int size){
+int readStr_sys(int fd, char* inpString, int size){
     long retVal;
-    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(buf)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(inpString)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
     return (int)retVal;
 	return 0;
 }
@@ -33,8 +33,8 @@ int main(int argc, char* argv[], char* envp[])
     if (validateARGS(argc, argv[1]) == -1) return -1;
     
     file = fopen(argv[1], "r");
-    readStr_sys(file, buf, 4096);
-	puts(buf);
+    readStr_sys(file, inpString, 4096);
+	puts(inpString);
 	close(file);
 }
 

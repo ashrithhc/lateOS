@@ -4,21 +4,31 @@
 #include <syscall.h>
 #include <unistd.h>
 
+int validateARGS(char *str){
+	if (str == NULL){
+		puts("Usage : echo <type-something>\n");
+		return -1;
+	}
+	return 0;
+}
+
+void printEmAll(int argc, char *argv[]){
+	for (int index = 0; index < argc; index++){
+		strcat(argv[index], " ");
+		puts(argv[index]);
+	}
+	puts("\n");
+}
+
 int main(int argc, char* argv[], char* envp[])
 {
-	int i;
-
-	if (argv[1] == NULL) {
-	    puts("\n");
-		return 0;
-	}
-
-	for(i=1; i<argc; i++)
-	{
+	if (validateARGS(argv[1]) == -1) return -1;
+	printEmAll(argc, argv);
+	/*for(int i=1; i < argc; i++){
 		puts(argv[i]);
         puts(" ");
 	}
-    puts("\n");
+    puts("\n");*/
     
 	return 0;
 }
