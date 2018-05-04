@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <syscall.h>
-#include <sys/wait.h>
 
 static int isBackground = 0;
 static char input[1000]={'\0'};
