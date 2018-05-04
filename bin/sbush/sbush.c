@@ -200,7 +200,7 @@ void initCommandList(){
 }
 
 void makeCommandList(char inpString[4096]){
-    for(int i=0; i<len; i++){
+    for(int i=0; i<strlen(inpString); i++){
         if(*(inpString + i) =='\n'){
             commandList[cmdNum][cmdOffset++] = '\0';
             cmdNum++;
@@ -238,7 +238,6 @@ int main(int argc, char *argv[], char *envp[]) {
         readStr_sys(filePointer, inpString, 4096);
 
         initCommandList();
-        int len = strlen(inpString);
         in = &input[0];
         makeCommandList(inpString);
         for(int k=0; k<cmdNum; k++){
