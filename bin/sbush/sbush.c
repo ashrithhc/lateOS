@@ -13,8 +13,6 @@ static char com[1000]={'\0'};
 static char arg[1000][1000]={'\0'};
 static char prompt[100]={'\0'};
 
-static char cm1[20][100];
-static char *cm[20];
 int readStr_sys(int fd,char* buf,int size){
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(buf)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
@@ -193,6 +191,9 @@ void setenvs(){
     for(int i=0; i < getenvlength(); i++) envpe[i] = getallenv(i);
 }
 
+static char commandSet[20][100];
+static char *commandList[20];
+
 int main(int argc, char *argv[], char *envp[]) {
     initArgs();
     setprompt("sbush");
@@ -217,23 +218,22 @@ int main(int argc, char *argv[], char *envp[]) {
         }
         char inpString[4096];
         readStr_sys(filePointer, inpString, 4096);
+
         int c = 0,l =0;
-        for(int i=0;i<20;i++){
-            cm[i] = &cm1[i][0];
-        }
+        for(int i=0; i<20; i++) commandList[i] = &commandSet[i][0];
         int len = strlen(inpString);
         in = &input[0];
         for(int i =0;i<len;i++){
             if(*(inpString+i) =='\n'){
-                cm[c][l++] = '\0';
+                commandList[c][l++] = '\0';
                 c++;
                 l =0;
                 continue;
             }
-            cm[c][l++] = *(inpString+i);
+            commandList[c][l++] = *(inpString+i);
         }
         for(int k =0;k<c;k++){
-                strcpy(in,cm[k]);
+                strcpy(in,commandList[k]);
                 parseInput();
                 clearInput();
                 clearCommand();
