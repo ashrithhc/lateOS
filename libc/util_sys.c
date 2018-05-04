@@ -6,9 +6,22 @@
 
 static char env_var[1000][1000];
 static int env_length=0;
-static char temp[50];
+static char envBuffer[100];
 
-char* getvar(char* name);
+char* getvar(char* name){
+	int i;/* =0;
+	while(*name!='='){
+		envBuffer[i++] = *name;
+		name++;	
+	}
+*/
+	for (i=0; *name != '='; i++){
+		envBuffer[i] = *name++;
+	}
+	envBuffer[i] = '\0';
+	return &envBuffer[0];
+}
+
 char* getallenv(int i){
 	return &env_var[i][0];
 }
@@ -16,7 +29,7 @@ char *getenv(const char *name){
 	for(int i=0;i<env_length;i++)
 	{
 		getvar(&env_var[i][0]);
-		int k = strlen(&temp[0]);
+		int k = strlen(&envBuffer[0]);
 		return &env_var[i][k];
 	}
 	return NULL;	
@@ -28,8 +41,8 @@ int getenvlength()
 int setenv( char *name, char *value, int overwrite){
 	for(int i=0;i<env_length;i++){
 		getvar(&env_var[i][0]);
-		if(strcmp(name,&temp[0])== 0){
-			int k = strlen(&temp[0]);
+		if(strcmp(name,&envBuffer[0])== 0){
+			int k = strlen(&envBuffer[0]);
 			strcpy(&env_var[i][k+1],value);
 			return 1;
 		}
@@ -46,15 +59,7 @@ void pushenvs(char* envp[]){
         }
 	env_length=i;  
 }
-char* getvar(char* name){
-	int i =0;
-	while(*name!='='){
-		temp[i++] = *name;
-		name++;	
-	}
-	temp[i] = '\0';
-	return &temp[0];
-}
+
 
 int pipe(int fd[2])
 {
@@ -79,7 +84,7 @@ pid_t waitpid(pid_t pid,pid_t *status){
 
 
 
-
+/* REFERENCED AS IS FROM https://github.com/germanoa/compiladores/blob/master/doc/ebook/The%20C%20Programming%20Language%20-%202nd%20Edition%20-%20Ritchie%20Kernighan.pdf*/
 
 typedef long Align;
 
@@ -97,7 +102,6 @@ static Header base;
 static Header *freep = NULL;
 
 #define NALLOC 1024
-
 
 void free(void *ap)
 {
@@ -129,8 +133,9 @@ void free(void *ap)
 void* sbrk_call(int increment){
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (9), "g" ((long)(increment)) : "rax", "rbx");
-    return (void *)(retVal);
+    return (void *)retVal;
 }
+
 void* sbrk(int increment)
 {
     return sbrk_call(increment);
@@ -157,7 +162,7 @@ static Header *morecore(int nu)
 }
 
 void *malloc(size_t nbytes)
-{ // while(1);
+{
     Header *p, *prevp;
     unsigned nunits;
 
