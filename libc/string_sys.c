@@ -4,161 +4,130 @@
 #include <string.h>
 #include <sys/defs.h>
 
-int c;
+int charRet;
 
 int readCall(){
-
-	// _syscall3(int, read, int, stdin,int*,&c, int, 1);
 	long retVal;
-    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(stdin)), "r"((long)(&c)), "r"((long)(1)) : "rax", "memory", "rbx", "rcx", "rdx");
-    return (int)(retVal);
-	return 0;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(stdin)), "r"((long)(&charRet)), "r"((long)(1)) : "rax", "memory", "rbx", "rcx", "rdx");
+    return (int)retVal;
 }
 
 int getchar()
 {
     readCall();
-    return (int)c;
+    return (int)charRet;
 }	
 
-int readcall1(char* s){
-    // _syscall3(int, read, int, stdin,char* ,s, int, 4096);
+int readcallString(char* s){
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(stdin)), "r"((long)(s)), "r"((long)(4096)) : "rax", "memory", "rbx", "rcx", "rdx");
-    return (int)(retVal);
+    return (int)retVal;
 }
-char* gets(char *string)
+
+char* gets(char *inpString)
 {
-       char *s=string;
-     readcall1(s);
-      return string;
+	char *myStr = inpString;
+	readcallString(myStr);
+	return inpString;
 }
 
 int puts(const char *s)
 {
-	int len=strlen(s);
 	long retVal;
-	__asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (1),"r" ((long)(stdout)),"r" ((long)(s)), "r" ((long)(len)) : "rax","memory","rbx","rcx","rdx");
-	return (int)(retVal);
+	__asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g" (1),"r" ((long)(stdout)),"r" ((long)(s)), "r" ((long)(strlen(s))) : "rax","memory","rbx","rcx","rdx");
+	return (int)retVal;
 }
 
-
-int strcmp(char *s,char *t){
-	while(*s==*t)
+int strcmp(char *str1, char *str2){
+	while(*str1 == *str2)
 	{
-		if(*s=='\0')
-			return 0;
-		s++;
-		t++;
+		if(*str1 == '\0') return 0;
+		str1++; str2++;
 	}
-	return *s-*t;
+	return (*str1 - *str2);
 }
 
-void strcpy(char *string2, char *string1){
-
-	while(*string1)
+void strcpy(char *str2, char *str1){
+	while(*str1)
 	{
-		*string2=*string1;
-		string1++;
-		string2++;
+		*str2 = *str1;
+		str1++; str2++;
 	}
-	*string2='\0';
+	*str2 = '\0';
 }
 
-int strtoInt(char* num){
-    int dec = 0, i, len;
-    len = strlen(num);
-    for(i=0; i<len; i++){
-        dec = dec * 10 + ( num[i] - '0' );
-    }
-    return dec;
+int strtoInt(char* str){
+    int num = 0;
+    for(int i=0; i<strlen(str); i++) num = (num * 10) + (str[i] - '0');
+    return num;
 }
 
 int strlen(const char *string)
 {
 	int length=0;
-	while(*string)
-	{
-		length++;
-		string++;
-	}
+	while(*string) { length++; string++; }
 	return length;
 }
 
-char* strcat(char *string1, char *string2)
+char* strcat(char *str1, char *str2)
 {
-	while(*string1!='\0')
+	while(*str1 != '\0') str1++;
+	while(*str2 != '\0')
 	{
-		string1++;
+		*str1 = *str2;
+		str1++; str2++;
 	}
-	while(*string2!='\0')
-	{
-		*string1=*string2;
-		string1++;
-		string2++;
-	}
-	*string1='\0';
-	return string1;
+	*str1 = '\0';
+	return str1;
 }
 
-int fputs(const char *s,int fd )
+int fputs(const char *s, int fromFile)
 {
-	return 	puts(s);
-/*	for(;*s;++s) if(fputchar(*s,fd)!=*s) return EOF;
-	return fputchar('\n',fd)=='\n' ? 0 : EOF;	
-*/
+	return puts(s);
 }
 
 int fputchar(int c,int fd)
 {
-        int size = 1;
-        long retVal;
-	    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(1), "r"((long)(fd)), "r"((long)(&c)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
-	    return (int)(retVal);
-	return 0;
+    long retVal;
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(1), "r"((long)(fd)), "r"((long)(&c)), "r"((long)(1)) : "rax", "memory", "rbx", "rcx", "rdx");
+    return (int)retVal;
 }
 
-char c1;
-
-int readcall(int fd)
+char charRetF;
+int readFCall(int fd)
 {
-	//putchar(f->fd);
-	// _syscall3(int, read, int, fd, char*, &c, int, 1);
 	long retVal;
-    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(&c1)), "r"((long)(1)) : "rax", "memory", "rbx", "rcx", "rdx");
+    __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(&charRetF)), "r"((long)(1)) : "rax", "memory", "rbx", "rcx", "rdx");
     return (int)(retVal);
 	return 1;
 }
 
 char fgetc(int fd)
 {
-	readcall(fd);
-	//putchar(*`c);
-	return c1;
+	readFCall(fd);
+	return charRetF;
 }
 
-int clrscr_call()
+int clearScreenSys()
 {
-    // _syscall(int, clearScreen);
     long retVal;
 	__asm__ __volatile__ ("int $0x80;" : "=a"(retVal) : "a"(7) : );
 	return (int)retVal;
 }
+
 void clearScreen()
 {
-    clrscr_call();
+    clearScreenSys();
     return;
 }
 
-char* fgets(char* string,int n,int f)
+char* fgets(char* inpStr, int num, int fileDesc)
 {
-	
-	char *s=string;
-//	putchar(65 + f->fd);
+	char *str = inpStr;
 	do{
-	n = getchar(f);
-	   *s++ = n;  
-	}while((n!='\n')&&(n!=EOF));
-	*s='\n';
-	return string;
+		num = getchar(fileDesc);
+		*str++ = num;  
+	} while ((num != '\n') && (num != EOF));
+	*str = '\n';
+	return inpStr;
 }

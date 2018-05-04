@@ -57,22 +57,23 @@ int pipe(int fd[2])
     return (int)(retVal);
 }
 
-// typedef struct rusage r;
 pid_t wait(int* status){
 	long retVal;
 	__asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; movq %5, %%rsi; int $0x80; movq %%rax, %0" : "=m" (retVal) : "g" (61),"g" ((long)(-1)),"g" ((long)(status)), "g" ((long)(0)), "g" ((long)(NULL)) : "rax", "rbx", "rcx", "rdx", "rsi");
-	return (pid_t)(retVal);
+	return (pid_t)retVal;
 }
+
 pid_t waitpid(pid_t pid,pid_t *status){
 	long retVal;
 	__asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(247), "g"((long)(pid)), "g"((long)(status)) : "rax", "rbx", "rcx");
-	return (pid_t)(retVal);
+	return (pid_t)retVal;
 }
 
-
-
-
-/* REFERENCED AS IS FROM https://github.com/germanoa/compiladores/blob/master/doc/ebook/The%20C%20Programming%20Language%20-%202nd%20Edition%20-%20Ritchie%20Kernighan.pdf*/
+/* 
+REFERENCED AS IS FROM 
+https://github.com/germanoa/compiladores/blob/master/doc/ebook/The%20C%20Programming%20Language%20-%202nd%20Edition%20-%20Ritchie%20Kernighan.pdf
+https://stackoverflow.com/questions/13159564/explain-this-implementation-of-malloc-from-the-kr-book
+*/
 
 typedef long Align;
 
