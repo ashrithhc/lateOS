@@ -15,7 +15,7 @@ static char prompt[100]={'\0'};
 
 static char cm1[20][100];
 static char *cm[20];
-int readstring(int fd,char* buf,int size){
+int readStr_sys(int fd,char* buf,int size){
     long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(0), "r"((long)(fd)), "r"((long)(buf)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
     return (int)(retVal);
@@ -221,7 +221,7 @@ int main(int argc, char *argv[], char *envp[]) {
             return 0;
         }
         char buf[4096];
-        readstring(fp,buf,4096);
+        readStr_sys(fp,buf,4096);
         int c = 0,l =0;
         for(int i=0;i<20;i++){
             cm[i] = &cm1[i][0];
