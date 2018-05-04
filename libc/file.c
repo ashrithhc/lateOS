@@ -1,4 +1,3 @@
-#include <syscall.h>
 #include <sys/defs.h>
 #include <string.h>
 #include <stdio.h>

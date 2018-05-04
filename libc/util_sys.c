@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/defs.h>
-#include <syscall.h>
 
 static char env_var[1000][1000];
 static int env_length=0;
