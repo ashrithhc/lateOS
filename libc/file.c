@@ -15,7 +15,7 @@ int chdirsyscall(char inp[40])
     return (int)retVal;
 }
 
-int chdir(const char *path)
+int chdir(char *path)
 {
     char filePath[100];
     strcpy(filePath, path);
@@ -87,7 +87,7 @@ int open_dir(const char *path)
 }
 
 int direccall(int fd,char* buff,int size){
-\    long retVal;
+    long retVal;
     __asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" : "=m" (retVal) : "g"(78), "r"((long)(fd)), "r"((long)(buff)), "r"((long)(size)) : "rax", "memory", "rbx", "rcx", "rdx");
     return (int)retVal;
 }
