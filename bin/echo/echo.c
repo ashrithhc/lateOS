@@ -14,7 +14,7 @@ int validateARGS(char *str){
 }
 
 void printEmAll(int argc, char *argv[]){
-	for (int index = 0; index < argc; index++){
+	for (int index = 1; index < argc; index++){
 		strcat(argv[index], " ");
 		puts(argv[index]);
 	}
@@ -25,11 +25,5 @@ int main(int argc, char* argv[], char* envp[])
 {
 	if (validateARGS(argv[1]) == -1) return -1;
 	printEmAll(argc, argv);
-	/*for(int i=1; i < argc; i++){
-		puts(argv[i]);
-        puts(" ");
-	}
-    puts("\n");*/
-    
 	return 0;
 }
