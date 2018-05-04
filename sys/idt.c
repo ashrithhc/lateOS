@@ -223,7 +223,7 @@ void intTimer(){
     __asm__ __volatile__("cli");
     outportb(0x20, 0x20);
     timerCount++;
-    if(timerCount == 5){
+    if(timerCount == 20){
         schedule();
         totalSecs++;
         int temp = totalSecs;
