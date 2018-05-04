@@ -9,15 +9,8 @@ static int env_length=0;
 static char envBuffer[100];
 
 char* getvar(char* name){
-	int i;/* =0;
-	while(*name!='='){
-		envBuffer[i++] = *name;
-		name++;	
-	}
-*/
-	for (i=0; *name != '='; i++){
-		envBuffer[i] = *name++;
-	}
+	int i;
+	for (i=0; *name != '='; i++) envBuffer[i] = *name++;
 	envBuffer[i] = '\0';
 	return &envBuffer[0];
 }
@@ -25,25 +18,26 @@ char* getvar(char* name){
 char* getallenv(int i){
 	return &env_var[i][0];
 }
+
 char *getenv(const char *name){
-	for(int i=0;i<env_length;i++)
+	for(int i=0; i<env_length; i++)
 	{
 		getvar(&env_var[i][0]);
-		int k = strlen(&envBuffer[0]);
-		return &env_var[i][k];
+		return &env_var[i][strlen(&envBuffer[0])];
 	}
 	return NULL;	
 }
+
 int getenvlength()
 {
 	return env_length;
 }
-int setenv( char *name, char *value, int overwrite){
-	for(int i=0;i<env_length;i++){
+
+int setenv(char *name, char *value, int overwrite){
+	for(int i=0; i<env_length; i++){
 		getvar(&env_var[i][0]);
-		if(strcmp(name,&envBuffer[0])== 0){
-			int k = strlen(&envBuffer[0]);
-			strcpy(&env_var[i][k+1],value);
+		if(strcmp(name, &envBuffer[0]) == 0){
+			strcpy(&env_var[i][strlen(&envBuffer[0])+1], value);
 			return 1;
 		}
 	}
@@ -51,15 +45,10 @@ int setenv( char *name, char *value, int overwrite){
 }
 
 void pushenvs(char* envp[]){
-	int i=0;
-	while(envp[i]!=NULL)
-        {   
-                strcpy(&env_var[i][0],envp[i]);
-                i++;
-        }
+	int i;
+	for (i=0; envp[i] != NULL; i++) strcpy(&env_var[i][0], envp[i]);
 	env_length=i;  
 }
-
 
 int pipe(int fd[2])
 {
@@ -68,8 +57,7 @@ int pipe(int fd[2])
     return (int)(retVal);
 }
 
-
-typedef struct rusage r;
+// typedef struct rusage r;
 pid_t wait(int* status){
 	long retVal;
 	__asm__ __volatile__ ("movq %1, %%rax; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; movq %5, %%rsi; int $0x80; movq %%rax, %0" : "=m" (retVal) : "g" (61),"g" ((long)(-1)),"g" ((long)(status)), "g" ((long)(0)), "g" ((long)(NULL)) : "rax", "rbx", "rcx", "rdx", "rsi");
