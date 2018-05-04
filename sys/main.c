@@ -16,22 +16,10 @@ extern char kernmem, physbase;
 uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
-  /*struct smap_t* smap;
-  while(modulep[0] != 0x9001) modulep += modulep[1]+2;
-  for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
-    if (smap->type == 1  && smap->length != 0) {
-      	mem_map(smap,(uint64_t)physbase,(uint64_t)physfree);
-	kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-	max = smap->base+smap->length; 
-    }
-  }
-
-    setupPageTables((uint64_t)0, max);*/
-  initializeFreelist(modulep, physbase, physfree);
-	init_tarfs();
-	IDTinitialise();
-
-    init_proc();
+    initializeFreelist(modulep, physbase, physfree);
+    init_tarfs();
+    IDTinitialise();
+    initFirstTask();
     initTask();
     createNewTask("bin/sbush");
     while(1);
@@ -50,16 +38,12 @@ void boot(void)
     :"r"(&initial_stack[INITIAL_STACK_SIZE])
   );
  
- init_gdt();
+  init_gdt();
   start(
     (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),
     (uint64_t*)&physbase,
     (uint64_t*)(uint64_t)loader_stack[4]
   );
-/*  for(
-    temp1 = "!!!!! start() returned !!!!!", temp2 = (char*)0xb8000;
-    *temp1;
-    temp1 += 1, temp2 += 2
-  ) *temp2 = *temp1;*/
+
   while(1) __asm__ __volatile__ ("hlt");
 }

@@ -40,7 +40,7 @@ int newPID(){
 	return -1;
 }
 
-void init_proc(){
+void initFirstTask(){
     for(int i=0; i<MAX; i++){
         (&(taskQueue[i]))->state = READY;
         (&(taskQueue[i]))->fd_c = 0;

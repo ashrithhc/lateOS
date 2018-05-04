@@ -57,7 +57,7 @@ void createNewTask(char* filename);
 void addToQ(taskStruct *q);
 int get_fd(struct taskStruct*);
 struct taskStruct taskQueue[MAX];
-void init_proc();
+void initFirstTask();
 void exit();
 void initTask();
 int wait();
