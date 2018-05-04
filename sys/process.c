@@ -6,7 +6,6 @@
 #include <sys/string.h>
 #include <sys/tarfs.h>
 #include <sys/elf64.h>
-#include <sys/terminal.h>
 
 static taskStruct *duplicateTask;
 

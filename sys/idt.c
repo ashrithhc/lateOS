@@ -3,7 +3,6 @@
 #include <sys/mem.h>
 #include <sys/process.h>
 #include <sys/file.h>
-#include <sys/terminal.h>
 
 #define idtLowerMask 0xFFFF
 #define idtMidMask 0xFFFF

@@ -2,6 +2,12 @@
 #define _IDT_H_
 #include <sys/defs.h>
 
+void intWrite();
+void clearScreen();
+int getoffset();
+void setoffset(int i);
+void wake_process();
+void intRead(char* b);
 void IDTinitialise();
 extern void startTimer();
 void outportb(uint16_t, uint8_t);

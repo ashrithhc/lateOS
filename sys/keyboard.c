@@ -2,7 +2,6 @@
 #include <sys/kprintf.h>
 #include <sys/defs.h>
 #include <sys/process.h>
-#include <sys/terminal.h>
 
 #define True 1
 #define False 0

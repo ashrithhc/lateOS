@@ -10,4 +10,5 @@ int starts_with(char*, char*);
 char* substring(char*, int);
 void resetString(char *str);
 int strtoInt(char* num);
+
 #endif
