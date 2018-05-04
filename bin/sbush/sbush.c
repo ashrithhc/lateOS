@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <syscall.h>
 
 static int isBackground = 0;
 static char input[1000]={'\0'};

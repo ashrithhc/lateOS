@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <syscall.h>
 #include <unistd.h>
 
 char inpString[4096];

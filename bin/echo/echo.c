@@ -1,7 +1,6 @@
 #include <sys/defs.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <syscall.h>
 #include <unistd.h>
 #include <string.h>
 

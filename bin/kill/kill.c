@@ -1,6 +1,5 @@
 #include <sys/defs.h>
 #include <string.h>
-#include <syscall.h>
 #include <unistd.h>
 #include <string.h>
 
