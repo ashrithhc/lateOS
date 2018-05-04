@@ -211,6 +211,13 @@ void makeCommandList(char inpString[4096]){
     }
 }
 
+void clearCommandData(){
+    parseInput();
+    clearInput();
+    clearCommand();
+    clearArguments();
+}
+
 int main(int argc, char *argv[], char *envp[]) {
     initArgs();
     setprompt("sbush");
@@ -222,10 +229,7 @@ int main(int argc, char *argv[], char *envp[]) {
             readInput();
             if(input[0] == '\0') continue;
             if((strcmp(in, "exit") == 0) || (strcmp(in, "quit") == 0)) return 0;
-            parseInput();
-            clearInput();
-            clearCommand();
-            clearArguments();
+            clearCommandData();
         }
     }else{
         cmdNum = 0; cmdOffset = 0;
@@ -240,12 +244,9 @@ int main(int argc, char *argv[], char *envp[]) {
         initCommandList();
         in = &input[0];
         makeCommandList(inpString);
-        for(int k=0; k<cmdNum; k++){
-                strcpy(in, commandList[k]);
-                parseInput();
-                clearInput();
-                clearCommand();
-                clearArguments();
+        for(int index=0; index<cmdNum; index++){
+            strcpy(in, commandList[index]);
+            clearCommandData();
         }
     }
     return 0;
