@@ -3,7 +3,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
-#define BUF_SIZE 1024
+
 #define True 1
 
 DIR* openDirectory(int argc, char *argv[]){
