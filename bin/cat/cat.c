@@ -5,7 +5,7 @@
 
 char buf[4096];
 
-int validateARGS(int argc, char *filenmae){
+int validateARGS(int argc, char *filename){
     if(argc < 2){
         puts("Usage : cat <file nama>\n");
         return -1;
