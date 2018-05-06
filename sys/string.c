@@ -1,154 +1,115 @@
-#include <sys/string.h>
 #include <sys/defs.h>
+#include <sys/string.h>
 
-const char *strcpy(char *dest, const char *src){
-	const char *retStr = dest;
-	while (*src) *dest++ = *src++;
-	*dest = '\0';
-	return retStr;
-}
-
-/*char str[10];
-const char* strcpy(char *dest, const char *src){
-	const char *buffer = dest;
-	while(*src){
-		*dest = *src;
-		src++;
-		dest++;
+int strcmp(char *s,char *t){
+	while(*s==*t)
+	{
+		if(*s=='\0')
+			return 0;
+		s++;
+		t++;
 	}
-	*dest = '\0';
-	return buffer;
+	return *s-*t;
 }
 
-const char* strncpy(char *dest, const char* src, int count){
-	const char *buffer = dest;
-	while(count && *src){	
-		*dest = *src;
-		src++;
-		dest++;
-		count--;
+void strcpy(char *string2, char *string1){
+
+	while(*string1)
+	{
+		*string2=*string1;
+		string1++;
+		string2++;
 	}
-	*dest = '\0';
-	return buffer;
+	*string2='\0';
 }
-*/
-int strcmp(const char *str1, const char *str2){
-	while(*str1 && *str2 && *str1 == *str2){	
-		str1++;
-		str2++;
+
+
+int strtoInt(char* num){
+    int dec = 0, i, len;
+    len = strlen(num);
+    for(i=0; i<len; i++){
+        dec = dec * 10 + ( num[i] - '0' );
+    }
+    return dec;
+}
+
+int strlen(const char *string)
+{
+	int length=0;
+	while(*string)
+	{
+		length++;
+		string++;
 	}
-	return *str1 - *str2;
+	return length;
 }
-/*
-int strncmp(const char *str1, const char *str2, int count){
-	while(count){
-		if(*str1 && *str2 && *str1 == *str2){
-			str1++;
-			str2++;
-		}
-		else{
-			return *str1 - *str2;
+
+char* strcat(char *string1, char *string2)
+{
+	while(*string1!='\0')
+	{
+		string1++;
+	}
+	while(*string2!='\0')
+	{
+		*string1=*string2;
+		string1++;
+		string2++;
+	}
+	*string1='\0';
+	return string1;
+}
+
+char* substring(char* string, int index)
+{
+	int i = 0;
+	while(*string)
+	{	
+		if(i>index)
+		{
 			break;
 		}
-		count--;
+		string++;
+		i++;
 	}
-	return 0;
-}
-*/
-int strlen(const char *str){
-	int len = 0;
-	while(*str++) len++;
-	return len;
-}
-/*
-
-void strcat(char *dest, const char *src){
-	while(*dest++);
-	while((*dest++ = *src++));
-	*dest = '\0';
+	return string;
 }
 
-
-void strncat( char *dest, const char *src,int count){
-	if(count){
-		while(*++dest);
-		while(count && *src){	
-			*dest++ = *src++;
-			count--;
-		}
-		*dest = '\0';
+uint64_t toBinaryFile(const char* octal)
+{
+	int oct=0;
+	while(*octal)
+	{
+		oct = (*octal-'0')+(oct*10);
+		octal++;
 	}
+	int octal_dict[8] = {0,1,10,11,100,101,111};
+	uint64_t bin=0;
+	int i=1;
+	int temp=0;
+	while(oct!=0)
+	{
+		temp = oct%10;
+		bin += octal_dict[temp]*i;
+		i *= 1000;
+		oct /= 10;
+	}
+	return bin;
 }
 
-
-
-*/
-
-char *strtok(char *str, const char *delim){
-	static char *token = NULL;
-	char *str_ptr = NULL;
-	int index = 0;
-	int str_len = strlen(delim);
-	
-	if(!str && !token)
-		return NULL;
-	if(str && !token)
-		token = str;
-
-	str_ptr = token;
-	while(1){
-		for(index = 0; index < str_len; index++ ){
-			if(*str_ptr == delim[index]){
-				str_ptr++;
-				break;
-			}
-		}
-		
-		if(index == str_len){
-			token = str_ptr;
-			break;
-		}
+//checks if string1 starts with string2
+int starts_with(char* string1, char* string2)
+{
+	int count = 0;
+	while(*string1==*string2 && *string1!='\0')
+	{
+		count++;
+		string1++;
+		string2++;
 	}
-	
-	if(*token == '\0'){
-		token = NULL;
-		return token;
-	}
-	
-	while(*token != '\0'){
-		for(index = 0; index < str_len; index ++){
-			if(*token == delim[index]){
-				*token = '\0';
-				break;
-			}
-		}
-		token++;
-
-		if(index < str_len) break;
-	}
-	return str_ptr;
-} 
-
-/*	
-void memset(void *ptr, int value, uint64_t num){
-	int i =0;
-	for(; i< num ; i++)
-		((char*)ptr)[i] = 0;
+	return count-1;
 }
 
-
-void *memcpy( void *dest, const void *src, uint64_t n ) {
-	unsigned char *buf1 = (unsigned char*) dest;
-	const unsigned char *buf2 = (unsigned char*) src;
-	if( buf2 < buf1){
-		for( buf1 += n, buf2 += n; n--;  ){
-			*--buf1 = *--buf2;
-		}
-	}
-	else{
-		while(n--)	
-			*buf1++ = *buf2++;
-	}
-	return dest;
+void resetString(char *str){
+	*str = '\0';
 }
-*/

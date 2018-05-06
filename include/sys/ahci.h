@@ -12,10 +12,13 @@
 #define HBA_PxCMD_CR   (1U << 15)
 #define HBA_PxIS_TFES  (1U << 30)
 
+#define AHCI_DEV_NULL 0
 #define AHCI_DEV_SATA   0x00000101  // SATA drive
 #define AHCI_DEV_SATAPI 0xEB140101  // SATAPI drive
 #define AHCI_DEV_SEMB   0xC33C0101  // Enclosure management bridge
 #define AHCI_DEV_PM     0x96690101  // Port multiplier
+#define HBA_PORT_DET_PRESENT 3
+#define HBA_PORT_IPM_ACTIVE 1
 
 #define ATA_STATUS_ERR  0x01 // Indicates an error occurred. Send a new command to clear it (or nuke it with a Software Reset).
 #define ATA_STATUS_DRQ  0x08 // Set when the drive has PIO data to transfer, or is ready to accept PIO data.
@@ -30,6 +33,20 @@
 #define MAX_CMD_SLOT_CNT 32
 #define MAX_PORT_CNT     32
 
+#define	SATA_SIG_ATA	0x00000101	// SATA drive
+#define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
+#define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
+#define	SATA_SIG_PM	0x96690101	// Port multiplier
+
+#define LOBYTE(w) ((uint8_t)(w))
+#define HIBYTE(w) ((uint8_t)(((uint16_t)(w) >> 8) & 0xFF))
+
+//typedef unsigned char BYTE;
+
+typedef int BOOL;
+enum { FALSE, TRUE };
+
+void checkAllBuses();
 typedef enum {
   FIS_TYPE_REG_H2D = 0x27,   // Register FIS - host to device
   FIS_TYPE_REG_D2H = 0x34,   // Register FIS - device to host
@@ -333,5 +350,6 @@ typedef volatile struct {
   // 0x100 - 0x10FF, Port control registers
   hba_port_t ports[MAX_PORT_CNT]; // 1 ~ 32
 }__attribute__((__packed__)) hba_mem_t;
-
+void probe_port(hba_mem_t *abar);
+void port_rebase(hba_port_t* port,int portno, uint32_t ahci_base);
 #endif

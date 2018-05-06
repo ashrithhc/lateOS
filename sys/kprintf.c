@@ -1,138 +1,161 @@
-#include <sys/kprintf.h>
-#include <sys/pagetable.h>
-#include "stdarg.h"
+#include <stdarg.h>
+#define kernbase 0xffffffff80000000
+#define videomem 0xb8000
+#define maxwidth 80
+#define maxheight 24
 
-static int usedSpace=0;
-extern char kernmem, physbase;
+static int toLeft = 0, numLines = 0;
+static char *temp2 = (char*) (kernbase + videomem);
+
+void clearScreen()
+{
+    temp2 = (char*) (kernbase + videomem);
+    for(int i=0; i<=maxheight; i++){
+        for(int j=0; j<maxwidth; j++){
+            *temp2 = ' ';
+            *(temp2-1) = 0x07;
+            temp2 += 2;
+        }
+    }
+
+    temp2 = (char*) (kernbase + videomem);
+    toLeft=0; numLines=0;
+}
+
+void rollUP(){
+	char* temp2  = (char*)(kernbase + videomem);
+	for(int i=0; i<maxheight; i++){
+		for(int j=0; j<(maxwidth*2); j=j+2){
+			int prev = (i*(maxwidth*2))+j;
+			int next = (i+1)*(maxwidth*2) + j;
+			*(temp2+prev) = *(temp2+next);
+		}
+	}
+	temp2 = (char*)((kernbase + videomem));
+	temp2 = temp2 + ((maxwidth*2)*(maxheight-1));
+	for(int i=0; i<(maxwidth*2); i=i+2) *(temp2+i) = '\0';
+	temp2 = (char*)((kernbase + videomem)) + ((maxwidth*2)*(maxheight-1));
+}
+
+void writeToSbush(char ch){
+	if(ch == '\n'){
+		temp2 =(char *)((kernbase + videomem));
+		for(int i=0; i < maxwidth*(numLines + 1); i++) temp2 += 2;
+		if(numLines == (maxheight-1)) rollUP();
+		else numLines++;
+		toLeft = 0;
+		return;
+	}
+	else if(ch == '\r'){
+		temp2 = (char *)((kernbase + videomem));
+		for(int i=0; i<maxwidth*(numLines); i++) temp2 += 2;
+		toLeft=0;
+	}
+	else{
+		*temp2 = (char)ch;
+		temp2 += 2;
+	}
+
+	if ((toLeft == 79) && (numLines == (maxheight-1))){
+		rollUP();
+		temp2 = (char*)(kernbase + videomem);
+		temp2 = temp2 + (maxwidth*2)*22;
+		toLeft = 0;
+	}
+	else if((toLeft == 79) && (numLines != (maxheight-1))){
+		numLines++;
+		toLeft = 0;
+	}
+	else toLeft++;
+}
+
+void backspace(){
+    if(toLeft == 0) return;
+    toLeft--; temp2-=2;
+    writeToSbush(' ');
+    toLeft--; temp2-=2;
+}
 
 void kprintf(const char *fmt, ...)
 {
-	const char *temp1; register char *temp2;
+	const char *temp1;
 	va_list valist;
 	va_start(valist, fmt);
 
-	temp2 = (char *)(0xb8000);
-
-	for(int move = 0; move < usedSpace; move++){
-		temp2+=2;
-	}
-
-	int width = 0;
-	for(temp1 = fmt, width=0; *temp1; temp1+=1, temp2+=2, width += 1) {
-		if(*temp1 == '\n'){
-			for(int scount = 0; scount < (80-width); scount++){
-				*temp2 = ' ';
-				temp2 += 2;
-				usedSpace += 1;
-			}
+	for (temp1 = fmt; *temp1; ){
+		if((*temp1 == '\\') && (*(temp1+1) == 'n')){
+			writeToSbush('\n');
+			temp1+=2;
 		}
-		else if(*temp1 != '%') *temp2 = *temp1;
+		else if((*temp1 == '\\') && (*(temp1+1) == 'r')){
+			writeToSbush('\r');
+			temp1+=2;
+		}				
+		else if(*temp1 != '%'){
+			writeToSbush(*temp1);
+			temp1++;
+		}
 		else {
-			temp1 += 1;
-			if(*temp1 == 'c') *temp2 = va_arg(valist, int);
-			else if(*temp1 == 'd'){
-				int input = va_arg(valist, int);
-				int a, i=0; char intStr[10];
-				while(input > 0){
-					a = input % 10;
-					intStr[i++] = (char)a + '0';
-					input = input/10;
+			temp1++;
+			if (*(temp1) == 'd'){
+				int intVal = va_arg(valist, int);
+				int offset = 10*5;
+				int zeroes = 1;
+				if(intVal == 0) writeToSbush('0');
+				if(intVal < 0){
+					writeToSbush('-');
+					intVal = intVal * -1;
 				}
-				intStr[i] = '\0';
-				i--;
-
-				char printStr[10];
-				int k=0;
-				while(i>=0){
-					printStr[k++] = intStr[i--];
+				while(offset != 0){
+					int modVal = intVal/offset;
+					if((zeroes == 1) && (modVal == 0)){offset = offset/10; continue;}
+					else if(zeroes == 1 && (modVal != 0)) zeroes = 0;
+					writeToSbush('0' + modVal);
+					intVal = intVal % offset;
+					offset = offset/10;
 				}
-				printStr[k] = '\0';
-
-				for(i=0; printStr[i]!='\0'; i++){
-					*temp2 = printStr[i];
-					temp2 += 2;
-					width += 1;
-					usedSpace += 1;
-				}
+				temp1++;
 			}
-			else if(*temp1 == 's'){
-				char *input = va_arg(valist, char*);
-				while(*input){
-					*temp2 = *input;
-					temp2 += 2;
-					width += 1;
-					input += 1;
-					usedSpace += 1;
-				}
+			else if (*(temp1) == 'c'){
+				writeToSbush(va_arg(valist, int));
+				temp1++;
 			}
-			else if(*temp1 == 'x'){
-				unsigned int input= va_arg(valist, int);
-				int a, i=0;
-				char str[1024];
-				while(input > 0){
-					a = input%16;
-					input = input/16;
-					if(a<10) str[i++] = (char)(a+48);
-					else if(a==10) str[i++] = 'a';
-					else if(a==11) str[i++] = 'b';
-					else if(a==12) str[i++] = 'c';
-					else if(a==13) str[i++] = 'd';
-					else if(a==14) str[i++] = 'e';
-					else  str[i++] = 'f';
+			else if (*(temp1) == 's'){
+				char* allChars;
+				allChars = va_arg(valist, char *);
+				while(*allChars != '\0'){
+					writeToSbush(*allChars);
+					allChars++;
 				}
-				i--;
-
-				char revStr[1024]; int k=0;
-				while(i>=0){
-					revStr[k++] = str[i--];
-				}
-				revStr[k] = '\0';
-
-				for(i=0; revStr[i] != '\0'; i++){
-					*temp2 = revStr[i];
-					temp2 += 2;
-					width += 1;
-					usedSpace += 1;
-				}
+				temp1++;
 			}
-			else if(*temp1 == 'p'){
-                                unsigned int input= va_arg(valist, int);
-                                int a, i=0;
-                                char str[1024];
-                                while(input > 0){
-                                        a = input%16;
-                                        input = input/16;
-                                        if(a<10) str[i++] = (char)(a+48);
-                                        else if(a==10) str[i++] = 'a';
-                                        else if(a==11) str[i++] = 'b';
-                                        else if(a==12) str[i++] = 'c';
-                                        else if(a==13) str[i++] = 'd';
-                                        else if(a==14) str[i++] = 'e';
-                                        else  str[i++] = 'f';
-                                }
-                                i--;
-
-                                char revStr[1024]; int k=0;
-                                while(i>=0){
-                                        revStr[k++] = str[i--];
-                                }
-                                revStr[k] = '\0';
-
-				*temp2='0'; temp2 += 2;
-				*temp2='x'; temp2 += 2;
-                                for(i=0; revStr[i] != '\0'; i++){
-                                        *temp2 = revStr[i];
-                                        temp2 += 2;
-					width += 1;
-					usedSpace += 1;
-                                }
-                        }			
-
-			else *temp2 = *temp1;
+			else if (*(temp1) == 'x'){
+				int index;
+				int intVal = va_arg(valist, int);
+				char outList[100];
+				for(index = 0; intVal != 0; index++){
+					if(intVal%16 <= 9) outList[index] = '0' + intVal%16;
+					else outList[index] = 'A' + (intVal%16 - 10);
+					intVal = intVal/16;
+				}
+				for(int revIndex = index-1; revIndex >= 0; revIndex--) writeToSbush(outList[revIndex]);
+				temp1++;
+			}
+			else if (*(temp1) == 'p'){
+				int index;
+				writeToSbush('0');
+				writeToSbush('x');
+				unsigned long intVal = va_arg(valist, unsigned long);
+				char outList[100];
+		        for(index = 0; intVal != 0; index++){
+	                if(intVal%16 < 10) outList[index] = '0' + intVal%16;
+	                else outList[index] = 'A' + (intVal%16 - 10);
+	                intVal = intVal/16;
+		        }   
+		        for(int revIndex = index-1; revIndex >= 0; revIndex--) writeToSbush(outList[revIndex]);
+				temp1++;
+			}
 		}
 	}
-
-	va_end(valist);
-
-	usedSpace += (80 - usedSpace%80);
 }
+
