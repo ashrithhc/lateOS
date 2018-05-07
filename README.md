@@ -26,7 +26,7 @@ Operating System implementation as a course project for CSE 506 under Prof. Mich
   3) creates an ISO CD image with the rootfs/ contents
 
 #### To boot the system in QEMU, run:
-qemu-system-x86_64 -curses -drive id=boot,format=raw,file=$USER.img,if=none -drive id=data,format=raw,file=$USER-data.img,if=none -device ahci,id=ahci -device ide-drive,drive=boot,bus=ahci.0 -device ide-drive,drive=data,bus=ahci.1 -gdb tcp::9999
+    qemu-system-x86_64 -curses -drive id=boot,format=raw,file=$USER.img,if=none -drive id=data,format=raw,file=$USER-data.img,if=none -device ahci,id=ahci -device ide-drive,drive=boot,bus=ahci.0 -device ide-drive,drive=data,bus=ahci.1 -gdb tcp::9999
 
 Explanation of parameters:
   -curses         use a text console (omit this to use default SDL/VNC console)
@@ -39,10 +39,11 @@ Explanation of parameters:
 When using the -curses mode, switch to the qemu> console with ESC-2.
 
 #### To connect a remote debugger to the running qemu VM, from a different window:
-gdb ./kernel
+    gdb ./kernel
 
 At the (gdb) prompt, connect with:
-target remote localhost:9999
+
+    target remote localhost:9999
 
 ### Help
 <a href="http://wiki.osdev.org/Expanded_Main_Page">OSdev.org</a>
@@ -65,6 +66,7 @@ target remote localhost:9999
 
 ### To work on your own machine
 We do not provide support for it, but you can get your own usable environment for the course projects up and running by installing Ubuntu 16.04 and:
+
     apt-get install build-essential gdb git screen tmux emacs exuberant-ctags ccache eclipse xterm gtkwave tcl-dev zsh strace curl mkisofs qemu dosfstools syslinux
     
 If you are working on your own machine, you will need to build gdb from source and apply a <a href="https://sourceware.org/bugzilla/attachment.cgi?id=8512">patch</a>.
