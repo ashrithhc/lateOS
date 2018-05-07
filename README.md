@@ -1,4 +1,4 @@
-** x86_64 Operating System
+## x86_64 Operating System
 
 <img src="./images/lateOS.png" width="80%"/>
 
@@ -12,7 +12,7 @@ Operating System implementation as a course project for CSE 506 under Prof. Mich
   6) Binaries: echo, sleep, cat, ls, kill -9, ps
   7) Command prompt - sbush
 
-**** Suggested Plan of attack :
+#### Suggested Plan of attack :
 
   1) Memory Subsystem (page descriptors, free list, page tables, kmalloc)
   2) rocess Subsystem (kernel threads, context switch)
@@ -20,12 +20,12 @@ Operating System implementation as a course project for CSE 506 under Prof. Mich
   4) I/O subsystem (syscalls, terminals, VFS, tarfs file access)
   5) Implement /bin/init (call fork()+exec()+wait() on /etc/rc, then exec() sbush)
 
-**** The provided Makefile:
+#### The provided Makefile:
   1) builds a kernel
   2) copies it into rootfs/boot/kernel/kernel
   3) creates an ISO CD image with the rootfs/ contents
 
-**** To boot the system in QEMU, run:
+#### To boot the system in QEMU, run:
 qemu-system-x86_64 -curses -drive id=boot,format=raw,file=$USER.img,if=none -drive id=data,format=raw,file=$USER-data.img,if=none -device ahci,id=ahci -device ide-drive,drive=boot,bus=ahci.0 -device ide-drive,drive=data,bus=ahci.1 -gdb tcp::9999
 
 Explanation of parameters:
@@ -38,11 +38,11 @@ Explanation of parameters:
 
 When using the -curses mode, switch to the qemu> console with ESC-2.
 
-**** To connect a remote debugger to the running qemu VM, from a different window:
+#### To connect a remote debugger to the running qemu VM, from a different window:
 gdb ./kernel
 
 At the (gdb) prompt, connect with:
 target remote localhost:9999
 
-*** Lot of help
+### Lot of help
 <a href="http://wiki.osdev.org/Expanded_Main_Page">OSdev.org</a>
