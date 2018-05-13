@@ -2,7 +2,7 @@
 
 <img src="./images/lateOS.png" width="80%"/>
 
-Operating System implementation as a course project for CSE 506 under Prof. Michael Ferdman. It has Cooperative multi-tasking with below functionalities :
+Operating System implementation as a course project for CSE 506 under Prof. Mike Ferdman. It has Cooperative multi-tasking with below functionalities :
 
   1) All functions from include/*.h must work
   2) Virtual memory/ring-3 user processes
